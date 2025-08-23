@@ -1,0 +1,173 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-06-04 10:11:29.253755",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "customer",
+  "vehicle_unit",
+  "repair_date",
+  "column_break_nofm",
+  "plate_no",
+  "vehicle_id_no",
+  "odometer",
+  "column_break_fmfd",
+  "repair_type",
+  "concerns_and_diagnostics_tab",
+  "diagnostics",
+  "preinspection_checklist_tab",
+  "prerepair_inspection_section",
+  "pre_inspections",
+  "diagnostic_inspection_section",
+  "diagnostic_inspections",
+  "service_items_tab",
+  "spareparts_tab",
+  "billing_tab"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "GR.#########"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "vehicle_unit",
+   "fieldtype": "Link",
+   "label": "Vehicle Unit",
+   "options": "Vehicle Unit"
+  },
+  {
+   "fieldname": "repair_date",
+   "fieldtype": "Date",
+   "label": "Repair Date"
+  },
+  {
+   "fieldname": "column_break_nofm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "plate_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Plate No"
+  },
+  {
+   "fieldname": "vehicle_id_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Vehicle ID No"
+  },
+  {
+   "fieldname": "odometer",
+   "fieldtype": "Data",
+   "label": "Odometer"
+  },
+  {
+   "fieldname": "column_break_fmfd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "repair_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Repair Type",
+   "link_filters": "[[\"Repair Type\",\"is_general_repair\",\"=\",1]]",
+   "options": "Repair Type"
+  },
+  {
+   "fieldname": "concerns_and_diagnostics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Concerns and Diagnostics"
+  },
+  {
+   "fieldname": "diagnostics",
+   "fieldtype": "Table",
+   "options": "GR Order Diagnostics"
+  },
+  {
+   "fieldname": "preinspection_checklist_tab",
+   "fieldtype": "Tab Break",
+   "label": "Inspection"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "prerepair_inspection_section",
+   "fieldtype": "Section Break",
+   "label": "Pre-Repair Inspection"
+  },
+  {
+   "fieldname": "pre_inspections",
+   "fieldtype": "Table",
+   "options": "GR Order PreRepair Inspection"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "diagnostic_inspection_section",
+   "fieldtype": "Section Break",
+   "label": "Diagnostic Inspection"
+  },
+  {
+   "fieldname": "diagnostic_inspections",
+   "fieldtype": "Table",
+   "options": "GR Order Diagnostic Inspection"
+  },
+  {
+   "fieldname": "service_items_tab",
+   "fieldtype": "Tab Break",
+   "label": "Service Items"
+  },
+  {
+   "fieldname": "spareparts_tab",
+   "fieldtype": "Tab Break",
+   "label": "Spareparts"
+  },
+  {
+   "fieldname": "billing_tab",
+   "fieldtype": "Tab Break",
+   "label": "Billing"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-04 17:51:17.707065",
+ "modified_by": "Administrator",
+ "module": "Repair",
+ "name": "General Repair Order",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "plate_no, vehicle_id_no, customer",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

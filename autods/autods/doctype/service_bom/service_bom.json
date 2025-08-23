@@ -1,0 +1,88 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:BOM-{vehicle_item}-{######}",
+ "creation": "2025-08-13 11:13:23.873056",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "vehicle_item",
+  "vehicle_item_name",
+  "column_break_ccrw",
+  "service_job_item",
+  "service_item_name",
+  "section_break_wshz",
+  "items"
+ ],
+ "fields": [
+  {
+   "fieldname": "vehicle_item",
+   "fieldtype": "Link",
+   "label": "Vehicle Item",
+   "link_filters": "[[\"Item\",\"custom_vehicle_item\",\"=\",1]]",
+   "options": "Item"
+  },
+  {
+   "fieldname": "service_job_item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Service Item",
+   "link_filters": "[[\"Item\",\"custom_service_job_item\",\"=\",1]]",
+   "options": "Item"
+  },
+  {
+   "fieldname": "column_break_ccrw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_wshz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "options": "Service BOM Item"
+  },
+  {
+   "fetch_from": "vehicle_item.item_name",
+   "fieldname": "vehicle_item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Vehicle Item Name"
+  },
+  {
+   "fetch_from": "service_job_item.item_name",
+   "fieldname": "service_item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Service Item Name"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-08-16 07:40:55.142895",
+ "modified_by": "Administrator",
+ "module": "AutoDS",
+ "name": "Service BOM",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,21 @@
+{
+ "action": "Create Entry",
+ "creation": "2025-05-23 12:17:41.113481",
+ "description": "A Vehicle Unit is essential for associating repair jobs with specific customer vehicles. It stores all relevant data such as vehicle make, model, year, variant, VIN (Vehicle Identification Number), plate number, chassis number, engine number, fuel type, mileage, color, and transmission type.\n\nIn ERPNext, this Doctype serves as the master record for a vehicle's repair history. Each General Repair, Body Repair, Warranty Claim, or Insurance Claim can be linked to a specific Vehicle Record. This enables a comprehensive service history and facilitates future diagnostics or repeat work.\n\nAccurate and complete vehicle information ensures that service staff are working with the correct specifications, and it supports your team in offering tailored recommendations and timely maintenance reminders.",
+ "docstatus": 0,
+ "doctype": "Onboarding Step",
+ "form_tour": "Vehicle Unit",
+ "idx": 1,
+ "is_complete": 0,
+ "is_single": 0,
+ "is_skipped": 0,
+ "modified": "2025-05-28 11:15:25.320651",
+ "modified_by": "Administrator",
+ "name": "Vehicle Unit",
+ "owner": "Administrator",
+ "reference_document": "Vehicle Unit",
+ "show_form_tour": 1,
+ "show_full_form": 1,
+ "title": "Create a Vehicle Unit",
+ "validate_action": 1
+}

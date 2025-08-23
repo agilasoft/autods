@@ -1,0 +1,29 @@
+{
+ "allow_roles": [
+  {
+   "role": "General Repair Manager"
+  }
+ ],
+ "creation": "2025-06-04 23:56:11.838880",
+ "docstatus": 0,
+ "doctype": "Module Onboarding",
+ "documentation_url": "www.agilasoft.com",
+ "idx": 0,
+ "is_complete": 0,
+ "modified": "2025-06-04 23:56:56.120938",
+ "modified_by": "Administrator",
+ "module": "Service",
+ "name": "Service",
+ "owner": "Administrator",
+ "steps": [
+  {
+   "step": "Service Settings"
+  },
+  {
+   "step": "Vehicle Unit"
+  }
+ ],
+ "subtitle": "Vehicle Records, Charges, Spareparts, Technicians and more.",
+ "success_message": "The Service Module is all set up!",
+ "title": "Let's Set Up the Service Module."
+}
