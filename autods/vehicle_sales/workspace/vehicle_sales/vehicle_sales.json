@@ -1,7 +1,7 @@
 {
  "app": "autods",
  "charts": [],
- "content": "[{\"id\":\"ExhVJhloLg\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation\",\"col\":3}},{\"id\":\"h1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Vehicle Units &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"c1\",\"type\":\"card\",\"data\":{\"card_name\":\"Vehicle Units & Masters\",\"col\":4}},{\"id\":\"h2\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Transactions</b></span>\",\"col\":12}},{\"id\":\"c2\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":6}},{\"id\":\"h3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"c3\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":6}}]",
+ "content": "[{\"id\":\"Uv659-fRw3\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Vehicle Units\",\"col\":4}},{\"id\":\"ZoaHi4tqVj\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Available Vehicle Units\",\"col\":4}},{\"id\":\"UDboMyiLqZ\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Reserved Vehicle Units\",\"col\":4}},{\"id\":\"rFkLIe_53p\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Sold Vehicle Units\",\"col\":4}},{\"id\":\"LIlRSzWdbc\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Vehicle Units In Service\",\"col\":4}},{\"id\":\"mLMLEW92v9\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"tLYsC37xpm\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Quick Access</b></span>\",\"col\":12}},{\"id\":\"ExhVJhloLg\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation\",\"col\":3}},{\"id\":\"spZIKU23UP\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order\",\"col\":3}},{\"id\":\"WaAICu4M4J\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note\",\"col\":3}},{\"id\":\"MH2vMMm8RE\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"M8XjzlM6KB\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"h1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters and Setup</b></span>\",\"col\":12}},{\"id\":\"c1\",\"type\":\"card\",\"data\":{\"card_name\":\"Vehicle Units\",\"col\":4}},{\"id\":\"38iQ6Vqfnr\",\"type\":\"card\",\"data\":{\"card_name\":\"Selling\",\"col\":4}},{\"id\":\"DHXvRPEZ-U\",\"type\":\"card\",\"data\":{\"card_name\":\"Stocks\",\"col\":4}},{\"id\":\"cCWw46u3ak\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"h3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"c3\",\"type\":\"card\",\"data\":{\"card_name\":\"Operational\",\"col\":4}}]",
  "creation": "2026-02-06 15:48:19.757224",
  "custom_blocks": [],
  "docstatus": 0,
@@ -14,14 +14,6 @@
  "label": "Vehicle Sales",
  "link_type": "DocType",
  "links": [
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Vehicle Units & Masters",
-   "link_count": 0,
-   "onboard": 0,
-   "type": "Card Break"
-  },
   {
    "dependencies": "",
    "hidden": 0,
@@ -100,14 +92,6 @@
    "type": "Link"
   },
   {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Transactions",
-   "link_count": 0,
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
    "dependencies": "",
    "hidden": 0,
    "is_query_report": 0,
@@ -163,14 +147,6 @@
    "type": "Link"
   },
   {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Reports",
-   "link_count": 0,
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
    "dependencies": "",
    "hidden": 0,
    "is_query_report": 1,
@@ -180,13 +156,260 @@
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Units",
+   "link_count": 6,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Unit",
+   "link_count": 0,
+   "link_to": "Vehicle Unit",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Make",
+   "link_count": 0,
+   "link_to": "Vehicle Make",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "Vehicle Make",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Model",
+   "link_count": 0,
+   "link_to": "Vehicle Model",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "Vehicle Model",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Variant",
+   "link_count": 0,
+   "link_to": "Vehicle Variant",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "Vehicle Model",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Edition",
+   "link_count": 0,
+   "link_to": "Vehicle Edition",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Accessory",
+   "link_count": 0,
+   "link_to": "Vehicle Accessory",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Selling",
+   "link_count": 7,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer",
+   "link_count": 0,
+   "link_to": "Customer",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer Group",
+   "link_count": 0,
+   "link_to": "Customer Group",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Price List",
+   "link_count": 0,
+   "link_to": "Price List",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Delivery Checklist Item",
+   "link_count": 0,
+   "link_to": "Delivery Checklist Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Item Price",
+   "link_count": 0,
+   "link_to": "Item Price",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Pricing Rule",
+   "link_count": 0,
+   "link_to": "Pricing Rule",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Promotional Scheme",
+   "link_count": 0,
+   "link_to": "Promotional Scheme",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stocks",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Delivery Checklist Item",
+   "link_count": 0,
+   "link_to": "Delivery Checklist Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Operational",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Available Vehicle Units",
+   "link_count": 0,
+   "link_to": "Available Vehicle Units",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Reserved Vehicle Units",
+   "link_count": 0,
+   "link_to": "Reserved Vehicle Units",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Vehicle Unit",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Units In Service",
+   "link_count": 0,
+   "link_to": "Vehicle Units In Service",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Vehicle Unit",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Sales Summary",
+   "link_count": 0,
+   "link_to": "Vehicle Sales Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Vehicle Unit",
+   "type": "Link"
   }
  ],
- "modified": "2026-02-08 09:11:16.584297",
+ "modified": "2026-02-08 22:30:42.025734",
  "modified_by": "Administrator",
  "module": "Vehicle Sales",
  "name": "Vehicle Sales",
- "number_cards": [],
+ "number_cards": [
+  {
+   "label": "Total Vehicle Units",
+   "number_card_name": "Total Vehicle Units"
+  },
+  {
+   "label": "Available Vehicle Units",
+   "number_card_name": "Available Vehicle Units"
+  },
+  {
+   "label": "Reserved Vehicle Units",
+   "number_card_name": "Reserved Vehicle Units"
+  },
+  {
+   "label": "Sold Vehicle Units",
+   "number_card_name": "Sold Vehicle Units"
+  },
+  {
+   "label": "Vehicle Units In Service",
+   "number_card_name": "Vehicle Units In Service"
+  }
+ ],
  "owner": "Administrator",
  "parent_page": "",
  "public": 1,
@@ -199,6 +422,30 @@
    "doc_view": "List",
    "label": "Quotation",
    "link_to": "Quotation",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Order",
+   "link_to": "Sales Order",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Delivery Note",
+   "link_to": "Delivery Note",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Invoice",
+   "link_to": "Sales Invoice",
    "stats_filter": "[]",
    "type": "DocType"
   }

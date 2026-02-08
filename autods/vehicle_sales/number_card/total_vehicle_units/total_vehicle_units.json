@@ -1,6 +1,6 @@
 {
  "aggregate_function_based_on": "name",
- "creation": "2026-02-07 00:00:00.000000",
+ "creation": "2026-02-07 00:00:00",
  "docstatus": 0,
  "doctype": "Number Card",
  "document_type": "Vehicle Unit",
@@ -9,12 +9,14 @@
  "idx": 0,
  "is_public": 1,
  "is_standard": 1,
- "modified": "2026-02-07 00:00:00.000000",
+ "label": "Total Vehicle Units",
+ "modified": "2026-02-08 22:29:05.929655",
  "modified_by": "Administrator",
  "module": "Vehicle Sales",
  "name": "Total Vehicle Units",
- "number_card_name": "Total Vehicle Units",
  "owner": "Administrator",
- "roles": [],
- "show_percentage_stats": 0
+ "show_full_number": 0,
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Monthly",
+ "type": "Document Type"
 }
