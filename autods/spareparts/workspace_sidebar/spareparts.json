@@ -1,0 +1,27 @@
+{
+  "app": "autods",
+  "creation": "2026-02-06 00:00:00.000000",
+  "docstatus": 0,
+  "doctype": "Workspace Sidebar",
+  "header_icon": "package",
+  "idx": 0,
+  "items": [
+    {"child": 0, "collapsible": 1, "indent": 0, "keep_closed": 0, "label": "Home", "link_to": "Spareparts", "link_type": "Workspace", "show_arrow": 0, "type": "Link"},
+    {"child": 0, "collapsible": 1, "indent": 1, "keep_closed": 1, "label": "Parts & Compatibility", "link_type": "DocType", "show_arrow": 0, "type": "Section Break"},
+    {"child": 1, "collapsible": 1, "icon": "link", "indent": 0, "keep_closed": 0, "label": "Parts Compatibility", "link_to": "Parts Compatibility", "link_type": "DocType", "show_arrow": 0, "type": "Link"},
+    {"child": 1, "collapsible": 1, "icon": "repeat", "indent": 0, "keep_closed": 0, "label": "Parts Supersession", "link_to": "Parts Supersession", "link_type": "DocType", "show_arrow": 0, "type": "Link"},
+    {"child": 0, "collapsible": 1, "icon": "bar-chart", "indent": 1, "keep_closed": 0, "label": "Reports", "link_type": "DocType", "show_arrow": 0, "type": "Section Break"},
+    {"child": 1, "collapsible": 1, "icon": "list", "indent": 0, "keep_closed": 0, "label": "Parts Compatibility List", "link_to": "Parts Compatibility List", "link_type": "Report", "show_arrow": 0, "type": "Link"},
+    {"child": 1, "collapsible": 1, "icon": "repeat", "indent": 0, "keep_closed": 0, "label": "Parts Supersession List", "link_to": "Parts Supersession List", "link_type": "Report", "show_arrow": 0, "type": "Link"},
+    {"child": 1, "collapsible": 1, "icon": "package", "indent": 0, "keep_closed": 0, "label": "Spareparts Usage in Repairs", "link_to": "Spareparts Usage in Repairs", "link_type": "Report", "show_arrow": 0, "type": "Link"},
+    {"child": 0, "collapsible": 1, "icon": "settings", "indent": 1, "keep_closed": 0, "label": "Settings", "link_type": "DocType", "show_arrow": 0, "type": "Section Break"},
+    {"child": 1, "collapsible": 1, "icon": "settings", "indent": 0, "keep_closed": 0, "label": "Spareparts Settings", "link_to": "Spareparts Settings", "link_type": "DocType", "show_arrow": 0, "type": "Link"}
+  ],
+  "modified": "2026-02-06 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Spareparts",
+  "name": "Spareparts",
+  "owner": "Administrator",
+  "standard": 1,
+  "title": "Spareparts"
+}

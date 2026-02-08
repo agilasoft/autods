@@ -1,0 +1,21 @@
+{
+ "aggregate_function_based_on": "technician",
+ "creation": "2025-01-20 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Job Card",
+ "filters_json": "[[\"Job Card\",\"repair_order\",\"is\",\"set\"],[\"Job Card\",\"technician\",\"is\",\"set\"],[\"Job Card\",\"repair_date\",\"Timespan\",\"this month\"]]",
+ "function": "Distinct Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "modified": "2025-01-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "General Repair",
+ "name": "Active Technicians",
+ "number_card_name": "Active Technicians",
+ "owner": "Administrator",
+ "roles": [],
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Monthly"
+}

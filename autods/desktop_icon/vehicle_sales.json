@@ -1,0 +1,21 @@
+{
+ "app": "autods",
+ "creation": "2026-01-18 21:34:15.267010",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon": "car-front",
+ "icon_type": "Link",
+ "idx": 0,
+ "label": "Vehicle Sales",
+ "link_to": "Vehicle Sales",
+ "link_type": "Workspace",
+ "modified": "2026-01-18 21:34:36.143667",
+ "modified_by": "Administrator",
+ "name": "Vehicle Sales",
+ "owner": "Administrator",
+ "parent_icon": "ERPNext",
+ "restrict_removal": 0,
+ "roles": [],
+ "standard": 1
+}

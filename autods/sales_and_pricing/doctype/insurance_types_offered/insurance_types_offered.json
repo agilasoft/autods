@@ -1,0 +1,53 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "insurance_type",
+  "coverage_description",
+  "default_coverage_amount",
+  "default_premium_rate"
+ ],
+ "fields": [
+  {
+   "fieldname": "insurance_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Insurance Type",
+   "options": "Comprehensive\nThird Party\nCollision\nTheft\nFire\nOther"
+  },
+  {
+   "fieldname": "coverage_description",
+   "fieldtype": "Text",
+   "label": "Coverage Description"
+  },
+  {
+   "fieldname": "default_coverage_amount",
+   "fieldtype": "Currency",
+   "label": "Default Coverage Amount"
+  },
+  {
+   "fieldname": "default_premium_rate",
+   "fieldtype": "Percent",
+   "label": "Default Premium Rate"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sales and Pricing",
+ "name": "Insurance Types Offered",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
+

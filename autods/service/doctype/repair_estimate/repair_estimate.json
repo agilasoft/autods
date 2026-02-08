@@ -1,0 +1,554 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-01-30 00:00:00",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "details_tab",
+  "naming_series",
+  "estimate_date",
+  "validity_date",
+  "service_order_type",
+  "repair_type",
+  "service_advisor",
+  "customer",
+  "column_break_nofm",
+  "vehicle_unit",
+  "plate_no",
+  "vehicle_id_no",
+  "odometer",
+  "vehicle_engine_number",
+  "vehicle_chassis_number",
+  "column_break_fmfd",
+  "status",
+  "expected_completion_date",
+  "section_break_vehicle_unit_info",
+  "vehicle_make",
+  "vehicle_model",
+  "vehicle_variant",
+  "vehicle_year_model",
+  "vehicle_edition",
+  "vehicle_color",
+  "column_break_vehicle_unit_1",
+  "vehicle_transmission_type",
+  "vehicle_drive_type",
+  "vehicle_fuel_type",
+  "vehicle_body_type",
+  "column_break_vehicle_unit_2",
+  "vehicle_warehouse",
+  "vehicle_purchase_date",
+  "vehicle_purchase_price",
+  "vehicle_current_cost",
+  "insurance_tab",
+  "section_break_insurance",
+  "insurance_claim_no",
+  "insurance_company",
+  "warranty",
+  "concerns_tab",
+  "cause_and_concerns_section",
+  "concerns",
+  "diagnostics_section",
+  "diagnostics",
+  "service_items_tab",
+  "service_items",
+  "spareparts_tab",
+  "spareparts",
+  "sundry_items_tab",
+  "sundry_items",
+  "totals_section",
+  "total_service_items_amount",
+  "total_parts_amount",
+  "total_sundry_items_amount",
+  "grand_total",
+  "quality_inspection_tab",
+  "quality_inspections",
+  "photos_tab",
+  "photos",
+  "other_information_tab",
+  "service_level_agreement_section",
+  "service_level_agreement",
+  "sla_notes",
+  "terms_and_conditions_section",
+  "terms_and_conditions",
+  "tc_notes",
+  "section_break_repair_order_link",
+  "service_appointment",
+  "repair_order"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "RE-.#########"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "vehicle_unit",
+   "fieldtype": "Link",
+   "label": "Vehicle Unit",
+   "link_filters": "[[\"Vehicle Unit\",\"customer\",\"=\",\"eval:doc.customer\"]]",
+   "options": "Vehicle Unit",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "estimate_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Estimate Date"
+  },
+  {
+   "fieldname": "validity_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Validity Date"
+  },
+  {
+   "fieldname": "column_break_nofm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "vehicle_unit.plate_no",
+   "fieldname": "plate_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Plate No"
+  },
+  {
+   "fetch_from": "vehicle_unit.code",
+   "fieldname": "vehicle_id_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Vehicle ID No"
+  },
+  {
+   "fieldname": "odometer",
+   "fieldtype": "Data",
+   "label": "Odometer"
+  },
+  {
+   "fieldname": "column_break_fmfd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "repair_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Repair Type",
+   "options": "Repair Type"
+  },
+  {
+   "fieldname": "service_items_tab",
+   "fieldtype": "Tab Break",
+   "label": "Service Items"
+  },
+  {
+   "fieldname": "service_items",
+   "fieldtype": "Table",
+   "label": "Service Items",
+   "options": "Repair Estimate Service Items"
+  },
+  {
+   "fieldname": "spareparts_tab",
+   "fieldtype": "Tab Break",
+   "label": "Spareparts"
+  },
+  {
+   "fieldname": "spareparts",
+   "fieldtype": "Table",
+   "label": "Spareparts",
+   "options": "Repair Estimate Parts"
+  },
+  {
+   "fieldname": "sundry_items_tab",
+   "fieldtype": "Tab Break",
+   "label": "Sundry Items"
+  },
+  {
+   "fieldname": "sundry_items",
+   "fieldtype": "Table",
+   "label": "Sundry Items",
+   "options": "Repair Estimate Sundry Items"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "totals_section",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "total_service_items_amount",
+   "fieldtype": "Currency",
+   "label": "Total Service Items Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_parts_amount",
+   "fieldtype": "Currency",
+   "label": "Total Parts Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_sundry_items_amount",
+   "fieldtype": "Currency",
+   "label": "Total Sundry Items Amount",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "label": "Grand Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "quality_inspection_tab",
+   "fieldtype": "Tab Break",
+   "label": "Inspection"
+  },
+  {
+   "fieldname": "quality_inspections",
+   "fieldtype": "Table",
+   "label": "Service Inspections",
+   "options": "Repair Estimate Service Inspection"
+  },
+  {
+   "fieldname": "photos_tab",
+   "fieldtype": "Tab Break",
+   "label": "Photos"
+  },
+  {
+   "fieldname": "photos",
+   "fieldtype": "Table",
+   "label": "Photos",
+   "options": "Repair Estimate Photos"
+  },
+  {
+   "fieldname": "service_order_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Service Order Type",
+   "options": "Service Order Type"
+  },
+  {
+   "fieldname": "service_advisor",
+   "fieldtype": "Link",
+   "label": "Service Advisor",
+   "options": "Employee"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted\nApproved\nRejected\nConverted to RO"
+  },
+  {
+   "fieldname": "expected_completion_date",
+   "fieldtype": "Datetime",
+   "label": "Expected Completion Date"
+  },
+  {
+   "fieldname": "section_break_insurance",
+   "fieldtype": "Section Break",
+   "label": "Insurance Details"
+  },
+  {
+   "fieldname": "insurance_claim_no",
+   "fieldtype": "Data",
+   "label": "Insurance Claim No"
+  },
+  {
+   "fieldname": "insurance_company",
+   "fieldtype": "Link",
+   "label": "Insurance Company",
+   "link_filters": "[[\"Customer\",\"custom_is_insurance\",\"=\",1]]",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "warranty",
+   "fieldtype": "Link",
+   "label": "Warranty",
+   "link_filters": "[[\"Customer\",\"custom_is_warranty\",\"=\",1]]",
+   "options": "Customer"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_vehicle_unit_info",
+   "fieldtype": "Section Break",
+   "label": "Vehicle Unit Information"
+  },
+  {
+   "fetch_from": "vehicle_unit.make",
+   "fieldname": "vehicle_make",
+   "fieldtype": "Link",
+   "label": "Make",
+   "options": "Vehicle Make",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.model",
+   "fieldname": "vehicle_model",
+   "fieldtype": "Link",
+   "label": "Model",
+   "options": "Vehicle Model",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.variant",
+   "fieldname": "vehicle_variant",
+   "fieldtype": "Link",
+   "label": "Variant",
+   "options": "Vehicle Variant",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.year_model",
+   "fieldname": "vehicle_year_model",
+   "fieldtype": "Int",
+   "label": "Year Model",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.edition",
+   "fieldname": "vehicle_edition",
+   "fieldtype": "Link",
+   "label": "Edition",
+   "options": "Vehicle Edition",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.color",
+   "fieldname": "vehicle_color",
+   "fieldtype": "Data",
+   "label": "Color",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_vehicle_unit_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "vehicle_unit.engine_number",
+   "fieldname": "vehicle_engine_number",
+   "fieldtype": "Data",
+   "label": "Engine Number",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.chassis_number",
+   "fieldname": "vehicle_chassis_number",
+   "fieldtype": "Data",
+   "label": "Chassis Number",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.transmission_type",
+   "fieldname": "vehicle_transmission_type",
+   "fieldtype": "Link",
+   "label": "Transmission Type",
+   "options": "Transmission Type",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.drive_type",
+   "fieldname": "vehicle_drive_type",
+   "fieldtype": "Link",
+   "label": "Drive Type",
+   "options": "Drive Type",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.fuel_type",
+   "fieldname": "vehicle_fuel_type",
+   "fieldtype": "Link",
+   "label": "Fuel Type",
+   "options": "Fuel Type",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.body_type",
+   "fieldname": "vehicle_body_type",
+   "fieldtype": "Link",
+   "label": "Body Type",
+   "options": "Body Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_vehicle_unit_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "vehicle_unit.warehouse",
+   "fieldname": "vehicle_warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.purchase_date",
+   "fieldname": "vehicle_purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.purchase_price",
+   "fieldname": "vehicle_purchase_price",
+   "fieldtype": "Currency",
+   "label": "Purchase Price",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.current_cost",
+   "fieldname": "vehicle_current_cost",
+   "fieldtype": "Currency",
+   "label": "Current Cost",
+   "read_only": 1
+  },
+  {
+   "fieldname": "other_information_tab",
+   "fieldtype": "Tab Break",
+   "label": "Other Information"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "service_level_agreement_section",
+   "fieldtype": "Section Break",
+   "label": "Service Level Agreement"
+  },
+  {
+   "fieldname": "service_level_agreement",
+   "fieldtype": "Link",
+   "label": "Service Level Agreement",
+   "options": "Service Level Agreement"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "terms_and_conditions_section",
+   "fieldtype": "Section Break",
+   "label": "Terms and Conditions"
+  },
+  {
+   "fieldname": "terms_and_conditions",
+   "fieldtype": "Link",
+   "label": "Terms and Conditions",
+   "options": "Terms and Conditions"
+  },
+  {
+   "fetch_from": "terms_and_conditions.terms",
+   "fieldname": "tc_notes",
+   "fieldtype": "Text Editor"
+  },
+  {
+   "fieldname": "sla_notes",
+   "fieldtype": "Text Editor"
+  },
+  {
+   "fieldname": "concerns_tab",
+   "fieldtype": "Tab Break",
+   "label": "Concerns"
+  },
+  {
+   "fieldname": "concerns",
+   "fieldtype": "Table",
+   "label": "Repair Concerns",
+   "options": "Repair Estimate Concerns"
+  },
+  {
+   "fieldname": "diagnostics",
+   "fieldtype": "Table",
+   "label": "Diagnostics",
+   "options": "Repair Estimate Diagnostics"
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "insurance_tab",
+   "fieldtype": "Tab Break",
+   "label": "Insurance"
+  },
+  {
+   "fieldname": "cause_and_concerns_section",
+   "fieldtype": "Section Break",
+   "label": "Cause and Concerns"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "diagnostics_section",
+   "fieldtype": "Section Break",
+   "label": "Diagnostics"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_repair_order_link",
+   "fieldtype": "Section Break",
+   "label": "Links"
+  },
+  {
+   "fieldname": "service_appointment",
+   "fieldtype": "Link",
+   "label": "Service Appointment",
+   "options": "Service Appointment",
+   "read_only": 1
+  },
+  {
+   "fieldname": "repair_order",
+   "fieldtype": "Link",
+   "label": "Repair Order",
+   "options": "Repair Order",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-01-30 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Service",
+ "name": "Repair Estimate",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "plate_no, vehicle_id_no, customer",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,108 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:strategy_code",
+ "creation": "2025-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "strategy_code",
+  "strategy_name",
+  "description",
+  "strategy_type",
+  "valid_from",
+  "valid_to",
+  "priority",
+  "applicable_to",
+  "pricing_rules",
+  "status"
+ ],
+ "fields": [
+  {
+   "fieldname": "strategy_code",
+   "fieldtype": "Data",
+   "label": "Strategy Code",
+   "unique": 1
+  },
+  {
+   "fieldname": "strategy_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Strategy Name"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "strategy_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Strategy Type",
+   "options": "Standard\nPromotional\nVolume\nCustomer-Specific\nSeasonal"
+  },
+  {
+   "fieldname": "valid_from",
+   "fieldtype": "Date",
+   "label": "Valid From"
+  },
+  {
+   "fieldname": "valid_to",
+   "fieldtype": "Date",
+   "label": "Valid To"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "label": "Priority"
+  },
+  {
+   "fieldname": "applicable_to",
+   "fieldtype": "Select",
+   "label": "Applicable To",
+   "options": "Vehicles\nParts\nServices\nAll"
+  },
+  {
+   "fieldname": "pricing_rules",
+   "fieldtype": "Table",
+   "label": "Pricing Rules",
+   "options": "Pricing Rule"
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nInactive"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sales and Pricing",
+ "name": "Pricing Strategy",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "strategy_name"
+}
+

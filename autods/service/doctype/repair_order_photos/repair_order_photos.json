@@ -1,0 +1,59 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-24 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "photo_type",
+  "description",
+  "image",
+  "taken_date",
+  "taken_by"
+ ],
+ "fields": [
+  {
+   "fieldname": "photo_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Photo Type",
+   "options": "Before\nAfter\nDuring"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
+  },
+  {
+   "fieldname": "taken_date",
+   "fieldtype": "Datetime",
+   "label": "Taken Date"
+  },
+  {
+   "fieldname": "taken_by",
+   "fieldtype": "Link",
+   "label": "Taken By",
+   "options": "User"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-24 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Service",
+ "name": "Repair Order Photos",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

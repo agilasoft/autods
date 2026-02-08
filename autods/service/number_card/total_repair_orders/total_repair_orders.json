@@ -1,0 +1,22 @@
+{
+ "aggregate_function_based_on": "name",
+ "creation": "2025-01-20 00:00:00",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Repair Order",
+ "filters_json": "[[\"Repair Order\",\"repair_date\",\"Timespan\",\"this month\"]]",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "label": "Total Repair Orders",
+ "modified": "2026-01-30 13:45:37.595025",
+ "modified_by": "Administrator",
+ "module": "Service",
+ "name": "Total Repair Orders",
+ "owner": "Administrator",
+ "show_full_number": 0,
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Monthly",
+ "type": "Document Type"
+}

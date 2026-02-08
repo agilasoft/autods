@@ -1,0 +1,105 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "default_spareparts_warehouse",
+  "default_spareparts_cost_center",
+  "default_spareparts_income_account",
+  "default_spareparts_expense_account",
+  "section_break_supersession",
+  "enable_parts_supersession",
+  "auto_suggest_superseded_parts",
+  "require_supersession_approval",
+  "section_break_naming",
+  "naming_series"
+ ],
+ "fields": [
+  {
+   "fieldname": "default_spareparts_warehouse",
+   "fieldtype": "Link",
+   "label": "Default Spareparts Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "default_spareparts_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Spareparts Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "default_spareparts_income_account",
+   "fieldtype": "Link",
+   "label": "Default Spareparts Income Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "default_spareparts_expense_account",
+   "fieldtype": "Link",
+   "label": "Default Spareparts Expense Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "section_break_supersession",
+   "fieldtype": "Section Break",
+   "label": "Parts Supersession"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_parts_supersession",
+   "fieldtype": "Check",
+   "label": "Enable Parts Supersession"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_suggest_superseded_parts",
+   "fieldtype": "Check",
+   "label": "Auto-suggest Superseded Parts"
+  },
+  {
+   "default": "0",
+   "fieldname": "require_supersession_approval",
+   "fieldtype": "Check",
+   "label": "Require Supersession Approval"
+  },
+  {
+   "fieldname": "section_break_naming",
+   "fieldtype": "Section Break",
+   "label": "Naming Series"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series for Parts Supersession",
+   "options": "PS.#########"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_single": 1,
+ "links": [],
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Spareparts",
+ "name": "Spareparts Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
+

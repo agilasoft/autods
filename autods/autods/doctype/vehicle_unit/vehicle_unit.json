@@ -1,0 +1,155 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:code",
+ "creation": "2025-06-03 21:01:48.699914",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "code",
+  "description",
+  "image",
+  "item",
+  "column_break_asax",
+  "model",
+  "make",
+  "variant",
+  "year_model",
+  "column_break_tbdw",
+  "transmission_type",
+  "drive_type",
+  "fuel_type",
+  "body_type",
+  "specifications_tab",
+  "text_editor_wvug"
+ ],
+ "fields": [
+  {
+   "fieldname": "code",
+   "fieldtype": "Data",
+   "label": "Code",
+   "unique": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
+  },
+  {
+   "fieldname": "column_break_asax",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Model",
+   "options": "Vehicle Model"
+  },
+  {
+   "fetch_from": "model.make",
+   "fieldname": "make",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Make",
+   "options": "Vehicle Make"
+  },
+  {
+   "fieldname": "variant",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Variant"
+  },
+  {
+   "fieldname": "year_model",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Year Model"
+  },
+  {
+   "fieldname": "transmission_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Transmission Type",
+   "options": "Transmission Type"
+  },
+  {
+   "fieldname": "drive_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Drive Type",
+   "options": "Drive Type"
+  },
+  {
+   "fieldname": "fuel_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Fuel Type",
+   "options": "Fuel Type"
+  },
+  {
+   "fieldname": "specifications_tab",
+   "fieldtype": "Tab Break",
+   "label": "Specifications"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "column_break_tbdw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "text_editor_wvug",
+   "fieldtype": "Text Editor"
+  },
+  {
+   "fieldname": "body_type",
+   "fieldtype": "Link",
+   "label": "Body Type",
+   "options": "Body Type"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-03 21:58:33.159154",
+ "modified_by": "Administrator",
+ "module": "AutoDS",
+ "name": "Vehicle Unit",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "description, model, make",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

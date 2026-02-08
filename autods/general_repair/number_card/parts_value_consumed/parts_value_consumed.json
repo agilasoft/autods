@@ -1,0 +1,21 @@
+{
+ "aggregate_function_based_on": "amount",
+ "creation": "2025-01-20 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Repair Order Parts",
+ "filters_json": "[[\"Repair Order Parts\",\"parent\",\"in\",\"(SELECT name FROM `tabRepair Order` WHERE docstatus = 1 AND repair_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH))\"]]",
+ "function": "Sum",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "modified": "2025-01-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "General Repair",
+ "name": "Parts Value Consumed",
+ "number_card_name": "Parts Value Consumed",
+ "owner": "Administrator",
+ "roles": [],
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Monthly"
+}

@@ -1,0 +1,355 @@
+// Copyright (c) 2025, Agilasoft Technologies Inc. and contributors
+// For license information, please see license.txt
+
+frappe.ui.form.on('Repair Estimate', {
+	refresh: function(frm) {
+		// Load Service Template (same as Repair Order)
+		frm.add_custom_button(__('Load Service Template'), function() {
+			load_service_template(frm);
+		}, __('Actions'));
+
+		// Make Repair Order: when Submitted or Approved and not yet converted
+		if (frm.doc.docstatus === 1 && (frm.doc.status === 'Submitted' || frm.doc.status === 'Approved') && !frm.doc.repair_order) {
+			frm.add_custom_button(__('Make Repair Order'), function() {
+				frm.call({
+					method: 'create_repair_order',
+					args: {
+						doctype: frm.doctype,
+						name: frm.docname
+					},
+					callback: function(r) {
+						if (r.message) {
+							frappe.set_route('Form', 'Repair Order', r.message);
+						}
+					}
+				});
+			}, __('Actions'));
+		}
+		// Open linked Repair Order
+		if (frm.doc.repair_order) {
+			frm.add_custom_button(__('Open Repair Order'), function() {
+				frappe.set_route('Form', 'Repair Order', frm.doc.repair_order);
+			}, __('View'));
+		}
+	}
+});
+
+frappe.ui.form.on('Repair Estimate Service Items', {
+	service_items_add: function() {
+		// Trigger totals recalc on client if needed
+	},
+	hours: function(frm, cdt, cdn) {
+		var row = locals[cdt][cdn];
+		row.amount = (parseFloat(row.hours) || 0) * (parseFloat(row.rate) || 0);
+		frm.refresh_field('service_items');
+		frm.refresh_field('grand_total');
+	},
+	rate: function(frm, cdt, cdn) {
+		var row = locals[cdt][cdn];
+		row.amount = (parseFloat(row.hours) || 0) * (parseFloat(row.rate) || 0);
+		frm.refresh_field('service_items');
+		frm.refresh_field('grand_total');
+	}
+});
+
+frappe.ui.form.on('Repair Estimate Parts', {
+	qty: function(frm, cdt, cdn) {
+		var row = locals[cdt][cdn];
+		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+		frm.refresh_field('spareparts');
+		frm.refresh_field('grand_total');
+	},
+	rate: function(frm, cdt, cdn) {
+		var row = locals[cdt][cdn];
+		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+		frm.refresh_field('spareparts');
+		frm.refresh_field('grand_total');
+	}
+});
+
+frappe.ui.form.on('Repair Estimate Sundry Items', {
+	qty: function(frm, cdt, cdn) {
+		var row = locals[cdt][cdn];
+		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+		frm.refresh_field('sundry_items');
+		frm.refresh_field('grand_total');
+	},
+	rate: function(frm, cdt, cdn) {
+		var row = locals[cdt][cdn];
+		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+		frm.refresh_field('sundry_items');
+		frm.refresh_field('grand_total');
+	}
+});
+
+function load_service_template(frm) {
+	var initial_filters = [];
+	if (frm.doc.vehicle_make) {
+		initial_filters.push(['Service Template', 'vehicle_make', '=', frm.doc.vehicle_make]);
+	}
+	if (frm.doc.vehicle_model) {
+		initial_filters.push(['Service Template', 'vehicle_model', '=', frm.doc.vehicle_model]);
+	}
+
+	var d = new frappe.ui.Dialog({
+		title: __('Load Service Template'),
+		fields: [
+			{
+				fieldtype: 'Section Break',
+				label: __('Filter Templates'),
+				description: __('Use default filters (Make, Model) or add more via "Add a Filter". Then click Search.')
+			},
+			{
+				fieldtype: 'HTML',
+				fieldname: 'filter_area',
+				options: '<div id="service-template-filter-area" class="filter-area-wrapper" style="min-height: 80px;"></div>'
+			},
+			{
+				fieldtype: 'Section Break'
+			},
+			{
+				fieldtype: 'Button',
+				fieldname: 'btn_search',
+				label: __('Search Templates'),
+				click: function() {
+					if (d.filter_group) search_templates(d);
+				}
+			},
+			{
+				fieldtype: 'Section Break',
+				label: __('Select Template')
+			},
+			{
+				fieldtype: 'HTML',
+				fieldname: 'template_list',
+				options: '<div id="template-list-container" style="min-height: 220px; max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; background: var(--fg-color);">' +
+					'<div class="text-muted text-center" style="padding: 48px 24px;">' +
+					__('Add filters above and click "Search Templates" to list templates') +
+					'</div></div>'
+			}
+		],
+		primary_action_label: __('Load Selected Template'),
+		primary_action: function() {
+			var selected_template = d.selected_template;
+			if (!selected_template) {
+				frappe.msgprint(__('Please select a Service Template from the list'));
+				return;
+			}
+			if ((frm.doc.service_items && frm.doc.service_items.length > 0) ||
+				(frm.doc.spareparts && frm.doc.spareparts.length > 0) ||
+				(frm.doc.sundry_items && frm.doc.sundry_items.length > 0)) {
+				frappe.confirm(
+					__('This will replace all existing service items, spareparts, and sundry items. Continue?'),
+					function() {
+						fetch_template_items(frm, selected_template);
+						d.hide();
+					}
+				);
+			} else {
+				fetch_template_items(frm, selected_template);
+				d.hide();
+			}
+		}
+	});
+
+	function search_templates(dialog) {
+		if (!dialog.filter_group) return;
+		var filters = dialog.filter_group.get_filters();
+		var container = dialog.fields_dict.template_list.$wrapper.find('#template-list-container');
+
+		container.html('<div class="text-center text-muted" style="padding: 48px 24px;">' +
+			'<div class="spinner-border spinner-border-sm" role="status"></div><br>' +
+			__('Searching...') + '</div>');
+
+		var filter_dict = {};
+		filters.forEach(function(filter) {
+			if (Array.isArray(filter) && filter.length >= 4) {
+				var field = filter[1];
+				var condition = filter[2];
+				var value = filter[3];
+				if (!field || value == null || value === '') return;
+				if (condition === '=' || condition === 'like') {
+					filter_dict[field] = value;
+					if (condition === 'like') filter_dict[field + '_like'] = true;
+				}
+			}
+		});
+
+		frappe.call({
+			method: 'autods.service.doctype.repair_order.repair_order.get_service_templates_filtered',
+			args: {
+				vehicle_make: filter_dict.vehicle_make || null,
+				vehicle_model: filter_dict.vehicle_model || null,
+				vehicle_variant: filter_dict.vehicle_variant || null,
+				vehicle_year_model: filter_dict.vehicle_year_model != null ? filter_dict.vehicle_year_model : null,
+				vehicle_transmission_type: filter_dict.vehicle_transmission_type || null,
+				vehicle_fuel_type: filter_dict.vehicle_fuel_type || null,
+				vehicle_body_type: filter_dict.vehicle_body_type || null,
+				vehicle_drive_type: filter_dict.vehicle_drive_type || null,
+				template_name: filter_dict.template_name || null,
+				template_name_like: filter_dict.template_name_like || null
+			},
+			callback: function(r) {
+				if (r.message && r.message.length > 0) {
+					render_template_list(container, r.message, dialog);
+				} else {
+					container.html('<div class="text-center text-muted" style="padding: 48px 24px;">' +
+						__('No templates found. Try changing filters or add more.') + '</div>');
+				}
+			},
+			error: function() {
+				container.html('<div class="text-center text-danger" style="padding: 48px 24px;">' +
+					__('Error searching templates') + '</div>');
+			}
+		});
+	}
+
+	function render_template_list(container, templates, dialog) {
+		dialog.selected_template = null;
+		if (!templates.length) {
+			container.html('<div class="text-center text-muted" style="padding: 48px 24px;">' +
+				__('No templates found') + '</div>');
+			return;
+		}
+		var html = '<div class="list-group">';
+		templates.forEach(function(template) {
+			var details = [];
+			if (template.vehicle_make) details.push(__('Make: {0}', [template.vehicle_make]));
+			if (template.vehicle_model) details.push(__('Model: {0}', [template.vehicle_model]));
+			if (template.vehicle_variant) details.push(__('Variant: {0}', [template.vehicle_variant]));
+			if (template.vehicle_year_model) details.push(__('Year: {0}', [template.vehicle_year_model]));
+			var details_str = details.length ? details.join(' • ') : __('Universal Template');
+			html += '<div class="template-item list-group-item list-group-item-action" data-template="' + frappe.utils.escape_html(template.name) + '" style="cursor: pointer;">' +
+				'<div class="d-flex justify-content-between align-items-center"><strong>' + frappe.utils.escape_html(template.template_name || template.name) + '</strong></div>' +
+				'<small class="text-muted">' + frappe.utils.escape_html(template.name) + '</small>' +
+				'<div class="text-muted small mt-1">' + details_str + '</div></div>';
+		});
+		html += '</div>';
+		container.html(html);
+		container.find('.template-item').on('click', function() {
+			container.find('.template-item').removeClass('active');
+			$(this).addClass('active');
+			dialog.selected_template = $(this).attr('data-template');
+		});
+	}
+
+	d.show();
+
+	setTimeout(function() {
+		try {
+			var filter_area = d.fields_dict.filter_area.$wrapper.find('#service-template-filter-area');
+			d.filter_group = new frappe.ui.FilterGroup({
+				parent: filter_area,
+				doctype: 'Service Template',
+				on_change: function() {
+					if (d.filter_group) search_templates(d);
+				}
+			});
+			if (d.filter_group.wrapper && d.filter_group.wrapper.find('.apply-filters').length) {
+				d.filter_group.wrapper.find('.apply-filters').hide();
+			}
+			frappe.model.with_doctype('Service Template', function() {
+				if (initial_filters.length > 0) {
+					d.filter_group.add_filters_to_filter_group(initial_filters);
+				}
+				setTimeout(function() { search_templates(d); }, 300);
+			});
+		} catch (e) {
+			console.error('Load Service Template filter init:', e);
+			frappe.msgprint({ message: __('Error initializing filters. Refresh and try again.'), indicator: 'red' });
+		}
+	}, 150);
+}
+
+function fetch_template_items(frm, template_name) {
+	var service_template = template_name || (frm.doc.service_template || null);
+	if (!service_template) {
+		frappe.msgprint(__('Please select a Service Template'));
+		return;
+	}
+	frm.call({
+		method: 'fetch_template_items',
+		args: {
+			doctype: frm.doctype,
+			name: frm.docname,
+			service_template: service_template,
+			doc: frm.doc
+		},
+		callback: function(r) {
+			if (r.message && r.message.doc) {
+				if (r.message.doc.service_items && r.message.doc.service_items.length > 0) {
+					frm.clear_table('service_items');
+					r.message.doc.service_items.forEach(function(item) {
+						var row = frm.add_child('service_items');
+						Object.keys(item).forEach(function(key) {
+							if (key !== 'name' && key !== 'idx') {
+								row[key] = item[key];
+							}
+						});
+					});
+				}
+				if (r.message.doc.spareparts && r.message.doc.spareparts.length > 0) {
+					frm.clear_table('spareparts');
+					r.message.doc.spareparts.forEach(function(item) {
+						var row = frm.add_child('spareparts');
+						Object.keys(item).forEach(function(key) {
+							if (key !== 'name' && key !== 'idx') {
+								row[key] = item[key];
+							}
+						});
+					});
+				}
+				if (r.message.doc.sundry_items && r.message.doc.sundry_items.length > 0) {
+					frm.clear_table('sundry_items');
+					r.message.doc.sundry_items.forEach(function(item) {
+						var row = frm.add_child('sundry_items');
+						Object.keys(item).forEach(function(key) {
+							if (key !== 'name' && key !== 'idx') {
+								row[key] = item[key];
+							}
+						});
+					});
+				}
+				if (r.message.doc.quality_inspections && r.message.doc.quality_inspections.length > 0) {
+					var existing_names = (frm.doc.quality_inspections || []).map(function(qi) { return qi.inspection_name; });
+					r.message.doc.quality_inspections.forEach(function(item) {
+						if (item.inspection_name && existing_names.indexOf(item.inspection_name) === -1) {
+							var row = frm.add_child('quality_inspections');
+							Object.keys(item).forEach(function(key) {
+								if (key !== 'name' && key !== 'idx') {
+									row[key] = item[key];
+								}
+							});
+						}
+					});
+				}
+				frm.refresh_field('service_items');
+				frm.refresh_field('spareparts');
+				frm.refresh_field('sundry_items');
+				frm.refresh_field('quality_inspections');
+				frm.refresh_field('grand_total');
+				if (frm.docname && !frm.is_new()) {
+					frm.reload_doc();
+				}
+			}
+			if (r.message) {
+				var message = __('Items loaded from template');
+				if (r.message.service_items_count || r.message.spareparts_count || r.message.sundry_items_count || r.message.service_inspections_count) {
+					var counts = [];
+					if (r.message.service_items_count) counts.push(__('{0} service items', [r.message.service_items_count]));
+					if (r.message.spareparts_count) counts.push(__('{0} spareparts', [r.message.spareparts_count]));
+					if (r.message.sundry_items_count) counts.push(__('{0} sundry items', [r.message.sundry_items_count]));
+					if (r.message.service_inspections_count) counts.push(__('{0} service inspections', [r.message.service_inspections_count]));
+					message += ': ' + counts.join(', ');
+				}
+				frappe.show_alert({
+					message: message,
+					indicator: 'green'
+				});
+			}
+		},
+		error: function() {
+			frappe.msgprint(__('Error loading items from template'));
+		}
+	});
+}

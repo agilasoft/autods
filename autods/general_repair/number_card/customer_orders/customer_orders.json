@@ -1,0 +1,21 @@
+{
+ "aggregate_function_based_on": "name",
+ "creation": "2025-01-20 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Repair Order",
+ "filters_json": "[[\"Repair Order\",\"repair_date\",\"Timespan\",\"this month\"],[\"Repair Order\",\"docstatus\",\"=\",1],[\"Repair Order\",\"name\",\"in\",\"(SELECT DISTINCT parent FROM `tabRepair Order Service Items` WHERE bill_type = 'Customer' UNION SELECT DISTINCT parent FROM `tabRepair Order Parts` WHERE bill_type = 'Customer' UNION SELECT DISTINCT parent FROM `tabRepair Order Sundry Items` WHERE bill_type = 'Customer')\"]]",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "modified": "2025-01-20 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "General Repair",
+ "name": "Customer Orders",
+ "number_card_name": "Customer Orders",
+ "owner": "Administrator",
+ "roles": [],
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Monthly"
+}

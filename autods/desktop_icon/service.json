@@ -1,0 +1,22 @@
+{
+ "app": "autods",
+ "creation": "2026-01-24 00:00:00",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon": "wrench",
+ "icon_image": "",
+ "icon_type": "Link",
+ "idx": 0,
+ "label": "Service",
+ "link_to": "Service",
+ "link_type": "Workspace Sidebar",
+ "modified": "2026-01-29 21:47:35.823664",
+ "modified_by": "Administrator",
+ "name": "Service",
+ "owner": "Administrator",
+ "parent_icon": "",
+ "restrict_removal": 1,
+ "roles": [],
+ "standard": 1
+}

@@ -1,0 +1,577 @@
+{
+ "app": "autods",
+ "charts": [],
+ "content": "[{\"id\":\"cards_overview\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Revenue\",\"col\":4}},{\"id\":\"nc2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Repair Orders\",\"col\":4}},{\"id\":\"nc3\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Open Job Cards\",\"col\":4}},{\"id\":\"BffWj1gGtp\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"Nr8KDeVlwl\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Quick Access</b></span>\",\"col\":12}},{\"id\":\"0wN8_ncWZr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Appointment\",\"col\":3}},{\"id\":\"5PA4h70QEt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Repair Estimate\",\"col\":3}},{\"id\":\"YExXoPlrCu\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Repair Order\",\"col\":3}},{\"id\":\"bVgP2DKmJO\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Job Card\",\"col\":3}},{\"id\":\"aPp_ak4fGG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Spareparts Request\",\"col\":3}},{\"id\":\"kK5hnxtzoY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Shopfloor Schedule\",\"col\":3}},{\"id\":\"9NyFs0W5By\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"3_1pRTVODh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Gate Pass\",\"col\":3}},{\"id\":\"_I0DISn5CE\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"h3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Setup &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"c3\",\"type\":\"card\",\"data\":{\"card_name\":\"Repair Setup\",\"col\":4}},{\"id\":\"L5opnyX8xj\",\"type\":\"card\",\"data\":{\"card_name\":\"Vehicles\",\"col\":4}},{\"id\":\"MPTe65CzPm\",\"type\":\"card\",\"data\":{\"card_name\":\"Job Management\",\"col\":4}},{\"id\":\"Wi3BRDGqpP\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"c7T46ZrnAm\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Analytics</b></span>\",\"col\":12}},{\"id\":\"BCtOjE8N8I\",\"type\":\"card\",\"data\":{\"card_name\":\"Operational\",\"col\":4}},{\"id\":\"sO7vo-w75Q\",\"type\":\"card\",\"data\":{\"card_name\":\"Cost Analysis\",\"col\":4}},{\"id\":\"7jDH8TVYHg\",\"type\":\"card\",\"data\":{\"card_name\":\"Analytics & Insights\",\"col\":4}}]",
+ "creation": "2026-02-06 16:07:48.626393",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "wrench",
+ "idx": 0,
+ "indicator_color": "blue",
+ "is_hidden": 0,
+ "label": "Service",
+ "link_type": "DocType",
+ "links": [
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Appointment",
+   "link_count": 0,
+   "link_to": "Service Appointment",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Repair Estimate",
+   "link_count": 0,
+   "link_to": "Repair Estimate",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Repair Order",
+   "link_count": 0,
+   "link_to": "Repair Order",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Unit",
+   "link_count": 0,
+   "link_to": "Vehicle Unit",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Order Type",
+   "link_count": 0,
+   "link_to": "Service Order Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Category",
+   "link_count": 0,
+   "link_to": "Service Category",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Template",
+   "link_count": 0,
+   "link_to": "Service Template",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Repair Concern",
+   "link_count": 0,
+   "link_to": "Repair Concern",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Work Area",
+   "link_count": 0,
+   "link_to": "Work Area",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Technician Group",
+   "link_count": 0,
+   "link_to": "Technician Group",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Technician Skills Group",
+   "link_count": 0,
+   "link_to": "Technician Skills Group",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Inspection Template",
+   "link_count": 0,
+   "link_to": "Service Inspection Template",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Settings",
+   "link_count": 0,
+   "link_to": "Service Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Job Management",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Work Area",
+   "link_count": 0,
+   "link_to": "Work Area",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Technician Group",
+   "link_count": 0,
+   "link_to": "Technician Group",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Technician Skills Group",
+   "link_count": 0,
+   "link_to": "Technician Skills Group",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Inspection Template",
+   "link_count": 0,
+   "link_to": "Service Inspection Template",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Operational",
+   "link_count": 5,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Open Repair Orders",
+   "link_count": 0,
+   "link_to": "Open Repair Orders",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Job Cards by Status",
+   "link_count": 0,
+   "link_to": "Job Cards by Status",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Job Card",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Repair Order Aging",
+   "link_count": 0,
+   "link_to": "Repair Order Aging",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Repair Order",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Repair Order Summary",
+   "link_count": 0,
+   "link_to": "Service Repair Order Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Repair Order",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Job Card Summary",
+   "link_count": 0,
+   "link_to": "Job Card Summary",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Job Card",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cost Analysis",
+   "link_count": 5,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Labor vs Parts by Repair Type",
+   "link_count": 0,
+   "link_to": "Labor vs Parts by Repair Type",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Parts Cost by Bill Type",
+   "link_count": 0,
+   "link_to": "Parts Cost by Bill Type",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Repair Order Parts",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cost by Service Order Type",
+   "link_count": 0,
+   "link_to": "Cost by Service Order Type",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Repair Order",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Revenue Analysis",
+   "link_count": 0,
+   "link_to": "Service Revenue Analysis",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Repair Order",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Parts Consumption",
+   "link_count": 0,
+   "link_to": "Service Parts Consumption",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Repair Order Parts",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Analytics & Insights",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Repair Orders by Status",
+   "link_count": 0,
+   "link_to": "Repair Orders by Status",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Revenue by Repair Type",
+   "link_count": 0,
+   "link_to": "Revenue by Repair Type",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Repair Order",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Top Customers by Revenue",
+   "link_count": 0,
+   "link_to": "Top Customers by Revenue",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Repair Order",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Technician Performance",
+   "link_count": 0,
+   "link_to": "Technician Performance",
+   "link_type": "Report",
+   "onboard": 0,
+   "report_ref_doctype": "Job Card",
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Repair Setup",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Order Type",
+   "link_count": 0,
+   "link_to": "Service Order Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Category",
+   "link_count": 0,
+   "link_to": "Service Category",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Template",
+   "link_count": 0,
+   "link_to": "Service Template",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Repair Concern",
+   "link_count": 0,
+   "link_to": "Repair Concern",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicles",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Unit",
+   "link_count": 0,
+   "link_to": "Vehicle Unit",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Make",
+   "link_count": 0,
+   "link_to": "Vehicle Make",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Model",
+   "link_count": 0,
+   "link_to": "Vehicle Model",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-02-07 11:24:41.789743",
+ "modified_by": "Administrator",
+ "module": "Service",
+ "name": "Service",
+ "number_cards": [
+  {
+   "label": "Total Revenue",
+   "number_card_name": "Total Revenue"
+  },
+  {
+   "label": "Total Repair Orders",
+   "number_card_name": "Total Repair Orders"
+  },
+  {
+   "label": "Open Job Cards",
+   "number_card_name": "Open Job Cards"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 5.0,
+ "shortcuts": [
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Spareparts Request",
+   "link_to": "Spareparts Request",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Appointment",
+   "link_to": "Service Appointment",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Shopfloor Schedule",
+   "link_to": "ShopFloor Schedule",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Repair Estimate",
+   "link_to": "Repair Estimate",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Invoice",
+   "link_to": "Sales Invoice",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Repair Order",
+   "link_to": "Repair Order",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Gate Pass",
+   "link_to": "Gate Pass",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Job Card",
+   "link_to": "Job Card",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Service",
+ "type": "Workspace"
+}

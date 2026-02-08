@@ -1,0 +1,133 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "default_price_list",
+  "default_currency",
+  "default_quotation_validity",
+  "auto_apply_pricing_rules",
+  "require_pricing_rule_approval",
+  "default_insurance_company",
+  "enable_promotional_pricing",
+  "enable_customer_pricing_agreements",
+  "section_break_naming",
+  "naming_series_quotation",
+  "naming_series_policy",
+  "naming_series_claim",
+  "naming_series_promotion",
+  "naming_series_agreement"
+ ],
+ "fields": [
+  {
+   "fieldname": "default_price_list",
+   "fieldtype": "Link",
+   "label": "Default Price List",
+   "options": "Price List"
+  },
+  {
+   "fieldname": "default_currency",
+   "fieldtype": "Link",
+   "label": "Default Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "default_quotation_validity",
+   "fieldtype": "Int",
+   "label": "Default Quotation Validity (days)"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_apply_pricing_rules",
+   "fieldtype": "Check",
+   "label": "Auto-apply Pricing Rules"
+  },
+  {
+   "default": "0",
+   "fieldname": "require_pricing_rule_approval",
+   "fieldtype": "Check",
+   "label": "Require Pricing Rule Approval"
+  },
+  {
+   "fieldname": "default_insurance_company",
+   "fieldtype": "Link",
+   "label": "Default Insurance Company",
+   "options": "Insurance Company"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_promotional_pricing",
+   "fieldtype": "Check",
+   "label": "Enable Promotional Pricing"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_customer_pricing_agreements",
+   "fieldtype": "Check",
+   "label": "Enable Customer Pricing Agreements"
+  },
+  {
+   "fieldname": "section_break_naming",
+   "fieldtype": "Section Break",
+   "label": "Naming Series"
+  },
+  {
+   "fieldname": "naming_series_quotation",
+   "fieldtype": "Select",
+   "label": "Naming Series for Sales Quotation",
+   "options": "SQ.#########"
+  },
+  {
+   "fieldname": "naming_series_policy",
+   "fieldtype": "Select",
+   "label": "Naming Series for Insurance Policy",
+   "options": "POL.#########"
+  },
+  {
+   "fieldname": "naming_series_claim",
+   "fieldtype": "Select",
+   "label": "Naming Series for Insurance Claim",
+   "options": "CLM.#########"
+  },
+  {
+   "fieldname": "naming_series_promotion",
+   "fieldtype": "Select",
+   "label": "Naming Series for Promotional Pricing",
+   "options": "PROMO.#########"
+  },
+  {
+   "fieldname": "naming_series_agreement",
+   "fieldtype": "Select",
+   "label": "Naming Series for Customer Pricing Agreement",
+   "options": "CPA.#########"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_single": 1,
+ "links": [],
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Sales and Pricing",
+ "name": "Sales and Pricing Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
+

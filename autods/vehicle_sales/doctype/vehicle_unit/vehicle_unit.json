@@ -1,0 +1,294 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:code",
+ "creation": "2025-01-01 00:00:00",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "code",
+  "description",
+  "item",
+  "customer",
+  "plate_no",
+  "image",
+  "column_break_1",
+  "make",
+  "model",
+  "variant",
+  "year_model",
+  "edition",
+  "color",
+  "engine_number",
+  "chassis_number",
+  "column_break_2",
+  "status",
+  "transmission_type",
+  "drive_type",
+  "fuel_type",
+  "body_type",
+  "specifications_tab",
+  "specifications",
+  "vehicle_sales_tab",
+  "purchase_date",
+  "purchase_price",
+  "current_cost",
+  "warehouse",
+  "column_break_trans",
+  "purchase_receipt",
+  "delivery_note",
+  "sales_invoice",
+  "cost_section",
+  "total_accessory_cost",
+  "total_unit_cost",
+  "configuration_tab",
+  "accessories",
+  "insurance_tab"
+ ],
+ "fields": [
+  {
+   "fieldname": "code",
+   "fieldtype": "Data",
+   "label": "Code (Serial Number / VIN)",
+   "unique": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "hidden": 1,
+   "label": "Image"
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "make",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Make",
+   "options": "Vehicle Make"
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Model",
+   "options": "Vehicle Model"
+  },
+  {
+   "fieldname": "variant",
+   "fieldtype": "Link",
+   "label": "Variant",
+   "options": "Vehicle Variant"
+  },
+  {
+   "fieldname": "edition",
+   "fieldtype": "Link",
+   "label": "Edition",
+   "options": "Vehicle Edition"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "year_model",
+   "fieldtype": "Int",
+   "label": "Year Model"
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Data",
+   "label": "Color"
+  },
+  {
+   "fieldname": "engine_number",
+   "fieldtype": "Data",
+   "label": "Engine Number"
+  },
+  {
+   "fieldname": "chassis_number",
+   "fieldtype": "Data",
+   "label": "Chassis Number"
+  },
+  {
+   "fieldname": "transmission_type",
+   "fieldtype": "Link",
+   "label": "Transmission Type",
+   "options": "Transmission Type"
+  },
+  {
+   "fieldname": "drive_type",
+   "fieldtype": "Link",
+   "label": "Drive Type",
+   "options": "Drive Type"
+  },
+  {
+   "fieldname": "fuel_type",
+   "fieldtype": "Link",
+   "label": "Fuel Type",
+   "options": "Fuel Type"
+  },
+  {
+   "fieldname": "body_type",
+   "fieldtype": "Link",
+   "label": "Body Type",
+   "options": "Body Type"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date"
+  },
+  {
+   "fieldname": "purchase_price",
+   "fieldtype": "Currency",
+   "label": "Purchase Price"
+  },
+  {
+   "fieldname": "current_cost",
+   "fieldtype": "Currency",
+   "label": "Current Cost",
+   "read_only": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "column_break_trans",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchase_receipt",
+   "fieldtype": "Link",
+   "label": "Purchase Receipt",
+   "options": "Purchase Receipt",
+   "read_only": 1
+  },
+  {
+   "fieldname": "delivery_note",
+   "fieldtype": "Link",
+   "label": "Delivery Note",
+   "options": "Delivery Note",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cost_section",
+   "fieldtype": "Section Break",
+   "label": "Cost Summary"
+  },
+  {
+   "fieldname": "total_accessory_cost",
+   "fieldtype": "Currency",
+   "label": "Total Accessory / Config Cost",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_unit_cost",
+   "fieldtype": "Currency",
+   "label": "Total Unit Cost (Base + Accessories)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "configuration_tab",
+   "fieldtype": "Tab Break",
+   "label": "Configurations & Accessories"
+  },
+  {
+   "fieldname": "accessories",
+   "fieldtype": "Table",
+   "label": "Accessories & Configurations",
+   "options": "Vehicle Unit Accessory"
+  },
+  {
+   "default": "Available",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Available\nReserved\nSold\nIn Service"
+  },
+  {
+   "fieldname": "specifications",
+   "fieldtype": "Text Editor",
+   "label": "Specifications"
+  },
+  {
+   "fieldname": "specifications_tab",
+   "fieldtype": "Tab Break",
+   "label": "Specifications"
+  },
+  {
+   "fieldname": "vehicle_sales_tab",
+   "fieldtype": "Tab Break",
+   "label": "Vehicle Sales"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "insurance_tab",
+   "fieldtype": "Tab Break",
+   "label": "Insurance"
+  },
+  {
+   "fieldname": "plate_no",
+   "fieldtype": "Data",
+   "label": "Plate No"
+  }
+ ],
+ "image_field": "image",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-26 07:01:47.383980",
+ "modified_by": "Administrator",
+ "module": "Vehicle Sales",
+ "name": "Vehicle Unit",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "customer, chassis_number, engine_number, make, model, variant",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "plate_no"
+}

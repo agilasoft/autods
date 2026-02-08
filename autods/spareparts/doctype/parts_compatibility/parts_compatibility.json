@@ -1,0 +1,94 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "part",
+  "vehicle_make",
+  "vehicle_model",
+  "vehicle_variant",
+  "year_from",
+  "year_to",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "PC.#########"
+  },
+  {
+   "fieldname": "part",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Part",
+   "options": "Item"
+  },
+  {
+   "fieldname": "vehicle_make",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Vehicle Make",
+   "options": "Vehicle Make"
+  },
+  {
+   "fieldname": "vehicle_model",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Vehicle Model",
+   "options": "Vehicle Model"
+  },
+  {
+   "fieldname": "vehicle_variant",
+   "fieldtype": "Link",
+   "label": "Vehicle Variant",
+   "options": "Vehicle Variant"
+  },
+  {
+   "fieldname": "year_from",
+   "fieldtype": "Int",
+   "label": "Year From"
+  },
+  {
+   "fieldname": "year_to",
+   "fieldtype": "Int",
+   "label": "Year To"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Spareparts",
+ "name": "Parts Compatibility",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
+

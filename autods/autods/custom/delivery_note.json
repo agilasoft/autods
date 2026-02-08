@@ -1,0 +1,41 @@
+{
+  "custom_fields": [
+    {
+      "allow_in_quick_entry": 0,
+      "allow_on_submit": 0,
+      "bold": 0,
+      "collapsible": 0,
+      "depends_on": null,
+      "dt": "Delivery Note",
+      "fieldname": "custom_vehicle_sales",
+      "fieldtype": "Check",
+      "hidden": 0,
+      "in_standard_filter": 1,
+      "insert_after": "customer_name",
+      "label": "Vehicle Sales",
+      "module": "Vehicle Sales",
+      "read_only": 0
+    },
+    {
+      "allow_in_quick_entry": 0,
+      "allow_on_submit": 0,
+      "bold": 0,
+      "collapsible": 0,
+      "depends_on": "eval:doc.custom_vehicle_sales",
+      "dt": "Delivery Note",
+      "fieldname": "custom_vehicle_unit",
+      "fieldtype": "Link",
+      "hidden": 0,
+      "in_standard_filter": 1,
+      "insert_after": "custom_vehicle_sales",
+      "label": "Vehicle Unit",
+      "options": "Vehicle Unit",
+      "module": "Vehicle Sales",
+      "read_only": 0
+    }
+  ],
+  "custom_perms": [],
+  "doctype": "Delivery Note",
+  "links": [],
+  "property_setters": []
+}

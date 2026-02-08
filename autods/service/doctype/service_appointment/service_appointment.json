@@ -1,0 +1,230 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-01-30 00:00:00",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "details_section",
+  "naming_series",
+  "appointment_date",
+  "appointment_start_time",
+  "appointment_end_time",
+  "status",
+  "column_break_details",
+  "service_advisor",
+  "customer",
+  "vehicle_unit",
+  "plate_no",
+  "vehicle_id_no",
+  "subject",
+  "service_info_section",
+  "service_order_type",
+  "repair_type",
+  "column_break_service_info",
+  "contact_person",
+  "contact_mobile",
+  "links_section",
+  "repair_estimate",
+  "repair_order",
+  "other_section",
+  "notes",
+  "cancellation_reason"
+ ],
+ "fields": [
+  {
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "SA-.#########"
+  },
+  {
+   "default": "Today",
+   "fieldname": "appointment_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Appointment Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "appointment_start_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Start Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "appointment_end_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "End Time",
+   "reqd": 1
+  },
+  {
+   "default": "Scheduled",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Scheduled\nConfirmed\nIn Progress\nCompleted\nNo-show\nCancelled"
+  },
+  {
+   "fieldname": "column_break_details",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "service_advisor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Service Advisor",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "vehicle_unit",
+   "fieldtype": "Link",
+   "label": "Vehicle Unit",
+   "link_filters": "[[\"Vehicle Unit\",\"customer\",\"=\",\"eval:doc.customer\"]]",
+   "options": "Vehicle Unit"
+  },
+  {
+   "fetch_from": "vehicle_unit.plate_no",
+   "fieldname": "plate_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Plate No",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "vehicle_unit.code",
+   "fieldname": "vehicle_id_no",
+   "fieldtype": "Data",
+   "label": "Vehicle ID No",
+   "read_only": 1
+  },
+  {
+   "fieldname": "subject",
+   "fieldtype": "Small Text",
+   "label": "Subject / Description"
+  },
+  {
+   "fieldname": "service_info_section",
+   "fieldtype": "Section Break",
+   "label": "Service Info"
+  },
+  {
+   "fieldname": "service_order_type",
+   "fieldtype": "Link",
+   "label": "Service Order Type",
+   "options": "Service Order Type"
+  },
+  {
+   "fieldname": "repair_type",
+   "fieldtype": "Link",
+   "label": "Repair Type",
+   "options": "Repair Type"
+  },
+  {
+   "fieldname": "column_break_service_info",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Data",
+   "label": "Contact Person"
+  },
+  {
+   "fieldname": "contact_mobile",
+   "fieldtype": "Data",
+   "label": "Contact Mobile"
+  },
+  {
+   "fieldname": "links_section",
+   "fieldtype": "Section Break",
+   "label": "Links"
+  },
+  {
+   "fieldname": "repair_estimate",
+   "fieldtype": "Link",
+   "label": "Repair Estimate",
+   "options": "Repair Estimate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "repair_order",
+   "fieldtype": "Link",
+   "label": "Repair Order",
+   "options": "Repair Order",
+   "read_only": 1
+  },
+  {
+   "fieldname": "other_section",
+   "fieldtype": "Section Break",
+   "label": "Other"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "cancellation_reason",
+   "fieldtype": "Small Text",
+   "label": "Cancellation Reason"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "module": "Service",
+ "name": "Service Appointment",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Service User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Service Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

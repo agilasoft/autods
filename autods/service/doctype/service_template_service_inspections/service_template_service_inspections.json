@@ -1,0 +1,42 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-26 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "inspection_name",
+  "service_inspection_template"
+ ],
+ "fields": [
+  {
+   "fieldname": "inspection_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Inspection Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "service_inspection_template",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Service Inspection Template",
+   "options": "Service Inspection Template"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-26 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Service",
+ "name": "Service Template Service Inspections",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

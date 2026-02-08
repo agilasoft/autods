@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-24 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "customer_concern",
+  "concern",
+  "diagnostic",
+  "column_break_mngp",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer_concern",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Customer Concern"
+  },
+  {
+   "fieldname": "concern",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Concern Code",
+   "options": "Repair Concern"
+  },
+  {
+   "fieldname": "diagnostic",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Diagnostic",
+   "options": "Repair Diagnostic"
+  },
+  {
+   "fieldname": "column_break_mngp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Long Text",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-01-24 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Service",
+ "name": "Repair Order Diagnostics",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

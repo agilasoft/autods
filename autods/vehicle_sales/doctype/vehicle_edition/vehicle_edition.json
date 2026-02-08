@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:edition_code",
+ "creation": "2025-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "edition_code",
+  "edition_name",
+  "variant",
+  "description",
+  "edition_year",
+  "price_premium",
+  "features",
+  "image"
+ ],
+ "fields": [
+  {
+   "fieldname": "edition_code",
+   "fieldtype": "Data",
+   "label": "Edition Code",
+   "unique": 1
+  },
+  {
+   "fieldname": "edition_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Edition Name"
+  },
+  {
+   "fieldname": "variant",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Variant",
+   "options": "Vehicle Variant"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "edition_year",
+   "fieldtype": "Int",
+   "label": "Edition Year"
+  },
+  {
+   "fieldname": "price_premium",
+   "fieldtype": "Currency",
+   "label": "Price Premium"
+  },
+  {
+   "fieldname": "features",
+   "fieldtype": "Table",
+   "label": "Features",
+   "options": "Edition Features"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Vehicle Sales",
+ "name": "Vehicle Edition",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "edition_name"
+}
+

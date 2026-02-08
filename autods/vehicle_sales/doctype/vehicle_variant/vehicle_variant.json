@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:variant_code",
+ "creation": "2025-01-01 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "variant_code",
+  "variant_name",
+  "model",
+  "description",
+  "column_break_1",
+  "engine_capacity",
+  "transmission_type",
+  "drive_type",
+  "fuel_type",
+  "body_type",
+  "base_price",
+  "image"
+ ],
+ "fields": [
+  {
+   "fieldname": "variant_code",
+   "fieldtype": "Data",
+   "label": "Variant Code",
+   "unique": 1
+  },
+  {
+   "fieldname": "variant_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Variant Name"
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Model",
+   "options": "Vehicle Model"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "engine_capacity",
+   "fieldtype": "Data",
+   "label": "Engine Capacity"
+  },
+  {
+   "fieldname": "transmission_type",
+   "fieldtype": "Link",
+   "label": "Transmission Type",
+   "options": "Transmission Type"
+  },
+  {
+   "fieldname": "drive_type",
+   "fieldtype": "Link",
+   "label": "Drive Type",
+   "options": "Drive Type"
+  },
+  {
+   "fieldname": "fuel_type",
+   "fieldtype": "Link",
+   "label": "Fuel Type",
+   "options": "Fuel Type"
+  },
+  {
+   "fieldname": "body_type",
+   "fieldtype": "Link",
+   "label": "Body Type",
+   "options": "Body Type"
+  },
+  {
+   "fieldname": "base_price",
+   "fieldtype": "Currency",
+   "label": "Base Price"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Vehicle Sales",
+ "name": "Vehicle Variant",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "variant_name"
+}
+

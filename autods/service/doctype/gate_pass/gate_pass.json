@@ -1,0 +1,199 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-01-01 00:00:00",
+ "default_view": "List",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "gate_pass_type",
+  "repair_order",
+  "job_card",
+  "customer",
+  "vehicle_unit",
+  "plate_no",
+  "column_break_1",
+  "entry_date",
+  "entry_time",
+  "entry_odometer",
+  "entry_guard",
+  "column_break_2",
+  "exit_date",
+  "exit_time",
+  "exit_odometer",
+  "exit_guard",
+  "status",
+  "column_break_3",
+  "driver_name",
+  "driver_contact",
+  "driver_id_number",
+  "purpose",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "GP.#########"
+  },
+  {
+   "fieldname": "gate_pass_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Gate Pass Type",
+   "options": "Entry\nExit\nBoth",
+   "reqd": 1
+  },
+  {
+   "fieldname": "repair_order",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Repair Order",
+   "options": "Repair Order"
+  },
+  {
+   "fieldname": "job_card",
+   "fieldtype": "Link",
+   "label": "Job Card",
+   "options": "Job Card"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "vehicle_unit",
+   "fieldtype": "Link",
+   "label": "Vehicle Unit",
+   "options": "Vehicle Unit"
+  },
+  {
+   "fieldname": "plate_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Plate No"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "entry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Entry Date"
+  },
+  {
+   "fieldname": "entry_time",
+   "fieldtype": "Time",
+   "label": "Entry Time"
+  },
+  {
+   "fieldname": "entry_odometer",
+   "fieldtype": "Int",
+   "label": "Entry Odometer Reading"
+  },
+  {
+   "fieldname": "entry_guard",
+   "fieldtype": "Link",
+   "label": "Entry Guard",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "exit_date",
+   "fieldtype": "Date",
+   "label": "Exit Date"
+  },
+  {
+   "fieldname": "exit_time",
+   "fieldtype": "Time",
+   "label": "Exit Time"
+  },
+  {
+   "fieldname": "exit_odometer",
+   "fieldtype": "Int",
+   "label": "Exit Odometer Reading"
+  },
+  {
+   "fieldname": "exit_guard",
+   "fieldtype": "Link",
+   "label": "Exit Guard",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Entry Only\nExit Only\nCompleted\nCancelled"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Driver Name"
+  },
+  {
+   "fieldname": "driver_contact",
+   "fieldtype": "Data",
+   "label": "Driver Contact"
+  },
+  {
+   "fieldname": "driver_id_number",
+   "fieldtype": "Data",
+   "label": "Driver ID Number"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Text",
+   "label": "Purpose"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-01-30 13:37:10.459522",
+ "modified_by": "Administrator",
+ "module": "Service",
+ "name": "Gate Pass",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "plate_no, customer, repair_order",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

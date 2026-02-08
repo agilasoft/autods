@@ -1,0 +1,22 @@
+{
+ "aggregate_function_based_on": "technician",
+ "creation": "2025-01-20 00:00:00",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Job Card",
+ "filters_json": "[[\"Job Card\",\"repair_order\",\"is\",\"set\"],[\"Job Card\",\"technician\",\"is\",\"set\"],[\"Job Card\",\"repair_date\",\"Timespan\",\"this month\"]]",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "label": "Active Technicians",
+ "modified": "2026-01-30 13:44:45.363439",
+ "modified_by": "Administrator",
+ "module": "Service",
+ "name": "Active Technicians",
+ "owner": "Administrator",
+ "show_full_number": 0,
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Monthly",
+ "type": "Document Type"
+}
