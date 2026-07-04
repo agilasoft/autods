@@ -28,6 +28,8 @@ class JobCard(Document):
 		self.set_work_details_total_hours()
 		self.set_completion_timestamps()
 		self.validate_entry_gate_pass()
+		self.validate_single_job_card_per_repair_order()
+		self.validate_vehicle_schedule()
 		validate_vehicle_job_card_conflict(self)
 
 	def sync_expected_completion_from_repair_order(self):
@@ -43,14 +45,15 @@ class JobCard(Document):
 				self.expected_completion_date = completion
 
 	def populate_spareparts_from_charges(self, ro=None):
-		"""Copy Repair Order sparepart charge lines (scoped to service_charge_row) into spareparts_requests."""
-		if not self.repair_order or not self.service_charge_row:
+		"""Copy Repair Order sparepart charge lines into spareparts_requests."""
+		if not self.repair_order:
 			return
 		if self.spareparts_requests:
 			return
 		if ro is None:
 			ro = frappe.get_doc("Repair Order", self.repair_order)
-		for charge_row in sparepart_rows_for_material_request(ro, self.service_charge_row, None):
+		service_charge_row = (self.service_charge_row or "").strip() or None
+		for charge_row in sparepart_rows_for_material_request(ro, service_charge_row, None):
 			row = charge_row_to_jc_spareparts_request_row(charge_row, self.technician)
 			if row:
 				self.append("spareparts_requests", row)
@@ -88,6 +91,71 @@ class JobCard(Document):
 			customer=self.customer,
 			context=_("Job Card work"),
 		)
+
+	def validate_single_job_card_per_repair_order(self):
+		if not self.repair_order or self.status == "Cancelled":
+			return
+		existing = frappe.get_all(
+			"Job Card",
+			filters={
+				"repair_order": self.repair_order,
+				"status": ("!=", "Cancelled"),
+				"name": ("!=", self.name or ""),
+			},
+			pluck="name",
+			limit=5,
+		)
+		if existing:
+			frappe.throw(
+				_(
+					"Repair Order {0} already has Job Card {1}. Only one Job Card is allowed per Repair Order."
+				).format(frappe.bold(self.repair_order), frappe.bold(existing[0])),
+			)
+
+	def validate_vehicle_schedule(self):
+		if self.status in ("Completed", "Cancelled"):
+			return
+		vehicle_key = self.vehicle_unit or self.plate_no
+		if not vehicle_key or not self.repair_date:
+			return
+
+		filters = [
+			["Job Card", "status", "not in", ("Completed", "Cancelled")],
+			["Job Card", "repair_date", "=", getdate(self.repair_date)],
+		]
+		if self.name:
+			filters.append(["Job Card", "name", "!=", self.name])
+		if self.vehicle_unit:
+			filters.append(["Job Card", "vehicle_unit", "=", self.vehicle_unit])
+		else:
+			filters.append(["Job Card", "plate_no", "=", self.plate_no])
+
+		existing = frappe.get_all(
+			"Job Card",
+			filters=filters,
+			fields=["name", "start_time", "end_time", "expected_completion_date"],
+			limit_page_length=50,
+		)
+		if not existing:
+			return
+
+		start_dt, end_dt = job_card_window(self)
+		if not start_dt or not end_dt:
+			frappe.throw(
+				_("An active Job Card already exists for this vehicle on {0}: {1}").format(
+					getdate(self.repair_date),
+					frappe.bold(existing[0].name),
+				),
+			)
+
+		for row in existing:
+			row_start, row_end = row_window(row, getdate(self.repair_date))
+			if not row_start or not row_end or intervals_overlap(start_dt, end_dt, row_start, row_end):
+				frappe.throw(
+					_("Job Card {0} already covers this vehicle in the selected repair window.").format(
+						frappe.bold(row.name),
+					),
+				)
 
 	@frappe.whitelist()
 	def calculate_total_hours(self):

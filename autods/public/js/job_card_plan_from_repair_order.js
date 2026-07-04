@@ -19,9 +19,14 @@
 			frappe.msgprint(__('Add at least one Service charge line on the Repair Order to create a Job Card.'));
 			return;
 		}
+		var serviceLineCount = plan.service_line_count != null ? plan.service_line_count : lines.length;
 		var sets = plan.settings || {};
 		var maxDays = sets.planning_max_extra_days != null ? sets.planning_max_extra_days : 0;
-		var settingsHtml = '<p class="text-muted small">' +
+		var introHtml = '<p class="small">' +
+			__('One Job Card is planned for this Repair Order, covering {0} service line(s) for a single technician.', [String(serviceLineCount)]) +
+			'</p>';
+		var settingsHtml = introHtml +
+			'<p class="text-muted small">' +
 			__('Auto work area: {0} · Auto technician: {1} · Respect bay capacity: {2} · Respect technician load: {3} · Allow overlapping schedules: {4}', [
 				sets.auto_assign_work_area ? __('Yes') : __('No'),
 				sets.auto_assign_technician ? __('Yes') : __('No'),
@@ -57,12 +62,29 @@
 				'</tr>';
 		}).join('');
 
+		var workDetailRows = [];
+		lines.forEach(function (line) {
+			(line.work_details || []).forEach(function (detail, idx) {
+				workDetailRows.push('<tr>' +
+					'<td>' + autods_job_plan_esc(String(idx + 1)) + '</td>' +
+					'<td>' + autods_job_plan_esc(detail.description || '') + '</td>' +
+					'<td class="text-end">' + autods_job_plan_esc(String(detail.standard_hours != null ? detail.standard_hours : '')) + '</td>' +
+					'</tr>');
+			});
+		});
+		var workDetailsTable = workDetailRows.length
+			? '<div class="mt-3"><p class="small text-muted mb-1">' + __('Work lines on this Job Card') + '</p>' +
+				'<table class="table table-bordered table-sm mb-0">' +
+				'<thead><tr><th>#</th><th>' + __('Description') + '</th><th>' + __('Standard Hours') + '</th></tr></thead>' +
+				'<tbody>' + workDetailRows.join('') + '</tbody></table></div>'
+			: '';
+
 		var table = '<div style="max-height:420px;overflow:auto;"><table class="table table-bordered table-sm">' +
 			'<thead><tr>' +
 			'<th>#</th><th>' + __('Date') + '</th><th>' + __('Item') + '</th><th>' + __('Description') + '</th><th>' + __('Standard Hours') + '</th>' +
 			'<th>' + __('Work area') + '</th><th>' + __('Skills group') + '</th><th>' + __('Technician') + '</th>' +
 			'<th>' + __('Planned window') + '</th><th>' + __('Warnings') + '</th><th>' + __('Existing') + '</th>' +
-			'</tr></thead><tbody>' + rows + '</tbody></table></div>';
+			'</tr></thead><tbody>' + rows + '</tbody></table></div>' + workDetailsTable;
 
 		var d = new frappe.ui.Dialog({
 			title: __('Job card plan') + ' — ' + autods_job_plan_esc(repair_order_name),
@@ -85,7 +107,7 @@
 						var skipped = msg.skipped || [];
 						var parts = [];
 						if (created.length) parts.push(__('Job Card created'));
-						if (skipped.length) parts.push(__('{0} skipped (already linked)', [skipped.length]));
+						if (skipped.length) parts.push(__('{0} skipped (Job Card already exists)', [skipped.length]));
 						frappe.show_alert({ message: parts.join(' · ') || __('Done'), indicator: 'green' });
 						if (typeof on_done === 'function') {
 							on_done();
