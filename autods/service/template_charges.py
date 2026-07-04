@@ -3,6 +3,8 @@
 
 """Map Service Template charge rows onto Repair Order / Repair Estimate charges."""
 
+import frappe
+
 TEMPLATE_CHARGE_FIELDS = (
 	"service_item_type",
 	"item",
@@ -34,3 +36,16 @@ def charge_row_from_template(row, template_name, extra=None):
 	if extra:
 		data.update(extra)
 	return data
+
+
+def apply_template_terms(doc, template):
+	"""Copy Terms and Conditions link and details from a Service Template."""
+	terms = getattr(template, "terms_and_conditions", None)
+	doc.terms_and_conditions = terms
+	if terms:
+		doc.tc_notes = (
+			frappe.db.get_value("Terms and Conditions", terms, "terms")
+			or getattr(template, "tc_notes", None)
+		)
+	else:
+		doc.tc_notes = getattr(template, "tc_notes", None)

@@ -273,7 +273,7 @@ class RepairEstimate(Document):
 	@frappe.whitelist()
 	def fetch_template_items(self, service_template=None):
 		"""Fetch charges and service inspections from Service Template."""
-		from autods.service.template_charges import charge_row_from_template
+		from autods.service.template_charges import apply_template_terms, charge_row_from_template
 
 		if not service_template:
 			frappe.throw(_("Please select a Service Template"))
@@ -281,8 +281,7 @@ class RepairEstimate(Document):
 		try:
 			template = frappe.get_doc("Service Template", template_name)
 			self.service_template = template_name
-			self.terms_and_conditions = getattr(template, "terms_and_conditions", None)
-			self.tc_notes = getattr(template, "tc_notes", None)
+			apply_template_terms(self, template)
 			self.charges = []
 
 			for row in template.charges or []:
