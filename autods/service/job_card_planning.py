@@ -35,6 +35,17 @@ def _service_charge_rows(ro):
 			yield row
 
 
+def _existing_job_cards_for_repair_order(repair_order: str) -> list[str]:
+	if not repair_order:
+		return []
+	return frappe.get_all(
+		"Job Card",
+		filters={"repair_order": repair_order, "status": ("!=", "Cancelled")},
+		pluck="name",
+		order_by="creation asc",
+	)
+
+
 def _charge_labor_hours(row, default: float) -> float:
 	"""Planned labor duration for a Service charge row."""
 	std = flt(getattr(row, "standard_hours", None))
@@ -390,6 +401,7 @@ def build_plan(ro) -> dict:
 			"repair_order": ro.name,
 			"repair_date": str(base),
 			"lines": [],
+			"service_line_count": 0,
 			"settings": planning_settings_payload(settings),
 		}
 
@@ -440,11 +452,8 @@ def build_plan(ro) -> dict:
 	if technician:
 		reserved_slots.append((technician, planned_start, planned_end))
 
-	existing_job_card = frappe.db.get_value(
-		"Job Card",
-		{"repair_order": ro.name, "status": ("!=", "Cancelled")},
-		"name",
-	)
+	existing_job_cards = _existing_job_cards_for_repair_order(ro.name)
+	existing_job_card = existing_job_cards[0] if existing_job_cards else None
 	description = "; ".join(descriptions[:3])
 	if len(descriptions) > 3:
 		description = _("{0} service lines").format(len(descriptions))
@@ -464,14 +473,22 @@ def build_plan(ro) -> dict:
 		"assignment_date": str(getdate(planned_start)),
 		"warnings": warnings,
 		"existing_job_card": existing_job_card,
+		"existing_job_cards": existing_job_cards,
 		"work_details": work_details,
 	}
+	if len(existing_job_cards) > 1:
+		line_dict["warnings"].append(
+			_(
+				"Multiple Job Cards already exist for this Repair Order ({0}). Only one Job Card is allowed per Repair Order."
+			).format(", ".join(existing_job_cards)),
+		)
 	lines.append(line_dict)
 
 	return {
 		"repair_order": ro.name,
 		"repair_date": str(base),
 		"lines": lines,
+		"service_line_count": len(service_rows),
 		"settings": planning_settings_payload(settings),
 	}
 

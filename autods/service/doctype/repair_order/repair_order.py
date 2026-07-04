@@ -332,14 +332,14 @@ class RepairOrder(Document):
 
 	@frappe.whitelist()
 	def get_job_card_plan(self):
-		"""Preview planned job cards (one per service charge line) with assignments and warnings."""
+		"""Preview the consolidated Job Card plan for this Repair Order."""
 		from autods.service.job_card_planning import build_plan
 
 		return build_plan(self)
 
 	@frappe.whitelist()
 	def create_job_cards_from_plan(self):
-		"""Create job cards from the current plan (skips charge rows that already have a job card)."""
+		"""Create one Job Card for this Repair Order (skipped when one already exists)."""
 		from autods.service.job_card_planning import create_job_cards
 
 		return create_job_cards(self)

@@ -78,10 +78,10 @@ class TestJobCardSparepartsPopulate(unittest.TestCase):
 		items = [call.args[1]["item_code"] for call in jc.append.call_args_list]
 		self.assertEqual(items, ["PART-A", "PART-B"])
 
-	def test_populate_spareparts_from_charges_skips_without_service_charge_row(self):
+	def test_populate_spareparts_from_charges_populates_all_without_service_charge_row(self):
 		jc = self._jc_mock(repair_order="RO-001")
 		JobCard.populate_spareparts_from_charges(jc, ro=self._make_ro())
-		jc.append.assert_not_called()
+		self.assertEqual(jc.append.call_count, 3)
 
 	def test_populate_spareparts_from_charges_skips_without_repair_order(self):
 		jc = self._jc_mock(service_charge_row="svc-a")
