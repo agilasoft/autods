@@ -198,7 +198,6 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Repair Type",
-   "link_filters": "[[\"Repair Type\",\"is_general_repair\",\"=\",1]]",
    "options": "Repair Type"
   },
   {

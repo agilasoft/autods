@@ -12,6 +12,77 @@ from frappe.desk.search import validate_and_sanitize_search_inputs
 from frappe.utils import nowdate
 
 
+def _repair_type_flag_for_service_type(service_type):
+	if not service_type:
+		return None
+
+	order_type_category = frappe.db.get_value(
+		"Service Type", service_type, "order_type_category", cache=True
+	)
+	if order_type_category in ("Body", "Paint"):
+		return "is_body_repair"
+	if order_type_category in ("General", "Special", "Other"):
+		return "is_general_repair"
+
+	return None
+
+
+@frappe.whitelist()
+@validate_and_sanitize_search_inputs
+def repair_type_link_query(doctype, txt, searchfield, start, page_len, filters, as_dict=False):
+	"""Repair Type search scoped by the selected Service Type category."""
+	doctype = "Repair Type"
+
+	if isinstance(filters, str):
+		filters = json.loads(filters) if filters else {}
+	filters = dict(filters or {})
+
+	service_type = filters.pop("service_type", None)
+	flag_field = _repair_type_flag_for_service_type(service_type)
+	flag_cond = f"and `tabRepair Type`.`{flag_field}` = 1" if flag_field else ""
+
+	meta = frappe.get_meta(doctype, cached=True)
+	searchfields = meta.get_search_fields()
+	searchfields = searchfields + [
+		field
+		for field in [
+			searchfield or "name",
+			"name",
+			"code",
+			"description",
+		]
+		if field not in searchfields
+	]
+	searchfields = " or ".join([f"`tabRepair Type`.`{field}` like %(txt)s" for field in searchfields])
+
+	bind = {
+		"txt": "%%%s%%" % txt,
+		"_txt": txt.replace("%", ""),
+		"start": start,
+		"page_len": page_len,
+	}
+
+	return frappe.db.sql(
+		"""select
+			`tabRepair Type`.name, `tabRepair Type`.description
+		from `tabRepair Type`
+		where `tabRepair Type`.docstatus < 2
+			and ({scond})
+			{flag_cond} {mcond}
+		order by
+			if(locate(%(_txt)s, `tabRepair Type`.name), locate(%(_txt)s, `tabRepair Type`.name), 99999),
+			if(locate(%(_txt)s, `tabRepair Type`.description), locate(%(_txt)s, `tabRepair Type`.description), 99999),
+			`tabRepair Type`.name
+		limit %(start)s, %(page_len)s """.format(
+			scond=searchfields,
+			flag_cond=flag_cond,
+			mcond=get_match_cond(doctype).replace("%", "%%"),
+		),
+		bind,
+		as_dict=as_dict,
+	)
+
+
 @frappe.whitelist()
 @validate_and_sanitize_search_inputs
 def charges_item_link_query(doctype, txt, searchfield, start, page_len, filters, as_dict=False):
