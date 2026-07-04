@@ -13,6 +13,7 @@ from autods.service.service_inspection_sync import (
 	find_service_inspection,
 	sync_repair_order_inspection_links,
 )
+from autods.service.vehicle_schedule_utils import validate_vehicle_repair_order_conflict
 
 
 class RepairOrder(Document):
@@ -28,8 +29,12 @@ class RepairOrder(Document):
 		self.calculate_bill_to_summaries()
 		self.validate_insurance_lines()
 		self.validate_charges()
+		self.validate_vehicle_schedule()
 		if self.validity_date and self.estimate_date and getdate(self.validity_date) < getdate(self.estimate_date):
 			frappe.throw(_("Validity Date cannot be before Estimate Date"))
+
+	def validate_vehicle_schedule(self):
+		validate_vehicle_repair_order_conflict(self)
 
 	def before_submit(self):
 		require_entry_gate_pass(
