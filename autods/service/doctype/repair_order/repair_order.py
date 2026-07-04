@@ -4,9 +4,10 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, flt, getdate
+from frappe.utils import cint, flt, getdate, nowdate, nowtime
 
 from autods.service.charge_service_row import service_row_index
+from autods.service.gate_pass_utils import has_entry_gate_pass, require_entry_gate_pass
 from autods.service.service_appointment_utils import get_expected_completion_datetime
 from autods.service.service_inspection_sync import (
 	find_service_inspection,
@@ -29,6 +30,14 @@ class RepairOrder(Document):
 		self.validate_charges()
 		if self.validity_date and self.estimate_date and getdate(self.validity_date) < getdate(self.estimate_date):
 			frappe.throw(_("Validity Date cannot be before Estimate Date"))
+
+	def before_submit(self):
+		require_entry_gate_pass(
+			vehicle_unit=self.vehicle_unit,
+			repair_order=self.name,
+			customer=self.customer,
+			context=_("Repair Order submission"),
+		)
 
 	def set_expected_completion_from_appointment(self):
 		if not self.service_appointment:
@@ -274,6 +283,8 @@ class RepairOrder(Document):
 		try:
 			template = frappe.get_doc("Service Template", template_name)
 			self.service_template = template_name
+			self.terms_and_conditions = getattr(template, "terms_and_conditions", None)
+			self.tc_notes = getattr(template, "tc_notes", None)
 			self.charges = []
 
 			for row in template.charges or []:
@@ -333,6 +344,55 @@ class RepairOrder(Document):
 		from autods.service.job_card_planning import create_job_cards
 
 		return create_job_cards(self)
+
+	@frappe.whitelist()
+	def create_gate_pass(self, gate_pass_type="Entry"):
+		"""Create an entry/exit Gate Pass prefilled from this Repair Order."""
+		if not self.name:
+			frappe.throw(_("Save the Repair Order before creating a Gate Pass"))
+		if not self.vehicle_unit:
+			frappe.throw(_("Vehicle Unit is required to create a Gate Pass"))
+
+		gate_pass_type = gate_pass_type if gate_pass_type in ("Entry", "Exit", "Both") else "Entry"
+		if gate_pass_type == "Entry":
+			existing = frappe.get_all(
+				"Gate Pass",
+				filters={
+					"repair_order": self.name,
+					"gate_pass_type": ("in", ("Entry", "Both")),
+					"status": ("in", ("Entry Only", "Completed")),
+				},
+				pluck="name",
+				limit_page_length=1,
+			)
+			if existing:
+				return {"doctype": "Gate Pass", "name": existing[0], "existing": True}
+		elif not has_entry_gate_pass(vehicle_unit=self.vehicle_unit, repair_order=self.name, customer=self.customer):
+			frappe.throw(_("Create a Gate Pass Entry before creating an exit pass."))
+
+		gate_pass = frappe.new_doc("Gate Pass")
+		gate_pass.gate_pass_type = gate_pass_type
+		gate_pass.repair_order = self.name
+		gate_pass.customer = self.customer
+		gate_pass.vehicle_unit = self.vehicle_unit
+		gate_pass.plate_no = self.plate_no
+		if gate_pass_type == "Entry":
+			gate_pass.entry_date = nowdate()
+			gate_pass.entry_time = nowtime()
+			gate_pass.status = "Entry Only"
+		elif gate_pass_type == "Exit":
+			gate_pass.exit_date = nowdate()
+			gate_pass.exit_time = nowtime()
+			gate_pass.status = "Exit Only"
+		else:
+			gate_pass.entry_date = nowdate()
+			gate_pass.entry_time = nowtime()
+			gate_pass.exit_date = nowdate()
+			gate_pass.exit_time = nowtime()
+			gate_pass.status = "Completed"
+		gate_pass.insert()
+		frappe.msgprint(_("Gate Pass {0} created.").format(frappe.bold(gate_pass.name)))
+		return {"doctype": gate_pass.doctype, "name": gate_pass.name}
 
 
 @frappe.whitelist()

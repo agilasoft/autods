@@ -16,7 +16,7 @@
 	function autods_render_job_card_plan_dialog(plan, repair_order_name, on_done) {
 		var lines = plan.lines || [];
 		if (!lines.length) {
-			frappe.msgprint(__('Add at least one Service charge line on the Repair Order to create job cards.'));
+			frappe.msgprint(__('Add at least one Service charge line on the Repair Order to create a Job Card.'));
 			return;
 		}
 		var sets = plan.settings || {};
@@ -71,20 +71,20 @@
 				{ fieldtype: 'HTML', fieldname: 'info', options: settingsHtml },
 				{ fieldtype: 'HTML', fieldname: 'tbl', options: table }
 			],
-			primary_action_label: __('Create job cards'),
+			primary_action_label: __('Create job card'),
 			primary_action: function () {
 				frappe.call({
 					method: 'autods.service.doctype.repair_order.repair_order.create_job_cards_from_plan_by_repair_order',
 					args: { repair_order: repair_order_name },
 					freeze: true,
-					freeze_message: __('Creating job cards...'),
+					freeze_message: __('Creating job card...'),
 					callback: function (res) {
 						d.hide();
 						var msg = res.message || {};
 						var created = msg.created || [];
 						var skipped = msg.skipped || [];
 						var parts = [];
-						if (created.length) parts.push(__('{0} created', [created.length]));
+						if (created.length) parts.push(__('Job Card created'));
 						if (skipped.length) parts.push(__('{0} skipped (already linked)', [skipped.length]));
 						frappe.show_alert({ message: parts.join(' · ') || __('Done'), indicator: 'green' });
 						if (typeof on_done === 'function') {

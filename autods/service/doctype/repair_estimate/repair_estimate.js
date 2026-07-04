@@ -445,6 +445,11 @@ function fetch_template_items(frm, template_name) {
 				if (r.message.doc.service_template) {
 					frm.set_value('service_template', r.message.doc.service_template);
 				}
+				['terms_and_conditions', 'tc_notes'].forEach(function(fieldname) {
+					if (frm.fields_dict[fieldname] && r.message.doc[fieldname] !== undefined) {
+						frm.set_value(fieldname, r.message.doc[fieldname]);
+					}
+				});
 				if (frm.docname && !frm.is_new()) {
 					frm.reload_doc();
 				}

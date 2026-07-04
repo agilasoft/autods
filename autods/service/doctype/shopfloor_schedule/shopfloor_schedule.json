@@ -114,6 +114,7 @@
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
  "modified": "2026-01-30 13:38:47.641285",
  "modified_by": "Administrator",
@@ -124,6 +125,7 @@
  "permissions": [
   {
    "create": 1,
+   "cancel": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
@@ -132,6 +134,7 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],

@@ -24,7 +24,10 @@
   "charges_tab",
   "charges",
   "service_inspections_tab",
-  "service_inspections"
+  "service_inspections",
+  "terms_and_conditions_tab",
+  "terms_and_conditions",
+  "tc_notes"
  ],
  "fields": [
   {
@@ -133,6 +136,23 @@
    "fieldtype": "Table",
    "label": "Service Inspections",
    "options": "Service Template Service Inspections"
+  },
+  {
+   "fieldname": "terms_and_conditions_tab",
+   "fieldtype": "Tab Break",
+   "label": "Terms and Conditions"
+  },
+  {
+   "fieldname": "terms_and_conditions",
+   "fieldtype": "Link",
+   "label": "Terms and Conditions",
+   "options": "Terms and Conditions"
+  },
+  {
+   "fetch_from": "terms_and_conditions.terms",
+   "fieldname": "tc_notes",
+   "fieldtype": "Text Editor",
+   "label": "Terms and Conditions Details"
   }
  ],
  "grid_page_length": 50,

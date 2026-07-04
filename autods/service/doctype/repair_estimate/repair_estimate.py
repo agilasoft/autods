@@ -281,6 +281,8 @@ class RepairEstimate(Document):
 		try:
 			template = frappe.get_doc("Service Template", template_name)
 			self.service_template = template_name
+			self.terms_and_conditions = getattr(template, "terms_and_conditions", None)
+			self.tc_notes = getattr(template, "tc_notes", None)
 			self.charges = []
 
 			for row in template.charges or []:
