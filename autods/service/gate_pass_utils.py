@@ -18,22 +18,16 @@ def has_entry_gate_pass(vehicle_unit=None, repair_order=None, customer=None, exc
 	]
 	if exclude_gate_pass:
 		filters.append(["Gate Pass", "name", "!=", exclude_gate_pass])
-	if repair_order:
-		filters.append(
-			[
-				"Gate Pass",
-				"repair_order",
-				"in",
-				(repair_order, ""),
-			],
-		)
 	if vehicle_unit:
 		filters.append(["Gate Pass", "vehicle_unit", "=", vehicle_unit])
 	elif customer:
 		filters.append(["Gate Pass", "customer", "=", customer])
 	else:
 		return False
-	return bool(frappe.get_all("Gate Pass", filters=filters, limit_page_length=1))
+	rows = frappe.get_all("Gate Pass", filters=filters, fields=["name", "repair_order"], limit_page_length=20)
+	if not repair_order:
+		return bool(rows)
+	return any(not row.repair_order or row.repair_order == repair_order for row in rows)
 
 
 def require_entry_gate_pass(vehicle_unit=None, repair_order=None, customer=None, context="this service visit"):
