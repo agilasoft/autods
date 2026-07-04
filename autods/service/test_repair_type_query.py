@@ -1,5 +1,41 @@
+import sys
+import types
 import unittest
 from unittest.mock import patch
+
+
+def _install_frappe_stubs():
+	if "frappe" in sys.modules:
+		return
+
+	frappe = types.ModuleType("frappe")
+	frappe.db = types.SimpleNamespace(get_value=lambda *args, **kwargs: None)
+	frappe.scrub = lambda value: value
+
+	def identity_decorator(*args, **kwargs):
+		if args and callable(args[0]):
+			return args[0]
+		return lambda fn: fn
+
+	frappe.whitelist = identity_decorator
+
+	desk = types.ModuleType("frappe.desk")
+	reportview = types.ModuleType("frappe.desk.reportview")
+	reportview.get_filters_cond = lambda *args, **kwargs: ""
+	reportview.get_match_cond = lambda *args, **kwargs: ""
+	search = types.ModuleType("frappe.desk.search")
+	search.validate_and_sanitize_search_inputs = identity_decorator
+	utils = types.ModuleType("frappe.utils")
+	utils.nowdate = lambda: "2026-01-01"
+
+	sys.modules["frappe"] = frappe
+	sys.modules["frappe.desk"] = desk
+	sys.modules["frappe.desk.reportview"] = reportview
+	sys.modules["frappe.desk.search"] = search
+	sys.modules["frappe.utils"] = utils
+
+
+_install_frappe_stubs()
 
 from autods.service.queries import _repair_type_flag_for_service_type
 
