@@ -1,16 +1,145 @@
 // Copyright (c) 2025, Agilasoft Technologies Inc. and contributors
 // For license information, please see license.txt
 
+/** Item link search: Service Job items, Spareparts by vehicle model, else Service Type match (Frappe 16). */
+function autods_charges_item_query(doc, row) {
+	var t = (row && row.service_item_type || '').trim();
+	if (t === 'Spareparts') {
+		if (!doc.vehicle_model) {
+			frappe.msgprint(__('Set a Vehicle Unit with a model before selecting spare parts.'));
+			return { filters: { name: ['in', []] } };
+		}
+		return {
+			query: 'autods.service.queries.spareparts_item_link_query',
+			filters: { vehicle_model: doc.vehicle_model },
+		};
+	}
+	if (t === 'Service') {
+		return {
+			filters: {
+				custom_service_job_item: 1,
+				custom_service_item_type: 'Service',
+			},
+		};
+	}
+	if (t === 'Overhead') {
+		return {
+			filters: {
+				custom_service_job_item: 1,
+				custom_service_item_type: 'Overhead',
+			},
+		};
+	}
+	if (!doc.service_type) {
+		return {};
+	}
+	return {
+		query: 'autods.service.queries.charges_item_link_query',
+		filters: { service_type: doc.service_type },
+	};
+}
+
+function autods_clear_charge_item_row(row) {
+	row.item = '';
+	row.item_name = '';
+	row.service_type = '';
+	row.uom = '';
+	row.rate = 0;
+	row.amount = 0;
+	row.standard_hours = 0;
+	row.qty = 0;
+}
+
+function autods_sync_expected_completion_from_sa(frm) {
+	if (!frm.doc.service_appointment || frm.doc.expected_completion_date || frm.doc.docstatus > 0) {
+		return;
+	}
+	frappe.call({
+		method: 'autods.service.doctype.repair_estimate.repair_estimate.get_expected_completion_for_appointment',
+		args: { service_appointment: frm.doc.service_appointment },
+		callback: function(r) {
+			if (r.message) {
+				frm.set_value('expected_completion_date', r.message);
+			}
+		},
+	});
+}
+
 frappe.ui.form.on('Repair Estimate', {
+	onload: function(frm) {
+		autods.service_datetime.patch_system_datetime_control(frm, 'expected_completion_date');
+		autods_sync_expected_completion_from_sa(frm);
+	},
+	service_type: function(frm) {
+		if (frm.fields_dict.charges) {
+			frm.refresh_field('charges');
+		}
+	},
+	vehicle_unit: function(frm) {
+		if (frm.fields_dict.charges) {
+			frm.refresh_field('charges');
+		}
+	},
+	vehicle_model: function(frm) {
+		if (frm.fields_dict.charges) {
+			frm.refresh_field('charges');
+		}
+	},
+	company: function(frm) {
+		if (frm.doc.company && !frm.doc.currency) {
+			frappe.db.get_value('Company', frm.doc.company, 'default_currency', function(r) {
+				if (r && r.default_currency) {
+					frm.set_value('currency', r.default_currency);
+				}
+			});
+		}
+	},
+	service_appointment: function(frm) {
+		autods_sync_expected_completion_from_sa(frm);
+	},
+	taxes_and_charges: function(frm) {
+		if (!frm.doc.taxes_and_charges) {
+			return;
+		}
+		var apply_template = function() {
+			frappe.call({
+				method: 'autods.service.doctype.repair_estimate.repair_estimate.get_tax_rows_from_template',
+				args: { template: frm.doc.taxes_and_charges },
+				callback: function(r) {
+					frm.clear_table('sales_taxes_and_charges');
+					(r.message || []).forEach(function(row) {
+						var d = frm.add_child('sales_taxes_and_charges');
+						Object.keys(row).forEach(function(k) {
+							if (['name', 'owner', 'creation', 'modified', 'modified_by', 'docstatus', 'parent', 'parentfield', 'parenttype', 'idx'].indexOf(k) === -1) {
+								d[k] = row[k];
+							}
+						});
+					});
+					frm.refresh_field('sales_taxes_and_charges');
+				}
+			});
+		};
+		if ((frm.doc.sales_taxes_and_charges || []).length) {
+			frappe.confirm(__('Replace existing Sales Taxes and Charges with this template?'), apply_template);
+		} else {
+			apply_template();
+		}
+	},
 	refresh: function(frm) {
+		autods_sync_expected_completion_from_sa(frm);
+		if (frm.fields_dict.charges) {
+			frm.set_query('item', 'charges', function(doc, cdt, cdn) {
+				return autods_charges_item_query(doc, locals[cdt][cdn]);
+			});
+		}
 		// Load Service Template (same as Repair Order)
 		frm.add_custom_button(__('Load Service Template'), function() {
 			load_service_template(frm);
 		}, __('Actions'));
 
-		// Make Repair Order: when Submitted or Approved and not yet converted
+		// Create Repair Order: when Submitted or Approved and not yet converted
 		if (frm.doc.docstatus === 1 && (frm.doc.status === 'Submitted' || frm.doc.status === 'Approved') && !frm.doc.repair_order) {
-			frm.add_custom_button(__('Make Repair Order'), function() {
+			frm.add_custom_button(__('Repair Order'), function() {
 				frm.call({
 					method: 'create_repair_order',
 					args: {
@@ -23,63 +152,55 @@ frappe.ui.form.on('Repair Estimate', {
 						}
 					}
 				});
-			}, __('Actions'));
+			}, __('Create'));
 		}
 		// Open linked Repair Order
 		if (frm.doc.repair_order) {
 			frm.add_custom_button(__('Open Repair Order'), function() {
 				frappe.set_route('Form', 'Repair Order', frm.doc.repair_order);
 			}, __('View'));
+			frm.add_custom_button(__('Job cards…'), function() {
+				if (window.autods_show_job_card_plan_for_ro) {
+					window.autods_show_job_card_plan_for_ro(frm.doc.repair_order, function() {
+						frm.reload_doc();
+					});
+				} else {
+					frappe.msgprint(__('Job card planning script is missing. Rebuild assets or refresh.'));
+				}
+			}, __('Create'));
 		}
 	}
 });
 
-frappe.ui.form.on('Repair Estimate Service Items', {
-	service_items_add: function() {
-		// Trigger totals recalc on client if needed
-	},
-	hours: function(frm, cdt, cdn) {
+frappe.ui.form.on('Repair Estimate Charges', {
+	charges_add: function() {},
+	service_item_type: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
-		row.amount = (parseFloat(row.hours) || 0) * (parseFloat(row.rate) || 0);
-		frm.refresh_field('service_items');
-		frm.refresh_field('grand_total');
+		autods_clear_charge_item_row(row);
+		frm.refresh_field('charges');
+	},
+	standard_hours: function(frm, cdt, cdn) {
+		/* Standard Hours is labor/planning only; does not affect Amount (Qty x Rate). */
 	},
 	rate: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
-		row.amount = (parseFloat(row.hours) || 0) * (parseFloat(row.rate) || 0);
-		frm.refresh_field('service_items');
-		frm.refresh_field('grand_total');
-	}
-});
-
-frappe.ui.form.on('Repair Estimate Parts', {
+		var t = (row.service_item_type || '').trim();
+		if (t === 'Service' || t === 'Spareparts' || t === 'Overhead') {
+			row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+		}
+		frm.refresh_field('charges');
+	},
 	qty: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
-		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
-		frm.refresh_field('spareparts');
-		frm.refresh_field('grand_total');
+		var t = (row.service_item_type || '').trim();
+		if (t === 'Service' || t === 'Spareparts' || t === 'Overhead') {
+			row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+			frm.refresh_field('charges');
+		}
 	},
-	rate: function(frm, cdt, cdn) {
-		var row = locals[cdt][cdn];
-		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
-		frm.refresh_field('spareparts');
-		frm.refresh_field('grand_total');
-	}
-});
-
-frappe.ui.form.on('Repair Estimate Sundry Items', {
-	qty: function(frm, cdt, cdn) {
-		var row = locals[cdt][cdn];
-		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
-		frm.refresh_field('sundry_items');
-		frm.refresh_field('grand_total');
+	bill_type: function(frm) {
+		frm.dirty();
 	},
-	rate: function(frm, cdt, cdn) {
-		var row = locals[cdt][cdn];
-		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
-		frm.refresh_field('sundry_items');
-		frm.refresh_field('grand_total');
-	}
 });
 
 function load_service_template(frm) {
@@ -135,11 +256,9 @@ function load_service_template(frm) {
 				frappe.msgprint(__('Please select a Service Template from the list'));
 				return;
 			}
-			if ((frm.doc.service_items && frm.doc.service_items.length > 0) ||
-				(frm.doc.spareparts && frm.doc.spareparts.length > 0) ||
-				(frm.doc.sundry_items && frm.doc.sundry_items.length > 0)) {
+			if (frm.doc.charges && frm.doc.charges.length > 0) {
 				frappe.confirm(
-					__('This will replace all existing service items, spareparts, and sundry items. Continue?'),
+					__('This will replace all existing charge lines. Continue?'),
 					function() {
 						fetch_template_items(frm, selected_template);
 						d.hide();
@@ -277,32 +396,10 @@ function fetch_template_items(frm, template_name) {
 		},
 		callback: function(r) {
 			if (r.message && r.message.doc) {
-				if (r.message.doc.service_items && r.message.doc.service_items.length > 0) {
-					frm.clear_table('service_items');
-					r.message.doc.service_items.forEach(function(item) {
-						var row = frm.add_child('service_items');
-						Object.keys(item).forEach(function(key) {
-							if (key !== 'name' && key !== 'idx') {
-								row[key] = item[key];
-							}
-						});
-					});
-				}
-				if (r.message.doc.spareparts && r.message.doc.spareparts.length > 0) {
-					frm.clear_table('spareparts');
-					r.message.doc.spareparts.forEach(function(item) {
-						var row = frm.add_child('spareparts');
-						Object.keys(item).forEach(function(key) {
-							if (key !== 'name' && key !== 'idx') {
-								row[key] = item[key];
-							}
-						});
-					});
-				}
-				if (r.message.doc.sundry_items && r.message.doc.sundry_items.length > 0) {
-					frm.clear_table('sundry_items');
-					r.message.doc.sundry_items.forEach(function(item) {
-						var row = frm.add_child('sundry_items');
+				if (r.message.doc.charges && r.message.doc.charges.length > 0) {
+					frm.clear_table('charges');
+					r.message.doc.charges.forEach(function(item) {
+						var row = frm.add_child('charges');
 						Object.keys(item).forEach(function(key) {
 							if (key !== 'name' && key !== 'idx') {
 								row[key] = item[key];
@@ -323,11 +420,11 @@ function fetch_template_items(frm, template_name) {
 						}
 					});
 				}
-				frm.refresh_field('service_items');
-				frm.refresh_field('spareparts');
-				frm.refresh_field('sundry_items');
+				frm.refresh_field('charges');
 				frm.refresh_field('quality_inspections');
-				frm.refresh_field('grand_total');
+				if (r.message.doc.service_template) {
+					frm.set_value('service_template', r.message.doc.service_template);
+				}
 				if (frm.docname && !frm.is_new()) {
 					frm.reload_doc();
 				}

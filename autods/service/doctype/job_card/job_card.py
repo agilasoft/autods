@@ -4,13 +4,55 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import get_datetime, time_diff_in_hours
+from frappe.utils import flt, get_datetime, getdate, now, time_diff_in_hours
+
+from autods.service.charge_service_row import (
+	service_line_index_for_charge_row_name,
+	sparepart_rows_for_material_request,
+)
 
 
 class JobCard(Document):
-	def validate(self):
-		self.calculate_total_hours()
+	def before_insert(self):
+		self.populate_spareparts_from_charges()
 
+	def validate(self):
+		self.sync_expected_completion_from_repair_order()
+		self.calculate_total_hours()
+		self.set_work_details_total_hours()
+
+	def sync_expected_completion_from_repair_order(self):
+		if not self.repair_order:
+			return
+		if self.expected_completion_date and self.has_value_changed("expected_completion_date"):
+			return
+		if not self.expected_completion_date or self.has_value_changed("repair_order"):
+			completion = frappe.db.get_value(
+				"Repair Order", self.repair_order, "expected_completion_date"
+			)
+			if completion:
+				self.expected_completion_date = completion
+
+	def populate_spareparts_from_charges(self, ro=None):
+		"""Copy Repair Order sparepart charge lines (scoped to service_charge_row) into spareparts_requests."""
+		if not self.repair_order or not self.service_charge_row:
+			return
+		if self.spareparts_requests:
+			return
+		if ro is None:
+			ro = frappe.get_doc("Repair Order", self.repair_order)
+		for charge_row in sparepart_rows_for_material_request(ro, self.service_charge_row, None):
+			row = charge_row_to_jc_spareparts_request_row(charge_row, self.technician)
+			if row:
+				self.append("spareparts_requests", row)
+
+	def set_work_details_total_hours(self):
+		total = 0.0
+		for row in self.work_details or []:
+			total += flt(row.hours_spent)
+		self.work_details_total_hours = total
+
+	@frappe.whitelist()
 	def calculate_total_hours(self):
 		"""Calculate total hours from start and end time"""
 		if self.start_time and self.end_time:
@@ -30,30 +72,69 @@ class JobCard(Document):
 
 	@frappe.whitelist()
 	def assign_technician_by_skills(self):
-		"""Assign technician based on required skills group"""
+		"""Rank active employees by skill coverage, same-skills-group history, bay presence, and daily load."""
 		if not self.technician_skills_group:
 			frappe.throw(_("Please select Required Skills Group first"))
 
-		# Get skills from the skills group
 		skills_group = frappe.get_doc("Technician Skills Group", self.technician_skills_group)
-		required_skills = [skill.skill_name for skill in skills_group.skills]
+		required_skills = [(skill.skill_name or "").strip() for skill in (skills_group.skills or []) if (skill.skill_name or "").strip()]
 
 		if not required_skills:
 			frappe.msgprint(_("No skills defined in the selected skills group"))
 			return []
 
-		# Get all active technicians
-		technicians = frappe.get_all(
-			"Employee",
-			filters={"status": "Active"},
-			fields=["name", "employee_name"]
-		)
-		return technicians
+		return rank_technicians_for_job_card(self, required_skills)
 
 	@frappe.whitelist()
-	def create_material_request(self):
+	def get_material_request_candidates(self):
+		"""Spareparts lines for MR: scoped to this Job Card's service line when possible, else full RO list."""
+		if not self.repair_order:
+			return {
+				"mode": "none",
+				"lines": [],
+				"fallback_lines": [],
+				"message": _("Repair Order is not set on this Job Card."),
+			}
+
+		ro = frappe.get_doc("Repair Order", self.repair_order)
+		all_spare = sparepart_rows_for_material_request(ro, None, None)
+		all_payload = _material_request_line_payloads(ro, all_spare)
+
+		if self.service_charge_row:
+			idx = service_line_index_for_charge_row_name(ro, self.service_charge_row)
+			if idx is None:
+				return {
+					"mode": "invalid_service_line",
+					"lines": [],
+					"fallback_lines": all_payload,
+					"message": _(
+						"This Job Card's service line is not on the Repair Order. Pick sparepart lines manually or relink the Job Card."
+					),
+				}
+			scoped = sparepart_rows_for_material_request(ro, self.service_charge_row, None)
+			scoped_payload = _material_request_line_payloads(ro, scoped)
+			if not scoped_payload and all_payload:
+				return {
+					"mode": "scoped_empty",
+					"lines": [],
+					"fallback_lines": all_payload,
+					"message": _("No spareparts are linked to this Job Card's service line on the Repair Order."),
+				}
+			return {"mode": "scoped", "lines": scoped_payload, "fallback_lines": [], "message": None}
+
+		return {
+			"mode": "picker",
+			"lines": all_payload,
+			"fallback_lines": [],
+			"message": None,
+		}
+
+	@frappe.whitelist()
+	def create_material_request(self, charge_row_names=None):
 		"""Create Material Request (Material Issue) from Job Card. Items from Repair Order spareparts.
-		References: Material Request -> job_card, repair_order (no Spareparts Request).
+
+		``charge_row_names``: optional list of ``Repair Order Charges`` row names (Spareparts) to include.
+		When omitted, spareparts are scoped to :py:attr:`service_charge_row` when set, otherwise all RO spareparts.
 		"""
 		if not self.name:
 			frappe.throw(_("Please save the Job Card first"))
@@ -61,9 +142,10 @@ class JobCard(Document):
 			frappe.throw(_("Repair Order is required to create a Material Request"))
 
 		ro = frappe.get_doc("Repair Order", self.repair_order)
-		spareparts = getattr(ro, "spareparts", None) or []
+		spareparts = resolve_sparepart_charge_rows(ro, self.service_charge_row, charge_row_names)
+
 		if not spareparts:
-			frappe.throw(_("Add items in the Repair Order Spareparts table first"))
+			frappe.throw(_("Add sparepart lines in the Repair Order Charges table first, or link parts to this service line."))
 
 		material_request = _create_material_request_from_repair_order(
 			repair_order=self.repair_order,
@@ -112,6 +194,205 @@ class JobCard(Document):
 	def check_technician_availability(self, technician, start_date, end_date):
 		"""Check if technician is available for the given time period"""
 		return check_technician_availability(technician, start_date, end_date, self.name)
+
+
+def resolve_sparepart_charge_rows(ro, service_charge_row, charge_row_names=None):
+	"""Return Repair Order Spareparts charge rows for MR or Job Card spareparts_requests."""
+	explicit = _parse_charge_row_names(charge_row_names)
+	if explicit is not None:
+		if not explicit:
+			frappe.throw(_("Select at least one sparepart line."))
+		_validate_explicit_sparepart_rows(ro, explicit)
+		return sparepart_rows_for_material_request(ro, None, explicit)
+	if service_charge_row:
+		if service_line_index_for_charge_row_name(ro, service_charge_row) is None:
+			frappe.throw(
+				_(
+					"This Job Card's service line is missing on the Repair Order. Select sparepart lines explicitly or fix the Job Card link."
+				)
+			)
+	return sparepart_rows_for_material_request(ro, service_charge_row, None)
+
+
+def charge_row_to_jc_spareparts_request_row(charge_row, technician=None):
+	"""Map a Repair Order Spareparts charge row to a Job Card Spareparts Request child row."""
+	item_code = getattr(charge_row, "item", None)
+	if not item_code:
+		return None
+	item_name = getattr(charge_row, "item_name", None)
+	if not item_name:
+		item_name = frappe.db.get_value("Item", item_code, "item_name")
+	uom = getattr(charge_row, "uom", None) or frappe.db.get_value("Item", item_code, "stock_uom")
+	return {
+		"item_code": item_code,
+		"item_name": item_name,
+		"qty": flt(getattr(charge_row, "qty", None)) or 1,
+		"uom": uom,
+		"requested_by": technician,
+		"requested_date": now(),
+		"status": "Requested",
+	}
+
+
+def _parse_charge_row_names(charge_row_names):
+	if charge_row_names is None or charge_row_names == "":
+		return None
+	if isinstance(charge_row_names, str):
+		charge_row_names = frappe.parse_json(charge_row_names)
+	if not isinstance(charge_row_names, (list, tuple)):
+		frappe.throw(_("charge_row_names must be a list of Repair Order charge row names."))
+	return [str(x) for x in charge_row_names if x]
+
+
+def _validate_explicit_sparepart_rows(ro, names: list[str]):
+	if not names:
+		frappe.throw(_("Select at least one sparepart line."))
+	valid = {
+		r.name
+		for r in (ro.get("charges") or [])
+		if (getattr(r, "service_item_type", None) or "").strip() == "Spareparts"
+	}
+	bad = set(names) - valid
+	if bad:
+		frappe.throw(_("Invalid sparepart row(s): {0}").format(", ".join(sorted(bad))))
+
+
+def _material_request_line_payloads(ro, rows):
+	payloads = []
+	for r in rows:
+		item_code = getattr(r, "item", None)
+		item_name = getattr(r, "item_name", None)
+		if not item_name and item_code:
+			item_name = frappe.db.get_value("Item", item_code, "item_name")
+		payloads.append(
+			{
+				"name": r.name,
+				"item_code": item_code,
+				"item_name": item_name,
+				"qty": flt(getattr(r, "qty", None)),
+				"service_row": getattr(r, "service_row", None) or "",
+			}
+		)
+	return payloads
+
+
+def _norm_skill(value: str | None) -> str:
+	return (value or "").strip().lower()
+
+
+def _open_job_count(employee: str, on_date, exclude_job_card: str | None) -> int:
+	if not employee or not on_date:
+		return 0
+	q = """
+		SELECT COUNT(*)
+		FROM `tabJob Card`
+		WHERE technician = %s
+		  AND repair_date = %s
+		  AND status NOT IN ('Completed', 'Cancelled')
+	"""
+	params: list = [employee, on_date]
+	if exclude_job_card:
+		q += " AND name != %s"
+		params.append(exclude_job_card)
+	return int(frappe.db.sql(q, tuple(params))[0][0] or 0)
+
+
+def rank_technicians_for_job_card(jc_doc, required_skill_names: list[str]):
+	"""Return active employees sorted by fit for ``jc_doc`` and ``required_skill_names``."""
+	required_set = {_norm_skill(s) for s in required_skill_names}
+	sg = jc_doc.technician_skills_group
+	employees = frappe.get_all("Employee", filters={"status": "Active"}, fields=["name", "employee_name"])
+	if not employees:
+		return []
+
+	skill_rows = frappe.db.sql(
+		"""
+		SELECT employee, skill_name FROM `tabEmployee Service Skill`
+		WHERE IFNULL(employee, '') != '' AND IFNULL(skill_name, '') != ''
+		""",
+		as_dict=True,
+	)
+	by_emp: dict[str, set[str]] = {}
+	for sr in skill_rows:
+		by_emp.setdefault(sr.employee, set()).add(_norm_skill(sr.skill_name))
+
+	completed_rows = frappe.db.sql(
+		"""
+		SELECT technician, COUNT(*)
+		FROM `tabJob Card`
+		WHERE technician_skills_group = %s AND status = %s AND IFNULL(technician, '') != ''
+		GROUP BY technician
+		""",
+		(sg, "Completed"),
+	)
+	completed = {r[0]: int(r[1] or 0) for r in completed_rows}
+
+	any_group = set(
+		frappe.get_all(
+			"Job Card",
+			filters={"technician_skills_group": sg, "technician": ("is", "set")},
+			pluck="technician",
+		)
+	)
+
+	rd = getdate(jc_doc.repair_date) if jc_doc.repair_date else None
+	wa = jc_doc.work_area
+	jc_name = jc_doc.name or ""
+
+	bay_counts: dict[str, int] = {}
+	if wa and rd:
+		q = """
+			SELECT technician, COUNT(*)
+			FROM `tabJob Card`
+			WHERE work_area = %s
+			  AND repair_date = %s
+			  AND status NOT IN ('Completed', 'Cancelled')
+			  AND IFNULL(technician, '') != ''
+		"""
+		params: list = [wa, rd]
+		if jc_name:
+			q += " AND name != %s"
+			params.append(jc_name)
+		q += " GROUP BY technician"
+		bay_counts = {r[0]: int(r[1] or 0) for r in frappe.db.sql(q, tuple(params))}
+
+	ranked = []
+	for emp in employees:
+		eid = emp.name
+		emp_skills = by_emp.get(eid, set())
+		if required_set and emp_skills:
+			coverage = len(required_set & emp_skills) / len(required_set)
+		elif required_set:
+			if completed.get(eid, 0) > 0:
+				coverage = 0.85
+			elif eid in any_group:
+				coverage = 0.45
+			else:
+				coverage = 0.0
+		else:
+			coverage = 1.0
+
+		open_jc = _open_job_count(eid, rd, jc_name) if rd else 0
+		bay_other = int(bay_counts.get(eid, 0) or 0)
+		score = (
+			coverage * 1000.0
+			+ min(completed.get(eid, 0), 20) * 5.0
+			+ bay_other * 15.0
+			- open_jc * 25.0
+		)
+		ranked.append(
+			{
+				"employee": eid,
+				"employee_name": emp.employee_name or eid,
+				"skills_match_pct": round(coverage * 100.0, 1),
+				"open_jobs_today": open_jc,
+				"bay_jobs_same_area": bay_other,
+				"score": round(score, 2),
+			}
+		)
+
+	ranked.sort(key=lambda r: (-r["score"], r["employee_name"], r["employee"]))
+	return ranked
 
 
 def _create_material_request_from_repair_order(repair_order, job_card, items):

@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-01-24 00:00:00.000000",
+ "creation": "2026-01-24 00:00:00",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -39,15 +39,15 @@
    "fieldname": "taken_by",
    "fieldtype": "Link",
    "label": "Taken By",
-   "options": "User"
+   "options": "Employee"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-01-24 00:00:00.000000",
- "modified_by": "Administrator",
+ "modified": "2026-06-24 11:06:35.563099",
+ "modified_by": "ejay.sambrano@agilasoft.com",
  "module": "Service",
  "name": "Repair Order Photos",
  "owner": "Administrator",

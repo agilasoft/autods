@@ -7,11 +7,13 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "dashboard_tab",
+  "dashboard_html",
   "details_tab",
   "naming_series",
   "estimate_date",
   "validity_date",
-  "service_order_type",
+  "service_type",
   "repair_type",
   "service_advisor",
   "customer",
@@ -25,6 +27,7 @@
   "column_break_fmfd",
   "status",
   "expected_completion_date",
+  "service_description",
   "section_break_vehicle_unit_info",
   "vehicle_make",
   "vehicle_model",
@@ -47,24 +50,73 @@
   "insurance_claim_no",
   "insurance_company",
   "warranty",
+  "section_insurance_billed_summary",
+  "insurance_billed_services_total",
+  "insurance_billed_parts_total",
+  "column_break_insurance_billed_1",
+  "insurance_billed_overhead_total",
+  "insurance_billed_subtotal",
+  "section_customer_collectibles_insurance",
+  "insurance_participation_fee",
+  "insurance_depreciation_fee",
+  "column_break_collectibles_1",
+  "insurance_other_fees_customer",
+  "insurance_other_fees_description",
+  "insurance_customer_collectibles_total",
   "concerns_tab",
   "cause_and_concerns_section",
   "concerns",
   "diagnostics_section",
   "diagnostics",
-  "service_items_tab",
-  "service_items",
-  "spareparts_tab",
-  "spareparts",
-  "sundry_items_tab",
-  "sundry_items",
-  "totals_section",
+  "quality_inspection_tab",
+  "quality_inspections",
+  "charges_tab",
+  "section_charges_line_items",
+  "charges",
+  "section_charges_by_service_item_type",
   "total_service_items_amount",
   "total_parts_amount",
   "total_sundry_items_amount",
+  "section_summary_customer",
+  "summary_customer_services",
+  "summary_customer_parts",
+  "summary_customer_overhead",
+  "column_break_summary_customer",
+  "summary_customer_net",
+  "summary_customer_tax",
+  "summary_customer_grand",
+  "section_summary_insurance",
+  "summary_insurance_services",
+  "summary_insurance_parts",
+  "summary_insurance_overhead",
+  "column_break_summary_insurance",
+  "summary_insurance_net",
+  "summary_insurance_tax",
+  "summary_insurance_grand",
+  "section_summary_warranty",
+  "summary_warranty_services",
+  "summary_warranty_parts",
+  "summary_warranty_overhead",
+  "column_break_summary_warranty",
+  "summary_warranty_net",
+  "summary_warranty_tax",
+  "summary_warranty_grand",
+  "section_summary_and_taxes",
+  "company",
+  "column_break_charges_hdr",
+  "currency",
+  "conversion_rate",
+  "tax_category",
+  "taxes_and_charges",
+  "section_break_sales_taxes_table",
+  "sales_taxes_and_charges",
+  "section_charges_totals",
+  "column_break_charges_totals_a",
+  "net_total",
+  "column_break_charges_totals_b",
+  "customer_total_responsibility",
+  "total_taxes_and_charges",
   "grand_total",
-  "quality_inspection_tab",
-  "quality_inspections",
   "photos_tab",
   "photos",
   "other_information_tab",
@@ -76,7 +128,11 @@
   "tc_notes",
   "section_break_repair_order_link",
   "service_appointment",
-  "repair_order"
+  "repair_order",
+  "amended_from",
+  "total_net_customer",
+  "total_net_insurance",
+  "total_net_warranty"
  ],
  "fields": [
   {
@@ -152,60 +208,314 @@
    "options": "Repair Type"
   },
   {
-   "fieldname": "service_items_tab",
+   "fieldname": "charges_tab",
    "fieldtype": "Tab Break",
-   "label": "Service Items"
+   "label": "Charges"
   },
   {
-   "fieldname": "service_items",
-   "fieldtype": "Table",
-   "label": "Service Items",
-   "options": "Repair Estimate Service Items"
-  },
-  {
-   "fieldname": "spareparts_tab",
-   "fieldtype": "Tab Break",
-   "label": "Spareparts"
-  },
-  {
-   "fieldname": "spareparts",
-   "fieldtype": "Table",
-   "label": "Spareparts",
-   "options": "Repair Estimate Parts"
-  },
-  {
-   "fieldname": "sundry_items_tab",
-   "fieldtype": "Tab Break",
-   "label": "Sundry Items"
-  },
-  {
-   "fieldname": "sundry_items",
-   "fieldtype": "Table",
-   "label": "Sundry Items",
-   "options": "Repair Estimate Sundry Items"
-  },
-  {
-   "collapsible": 1,
-   "fieldname": "totals_section",
+   "fieldname": "section_charges_line_items",
    "fieldtype": "Section Break",
-   "label": "Totals"
+   "label": "Line items"
+  },
+  {
+   "fieldname": "charges",
+   "fieldtype": "Table",
+   "label": "Charges",
+   "options": "Repair Estimate Charges"
+  },
+  {
+   "fieldname": "section_charges_by_service_item_type",
+   "fieldtype": "Section Break",
+   "label": "Totals (all lines)"
   },
   {
    "fieldname": "total_service_items_amount",
    "fieldtype": "Currency",
-   "label": "Total Service Items Amount",
+   "label": "Total Services",
+   "options": "currency",
    "read_only": 1
   },
   {
    "fieldname": "total_parts_amount",
    "fieldtype": "Currency",
-   "label": "Total Parts Amount",
+   "label": "Total Spareparts",
+   "options": "currency",
    "read_only": 1
   },
   {
    "fieldname": "total_sundry_items_amount",
    "fieldtype": "Currency",
-   "label": "Total Sundry Items Amount",
+   "label": "Total Overhead",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_summary_customer",
+   "fieldtype": "Section Break",
+   "label": "Customer Summary"
+  },
+  {
+   "fieldname": "summary_customer_services",
+   "fieldtype": "Currency",
+   "label": "Services",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "summary_customer_parts",
+   "fieldtype": "Currency",
+   "label": "Spareparts",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "summary_customer_overhead",
+   "fieldtype": "Currency",
+   "label": "Overhead",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_summary_customer",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "summary_customer_net",
+   "fieldtype": "Currency",
+   "label": "Net",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "summary_customer_tax",
+   "fieldtype": "Currency",
+   "label": "Tax (allocated)",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "summary_customer_grand",
+   "fieldtype": "Currency",
+   "label": "Total",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_summary_insurance",
+   "fieldtype": "Section Break",
+   "label": "Insurance Summary"
+  },
+  {
+   "fieldname": "summary_insurance_services",
+   "fieldtype": "Currency",
+   "label": "Services",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "summary_insurance_parts",
+   "fieldtype": "Currency",
+   "label": "Spareparts",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "summary_insurance_overhead",
+   "fieldtype": "Currency",
+   "label": "Overhead",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_summary_insurance",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "summary_insurance_net",
+   "fieldtype": "Currency",
+   "label": "Net",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "summary_insurance_tax",
+   "fieldtype": "Currency",
+   "label": "Tax (allocated)",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "summary_insurance_grand",
+   "fieldtype": "Currency",
+   "label": "Total",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_summary_warranty",
+   "fieldtype": "Section Break",
+   "label": "Warranty Summary"
+  },
+  {
+   "fieldname": "summary_warranty_services",
+   "fieldtype": "Currency",
+   "label": "Services",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "summary_warranty_parts",
+   "fieldtype": "Currency",
+   "label": "Spareparts",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "summary_warranty_overhead",
+   "fieldtype": "Currency",
+   "label": "Overhead",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_summary_warranty",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "summary_warranty_net",
+   "fieldtype": "Currency",
+   "label": "Net",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "summary_warranty_tax",
+   "fieldtype": "Currency",
+   "label": "Tax (allocated)",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "summary_warranty_grand",
+   "fieldtype": "Currency",
+   "label": "Total",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_net_customer",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Total Customer (net)",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_net_insurance",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Total Insurance (net)",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_net_warranty",
+   "fieldtype": "Currency",
+   "hidden": 1,
+   "label": "Total Warranty (net)",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_summary_and_taxes",
+   "fieldtype": "Section Break",
+   "label": "Summary & Taxes"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "remember_last_selected_value": 1
+  },
+  {
+   "fieldname": "column_break_charges_hdr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "default": "1",
+   "fieldname": "conversion_rate",
+   "fieldtype": "Float",
+   "label": "Exchange Rate",
+   "precision": "9"
+  },
+  {
+   "fieldname": "tax_category",
+   "fieldtype": "Link",
+   "label": "Tax Category",
+   "options": "Tax Category"
+  },
+  {
+   "fieldname": "taxes_and_charges",
+   "fieldtype": "Link",
+   "label": "Sales Taxes and Charges Template",
+   "options": "Sales Taxes and Charges Template"
+  },
+  {
+   "fieldname": "section_break_sales_taxes_table",
+   "fieldtype": "Section Break",
+   "label": "Sales Taxes and Charges"
+  },
+  {
+   "fieldname": "sales_taxes_and_charges",
+   "fieldtype": "Table",
+   "label": "Sales Taxes and Charges",
+   "options": "Sales Taxes and Charges"
+  },
+  {
+   "fieldname": "section_charges_totals",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "column_break_charges_totals_a",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "net_total",
+   "fieldtype": "Currency",
+   "label": "Net Total",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_charges_totals_b",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "customer_total_responsibility",
+   "fieldtype": "Currency",
+   "label": "Customer Total Responsibility",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_taxes_and_charges",
+   "fieldtype": "Currency",
+   "label": "Total Taxes and Charges",
+   "options": "currency",
    "read_only": 1
   },
   {
@@ -213,6 +523,7 @@
    "fieldname": "grand_total",
    "fieldtype": "Currency",
    "label": "Grand Total",
+   "options": "currency",
    "read_only": 1
   },
   {
@@ -238,12 +549,12 @@
    "options": "Repair Estimate Photos"
   },
   {
-   "fieldname": "service_order_type",
+   "fieldname": "service_type",
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Service Order Type",
-   "options": "Service Order Type"
+   "label": "Service Type",
+   "options": "Service Type"
   },
   {
    "fieldname": "service_advisor",
@@ -258,9 +569,11 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
+   "no_copy": 1,
    "options": "Draft\nSubmitted\nApproved\nRejected\nConverted to RO"
   },
   {
+   "description": "Shop local time (system timezone)",
    "fieldname": "expected_completion_date",
    "fieldtype": "Datetime",
    "label": "Expected Completion Date"
@@ -291,6 +604,85 @@
   },
   {
    "collapsible": 1,
+   "fieldname": "section_insurance_billed_summary",
+   "fieldtype": "Section Break",
+   "label": "Charges Billed to Insurance"
+  },
+  {
+   "fieldname": "insurance_billed_services_total",
+   "fieldtype": "Currency",
+   "label": "Insurance \u2014 Services",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "insurance_billed_parts_total",
+   "fieldtype": "Currency",
+   "label": "Insurance \u2014 Parts",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_insurance_billed_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "insurance_billed_overhead_total",
+   "fieldtype": "Currency",
+   "label": "Insurance \u2014 Overhead",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "insurance_billed_subtotal",
+   "fieldtype": "Currency",
+   "label": "Insurance Billed Subtotal",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_customer_collectibles_insurance",
+   "fieldtype": "Section Break",
+   "label": "Customer Collectibles (Insurance Job)"
+  },
+  {
+   "fieldname": "insurance_participation_fee",
+   "fieldtype": "Currency",
+   "label": "Participation Fee",
+   "options": "currency"
+  },
+  {
+   "fieldname": "insurance_depreciation_fee",
+   "fieldtype": "Currency",
+   "label": "Depreciation Fee",
+   "options": "currency"
+  },
+  {
+   "fieldname": "column_break_collectibles_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "insurance_other_fees_customer",
+   "fieldtype": "Currency",
+   "label": "Other Fees (Customer)",
+   "options": "currency"
+  },
+  {
+   "fieldname": "insurance_other_fees_description",
+   "fieldtype": "Small Text",
+   "label": "Other Fees Description"
+  },
+  {
+   "bold": 1,
+   "fieldname": "insurance_customer_collectibles_total",
+   "fieldtype": "Currency",
+   "label": "Customer Collectibles Total",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
    "fieldname": "section_break_vehicle_unit_info",
    "fieldtype": "Section Break",
    "label": "Vehicle Unit Information"
@@ -414,6 +806,7 @@
    "fetch_from": "vehicle_unit.purchase_price",
    "fieldname": "vehicle_purchase_price",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Purchase Price",
    "read_only": 1
   },
@@ -421,6 +814,7 @@
    "fetch_from": "vehicle_unit.current_cost",
    "fieldname": "vehicle_current_cost",
    "fieldtype": "Currency",
+   "hidden": 1,
    "label": "Current Cost",
    "read_only": 1
   },
@@ -485,6 +879,17 @@
    "label": "Details"
   },
   {
+   "fieldname": "dashboard_tab",
+   "fieldtype": "Tab Break",
+   "label": "Dashboard"
+  },
+  {
+   "fieldname": "dashboard_html",
+   "fieldtype": "HTML",
+   "label": " ",
+   "options": "<div class=\"autods-repair-dashboard-root\"></div>"
+  },
+  {
    "fieldname": "insurance_tab",
    "fieldtype": "Tab Break",
    "label": "Insurance"
@@ -510,23 +915,39 @@
    "fieldname": "service_appointment",
    "fieldtype": "Link",
    "label": "Service Appointment",
-   "options": "Service Appointment",
-   "read_only": 1
+   "no_copy": 1,
+   "options": "Service Appointment"
   },
   {
    "fieldname": "repair_order",
    "fieldtype": "Link",
    "label": "Repair Order",
-   "options": "Repair Order",
-   "read_only": 1
+   "no_copy": 1,
+   "options": "Repair Order"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Repair Estimate",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "service_appointment.subject",
+   "fieldname": "service_description",
+   "fieldtype": "Data",
+   "label": "Service Description"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-01-30 00:00:00",
- "modified_by": "Administrator",
+ "modified": "2026-06-30 14:10:20.013109",
+ "modified_by": "ejay.sambrano@agilasoft.com",
  "module": "Service",
  "name": "Repair Estimate",
  "naming_rule": "By \"Naming Series\" field",

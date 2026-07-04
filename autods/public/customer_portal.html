@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>CElectro — Customer Portal</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+	<style>
+		:root {
+			--blue: #1b6cff;
+			--blue-dark: #0d3d8c;
+			--blue-glow: rgba(27, 108, 255, 0.45);
+			--teal: #00c4b4;
+			--coral: #ff5a5f;
+			--coral-hover: #e84e53;
+			--gray-50: #f5f7fa;
+			--gray-100: #e8ecf1;
+			--gray-400: #8b95a5;
+			--gray-600: #5c6678;
+			--gray-900: #1a2332;
+			--white: #ffffff;
+			--radius: 12px;
+			--radius-sm: 8px;
+			--shadow-soft: 0 4px 20px rgba(13, 61, 140, 0.08);
+			--shadow-card: 0 8px 24px rgba(27, 108, 255, 0.25);
+			--shadow-pay: 0 10px 28px rgba(255, 90, 95, 0.35);
+		}
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: "Inter", system-ui, -apple-system, sans-serif;
+			background: linear-gradient(160deg, #e3eef9 0%, #f0f4f8 50%, #e8eef5 100%);
+			min-height: 100vh;
+			padding: 24px;
+			color: var(--gray-900);
+			line-height: 1.45;
+		}
+
+		.portal-shell {
+			max-width: 1180px;
+			margin: 0 auto;
+			background: var(--white);
+			border-radius: 20px;
+			overflow: hidden;
+			box-shadow: 0 24px 60px rgba(26, 35, 50, 0.12);
+		}
+
+		/* Header */
+		.portal-header {
+			background: linear-gradient(90deg, var(--blue) 0%, #2b7cff 100%);
+			color: var(--white);
+			padding: 18px 28px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 16px;
+		}
+
+		.brand {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-weight: 700;
+			font-size: 1.15rem;
+			letter-spacing: -0.02em;
+		}
+
+		.brand svg {
+			flex-shrink: 0;
+		}
+
+		.portal-header h1 {
+			font-size: clamp(1rem, 2.5vw, 1.35rem);
+			font-weight: 700;
+			text-align: center;
+			flex: 1;
+			letter-spacing: -0.02em;
+		}
+
+		.portal-body {
+			display: grid;
+			grid-template-columns: 1fr minmax(280px, 320px);
+			gap: 0;
+			min-height: 560px;
+		}
+
+		@media (max-width: 900px) {
+			.portal-body {
+				grid-template-columns: 1fr;
+			}
+			.sidebar {
+				border-left: none;
+				border-top: 1px solid var(--gray-100);
+			}
+		}
+
+		.main {
+			padding: 28px 32px 36px;
+		}
+
+		.section-title {
+			font-size: 1.05rem;
+			font-weight: 700;
+			color: var(--blue-dark);
+			margin-bottom: 14px;
+			letter-spacing: -0.02em;
+		}
+
+		.section-head-row {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 14px;
+		}
+
+		.section-head-row .section-title {
+			margin-bottom: 0;
+		}
+
+		.link-arrow {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			color: var(--blue);
+			font-size: 0.875rem;
+			font-weight: 500;
+			text-decoration: none;
+			cursor: pointer;
+			border: none;
+			background: none;
+			font-family: inherit;
+		}
+
+		.link-arrow:hover {
+			text-decoration: underline;
+		}
+
+		/* Bays */
+		.bay-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+			gap: 8px;
+			max-width: 640px;
+			margin-bottom: 32px;
+		}
+
+		.bay {
+			aspect-ratio: 1.15;
+			border: 1px solid var(--gray-100);
+			border-radius: var(--radius-sm);
+			background: var(--white);
+			color: var(--gray-600);
+			font-size: 0.75rem;
+			font-weight: 600;
+			cursor: pointer;
+			transition: transform 0.15s, box-shadow 0.15s, background 0.15s, color 0.15s, border-color 0.15s;
+		}
+
+		.bay:hover:not(:disabled) {
+			transform: translateY(-1px);
+		}
+
+		.bay.occupied {
+			background: var(--teal);
+			border-color: var(--teal);
+			color: var(--white);
+		}
+
+		.bay.selected {
+			background: var(--blue-dark);
+			border-color: var(--blue-dark);
+			color: var(--white);
+			box-shadow: 0 0 0 3px var(--blue-glow), var(--shadow-soft);
+		}
+
+		/* Vehicle */
+		.vehicle-block {
+			display: grid;
+			grid-template-columns: 1fr auto;
+			gap: 20px 24px;
+			align-items: start;
+			margin-bottom: 36px;
+		}
+
+		@media (max-width: 640px) {
+			.vehicle-block {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		.vehicle-text h2 {
+			font-size: 1.5rem;
+			font-weight: 700;
+			color: var(--blue-dark);
+			margin-bottom: 4px;
+		}
+
+		.vehicle-text .plate {
+			color: var(--gray-400);
+			font-size: 0.9rem;
+			margin-bottom: 16px;
+		}
+
+		.car-wrap {
+			max-width: 340px;
+		}
+
+		.car-wrap svg {
+			width: 100%;
+			height: auto;
+			display: block;
+		}
+
+		.vehicle-links {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			padding-top: 8px;
+		}
+
+		.last-service {
+			font-size: 0.85rem;
+			color: var(--gray-400);
+		}
+
+		/* Service cards */
+		.services-row {
+			display: flex;
+			gap: 12px;
+			overflow-x: auto;
+			padding-bottom: 8px;
+			scrollbar-width: thin;
+		}
+
+		.service-card {
+			flex: 0 0 140px;
+			border: 1px solid var(--gray-100);
+			border-radius: var(--radius);
+			padding: 14px 12px;
+			background: var(--white);
+			cursor: pointer;
+			text-align: left;
+			transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+			font-family: inherit;
+		}
+
+		.service-card:hover {
+			border-color: #c5d4e8;
+		}
+
+		.service-card.selected {
+			background: var(--blue);
+			border-color: var(--blue);
+			color: var(--white);
+			box-shadow: var(--shadow-card);
+		}
+
+		.service-card .svc-icon {
+			width: 28px;
+			height: 28px;
+			margin-bottom: 8px;
+			opacity: 0.55;
+		}
+
+		.service-card.selected .svc-icon {
+			opacity: 1;
+			color: var(--white);
+		}
+
+		.service-card .svc-name {
+			font-size: 0.8rem;
+			font-weight: 600;
+			margin-bottom: 6px;
+			line-height: 1.25;
+		}
+
+		.service-card .svc-meta {
+			font-size: 0.75rem;
+			color: var(--gray-600);
+		}
+
+		.service-card.selected .svc-meta {
+			color: rgba(255, 255, 255, 0.9);
+		}
+
+		/* Sidebar */
+		.sidebar {
+			background: var(--gray-50);
+			padding: 28px 22px 28px;
+			border-left: 1px solid var(--gray-100);
+			display: flex;
+			flex-direction: column;
+		}
+
+		.sidebar h2 {
+			font-size: 1.05rem;
+			font-weight: 700;
+			color: var(--blue-dark);
+			margin-bottom: 20px;
+		}
+
+		.donut-wrap {
+			display: flex;
+			justify-content: center;
+			margin-bottom: 22px;
+		}
+
+		.donut {
+			width: 160px;
+			height: 160px;
+			position: relative;
+		}
+
+		.donut svg {
+			width: 100%;
+			height: 100%;
+			transform: rotate(-90deg);
+		}
+
+		.donut-center {
+			position: absolute;
+			inset: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			pointer-events: none;
+		}
+
+		.donut-center span {
+			font-size: 0.7rem;
+			color: var(--gray-400);
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+		}
+
+		.donut-center strong {
+			font-size: 1.65rem;
+			font-weight: 700;
+			color: var(--blue-dark);
+			line-height: 1.2;
+		}
+
+		.order-list {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			margin-bottom: 14px;
+			min-height: 80px;
+		}
+
+		.order-item {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			background: var(--white);
+			border-radius: var(--radius);
+			padding: 12px 12px 12px 14px;
+			box-shadow: 0 2px 8px rgba(26, 35, 50, 0.04);
+			border: 1px solid var(--gray-100);
+		}
+
+		.order-item .swatch {
+			width: 10px;
+			height: 10px;
+			border-radius: 3px;
+			flex-shrink: 0;
+		}
+
+		.order-item .info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.order-item .name {
+			font-size: 0.82rem;
+			font-weight: 600;
+			color: var(--gray-900);
+		}
+
+		.order-item .price {
+			font-size: 0.8rem;
+			color: var(--gray-600);
+		}
+
+		.remove-btn {
+			width: 28px;
+			height: 28px;
+			border-radius: 50%;
+			border: none;
+			background: var(--coral);
+			color: var(--white);
+			font-size: 1.1rem;
+			line-height: 1;
+			cursor: pointer;
+			flex-shrink: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: background 0.15s;
+		}
+
+		.remove-btn:hover {
+			background: var(--coral-hover);
+		}
+
+		.add-service {
+			width: 100%;
+			padding: 14px;
+			border: 2px dashed var(--gray-100);
+			border-radius: var(--radius);
+			background: transparent;
+			color: var(--gray-600);
+			font-size: 0.875rem;
+			font-weight: 500;
+			font-family: inherit;
+			cursor: pointer;
+			margin-bottom: 18px;
+			transition: border-color 0.15s, color 0.15s;
+		}
+
+		.add-service:hover {
+			border-color: var(--blue);
+			color: var(--blue);
+		}
+
+		.pay-btn {
+			width: 100%;
+			padding: 16px 20px;
+			border: none;
+			border-radius: var(--radius);
+			background: var(--coral);
+			color: var(--white);
+			font-size: 1rem;
+			font-weight: 700;
+			letter-spacing: 0.04em;
+			cursor: pointer;
+			box-shadow: var(--shadow-pay);
+			font-family: inherit;
+			transition: background 0.15s, transform 0.1s;
+		}
+
+		.pay-btn:hover {
+			background: var(--coral-hover);
+		}
+
+		.pay-btn:active {
+			transform: scale(0.99);
+		}
+
+		.empty-order {
+			font-size: 0.85rem;
+			color: var(--gray-400);
+			text-align: center;
+			padding: 16px;
+		}
+	</style>
+</head>
+<body>
+	<div class="portal-shell">
+		<header class="portal-header">
+			<div class="brand" aria-label="CElectro">
+				<svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+					<circle cx="18" cy="18" r="16" stroke="white" stroke-width="2.5" fill="none" />
+					<path d="M22 10v6l4 2v4l-4-2v6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+				</svg>
+				<span>CElectro</span>
+			</div>
+			<h1>Electric car service station</h1>
+			<div style="width: 100px" aria-hidden="true"></div>
+		</header>
+
+		<div class="portal-body">
+			<main class="main">
+				<h2 class="section-title">Choose service space</h2>
+				<div class="bay-grid" id="bayGrid" role="group" aria-label="Service bays"></div>
+
+				<div class="vehicle-block">
+					<div>
+						<div class="vehicle-text">
+							<h2>Tesla Model 3</h2>
+							<p class="plate">Car plate L-4825</p>
+						</div>
+						<div class="car-wrap" aria-hidden="true">
+							<svg viewBox="0 0 320 120" xmlns="http://www.w3.org/2000/svg">
+								<path d="M20 75 Q40 55 100 50 L200 48 Q260 46 300 58 L305 72 L300 82 Q280 88 240 88 L100 90 Q50 92 25 88 Z" fill="none" stroke="#c5d0dc" stroke-width="1.5" />
+								<ellipse cx="85" cy="88" rx="22" ry="10" fill="none" stroke="#c5d0dc" stroke-width="1.5" />
+								<ellipse cx="235" cy="86" rx="24" ry="10" fill="none" stroke="#c5d0dc" stroke-width="1.5" />
+								<path d="M110 52 L210 50 Q230 50 245 58 L248 72 L110 76 Z" fill="rgba(255,90,95,0.12)" stroke="#ff5a5f" stroke-width="2" />
+								<line x1="130" y1="58" x2="220" y2="56" stroke="#ff5a5f" stroke-width="1" opacity="0.6" />
+								<path d="M255 62 L285 58" stroke="#c5d0dc" stroke-width="1.5" />
+							</svg>
+						</div>
+					</div>
+					<div class="vehicle-links">
+						<button type="button" class="link-arrow">
+							View full service history
+							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5" /></svg>
+						</button>
+						<p class="last-service">Last service 03/23/20</p>
+					</div>
+				</div>
+
+				<div class="section-head-row">
+					<h2 class="section-title">Services recommended to you</h2>
+					<button type="button" class="link-arrow">
+						See all services
+						<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3l5 5-5 5" /></svg>
+					</button>
+				</div>
+				<div class="services-row" id="servicesRow" role="list"></div>
+			</main>
+
+			<aside class="sidebar">
+				<h2>Your order</h2>
+				<div class="donut-wrap">
+					<div class="donut" id="donutHost">
+						<svg viewBox="0 0 100 100" aria-hidden="true">
+							<circle cx="50" cy="50" r="40" fill="none" stroke="#e8ecf1" stroke-width="14" />
+							<g id="donutSegments"></g>
+						</svg>
+						<div class="donut-center">
+							<span>Service time</span>
+							<strong id="totalHours">0 h</strong>
+						</div>
+					</div>
+				</div>
+				<div class="order-list" id="orderList"></div>
+				<button type="button" class="add-service" id="addServiceBtn">+ Add service</button>
+				<button type="button" class="pay-btn" id="payBtn">PAY <span id="payAmount">$0</span></button>
+			</aside>
+		</div>
+	</div>
+
+	<script>
+		(function () {
+			const bays = [
+				{ id: "1A" }, { id: "1B", occupied: true }, { id: "2A" }, { id: "2B" },
+				{ id: "3A" }, { id: "3B" }, { id: "4A", occupied: true }, { id: "4B" },
+				{ id: "5A" }, { id: "5B" }, { id: "6A" }, { id: "6B", occupied: true },
+				{ id: "7A" }, { id: "7B" }, { id: "8A" }, { id: "8B" },
+				{ id: "9A" }, { id: "9B", selected: true }, { id: "10A" }, { id: "10B" },
+				{ id: "11A", occupied: true }, { id: "11B" }, { id: "12A" }, { id: "12B" },
+			];
+
+			const catalog = [
+				{ id: "diag", name: "Diagnostics", price: 32, hours: 2.5, color: "#1b6cff", icon: "gear" },
+				{ id: "slow", name: "Slow charging", price: 12, hours: 8, color: "#00c4b4", icon: "plug" },
+				{ id: "fast", name: "Fast charging", price: 24, hours: 1.5, color: "#00c4b4", icon: "bolt" },
+				{ id: "inner", name: "Inner cleaning", price: 18, hours: 1, color: "#ff5a5f", icon: "vacuum" },
+			];
+
+			let order = [
+				{ id: "brake", name: "Brake fluid change", price: 32, hours: 1.2, color: "#00c4b4" },
+				{ id: "diag", name: "Diagnostics", price: 32, hours: 2.5, color: "#1b6cff" },
+				{ id: "wash", name: "External washing", price: 5, hours: 0.5, color: "#ff5a5f" },
+			];
+
+			const selectedServices = new Set(["diag"]);
+
+			const bayGrid = document.getElementById("bayGrid");
+			const servicesRow = document.getElementById("servicesRow");
+			const orderList = document.getElementById("orderList");
+			const donutSegments = document.getElementById("donutSegments");
+			const totalHoursEl = document.getElementById("totalHours");
+			const payAmountEl = document.getElementById("payAmount");
+			const payBtn = document.getElementById("payBtn");
+
+			function iconSvg(type, selected) {
+				const stroke = selected ? "#fff" : "#8b95a5";
+				const fill = "none";
+				if (type === "gear") {
+					return `<svg class="svc-icon" viewBox="0 0 24 24" fill="${fill}" stroke="${stroke}" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`;
+				}
+				if (type === "plug") {
+					return `<svg class="svc-icon" viewBox="0 0 24 24" fill="${fill}" stroke="${stroke}" stroke-width="1.5"><path d="M12 22v-5M9 8V2h2v6M15 8V2h2v6M5 10a7 7 0 0014 0V8H5v2z"/></svg>`;
+				}
+				if (type === "bolt") {
+					return `<svg class="svc-icon" viewBox="0 0 24 24" fill="${fill}" stroke="${stroke}" stroke-width="1.5"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/></svg>`;
+				}
+				return `<svg class="svc-icon" viewBox="0 0 24 24" fill="${fill}" stroke="${stroke}" stroke-width="1.5"><path d="M4 8h4l2 10h4l2-6h4"/></svg>`;
+			}
+
+			function renderBays() {
+				bayGrid.innerHTML = "";
+				let selectedId = bays.find((b) => b.selected)?.id;
+				bays.forEach((b) => {
+					const btn = document.createElement("button");
+					btn.type = "button";
+					btn.className = "bay";
+					btn.textContent = b.id;
+					btn.dataset.id = b.id;
+					if (b.occupied) btn.classList.add("occupied");
+					if (b.id === selectedId) btn.classList.add("selected");
+					btn.addEventListener("click", () => {
+						bays.forEach((x) => {
+							delete x.selected;
+						});
+						b.selected = true;
+						renderBays();
+					});
+					bayGrid.appendChild(btn);
+				});
+			}
+
+			function renderCatalog() {
+				servicesRow.innerHTML = "";
+				catalog.forEach((s) => {
+					const sel = selectedServices.has(s.id);
+					const card = document.createElement("button");
+					card.type = "button";
+					card.className = "service-card" + (sel ? " selected" : "");
+					card.dataset.id = s.id;
+					const h = s.hours >= 1 && s.hours % 1 ? s.hours.toFixed(1).replace(".", ",") : s.hours;
+					card.innerHTML = `${iconSvg(s.icon, sel)}<div class="svc-name">${s.name}</div><div class="svc-meta">$${s.price} · ${h} h</div>`;
+					card.addEventListener("click", () => {
+						if (selectedServices.has(s.id)) {
+							selectedServices.delete(s.id);
+							order = order.filter((o) => o.id !== s.id);
+						} else {
+							selectedServices.add(s.id);
+							if (!order.some((o) => o.id === s.id)) {
+								order.push({ id: s.id, name: s.name, price: s.price, hours: s.hours, color: s.color });
+							}
+						}
+						renderCatalog();
+						renderOrder();
+					});
+					servicesRow.appendChild(card);
+				});
+			}
+
+			function renderDonut() {
+				donutSegments.innerHTML = "";
+				const totalH = order.reduce((a, o) => a + o.hours, 0);
+				const totalPrice = order.reduce((a, o) => a + o.price, 0);
+				const cx = 50,
+					cy = 50,
+					r = 40;
+				const circumference = 2 * Math.PI * r;
+				let offset = 0;
+
+				if (totalH <= 0) {
+					totalHoursEl.textContent = "0 h";
+					payAmountEl.textContent = "$0";
+					return;
+				}
+
+				const fmt = totalH % 1 >= 0.05 ? totalH.toFixed(1).replace(".", ",") : Math.round(totalH);
+				totalHoursEl.textContent = fmt + " h";
+				payAmountEl.textContent = "$" + totalPrice;
+
+				order.forEach((o) => {
+					const frac = o.hours / totalH;
+					const len = Math.max(0.01, frac * circumference);
+					const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+					circle.setAttribute("cx", String(cx));
+					circle.setAttribute("cy", String(cy));
+					circle.setAttribute("r", String(r));
+					circle.setAttribute("fill", "none");
+					circle.setAttribute("stroke", o.color);
+					circle.setAttribute("stroke-width", "14");
+					circle.setAttribute("stroke-dasharray", `${len} ${circumference - len}`);
+					circle.setAttribute("stroke-dashoffset", String(-offset));
+					circle.setAttribute("stroke-linecap", "round");
+					donutSegments.appendChild(circle);
+					offset += len;
+				});
+			}
+
+			function renderOrder() {
+				orderList.innerHTML = "";
+				if (order.length === 0) {
+					const p = document.createElement("p");
+					p.className = "empty-order";
+					p.textContent = "No services yet. Pick recommended services or add your own.";
+					orderList.appendChild(p);
+					renderDonut();
+					return;
+				}
+				order.forEach((o) => {
+					const row = document.createElement("div");
+					row.className = "order-item";
+					row.innerHTML = `<span class="swatch" style="background:${o.color}"></span><div class="info"><div class="name">${o.name}</div><div class="price">$${o.price}</div></div><button type="button" class="remove-btn" aria-label="Remove ${o.name}">−</button>`;
+					row.querySelector(".remove-btn").addEventListener("click", () => {
+						order = order.filter((x) => x.id !== o.id);
+						selectedServices.delete(o.id);
+						renderCatalog();
+						renderOrder();
+					});
+					orderList.appendChild(row);
+				});
+				renderDonut();
+			}
+
+			document.getElementById("addServiceBtn").addEventListener("click", () => {
+				alert("In a full portal, this would open a service catalog or search.");
+			});
+
+			payBtn.addEventListener("click", () => {
+				const total = order.reduce((a, o) => a + o.price, 0);
+				if (total <= 0) {
+					alert("Add at least one service to continue.");
+					return;
+				}
+				alert("Proceed to payment: $" + total + " (demo only).");
+			});
+
+			renderBays();
+			renderCatalog();
+			renderOrder();
+		})();
+	</script>
+</body>
+</html>

@@ -35,9 +35,11 @@
   "current_cost",
   "warehouse",
   "column_break_trans",
+  "vehicle_receiving",
+  "vehicle_delivery_note",
+  "sales_invoice",
   "purchase_receipt",
   "delivery_note",
-  "sales_invoice",
   "cost_section",
   "total_accessory_cost",
   "total_unit_cost",
@@ -174,17 +176,17 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "purchase_receipt",
+   "fieldname": "vehicle_receiving",
    "fieldtype": "Link",
-   "label": "Purchase Receipt",
-   "options": "Purchase Receipt",
+   "label": "Vehicle Receiving",
+   "options": "Vehicle Receiving",
    "read_only": 1
   },
   {
-   "fieldname": "delivery_note",
+   "fieldname": "vehicle_delivery_note",
    "fieldtype": "Link",
-   "label": "Delivery Note",
-   "options": "Delivery Note",
+   "label": "Vehicle Delivery Note",
+   "options": "Vehicle Delivery Note",
    "read_only": 1
   },
   {
@@ -192,6 +194,22 @@
    "fieldtype": "Link",
    "label": "Sales Invoice",
    "options": "Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_receipt",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Purchase Receipt (legacy)",
+   "options": "Purchase Receipt",
+   "read_only": 1
+  },
+  {
+   "fieldname": "delivery_note",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Delivery Note (legacy)",
+   "options": "Delivery Note",
    "read_only": 1
   },
   {

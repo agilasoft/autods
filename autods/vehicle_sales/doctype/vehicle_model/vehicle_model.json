@@ -11,7 +11,8 @@
   "column_break_bxil",
   "make",
   "fuel_type",
-  "ev_type"
+  "ev_type",
+  "image"
  ],
  "fields": [
   {
@@ -48,12 +49,18 @@
    "fieldtype": "Select",
    "label": "EV Type",
    "options": "\nHEV\nPHEV\nBEV\nFCEV"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
   }
  ],
  "grid_page_length": 50,
+ "image_field": "image",
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-03 19:02:49.638041",
+ "modified": "2026-04-07 23:27:02.443725",
  "modified_by": "Administrator",
  "module": "Vehicle Sales",
  "name": "Vehicle Model",

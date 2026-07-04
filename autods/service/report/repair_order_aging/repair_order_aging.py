@@ -9,7 +9,37 @@ from datetime import date
 def execute(filters=None):
 	columns = get_columns()
 	data = get_data(filters)
-	return columns, data
+	chart = get_chart(data)
+	return columns, data, None, chart
+
+
+def get_chart(data):
+	if not data:
+		return None
+	buckets = [
+		(_("0-7 days"), lambda d: d <= 7),
+		(_("8-14 days"), lambda d: 8 <= d <= 14),
+		(_("15-30 days"), lambda d: 15 <= d <= 30),
+		(_("31-60 days"), lambda d: 31 <= d <= 60),
+		(_("60+ days"), lambda d: d > 60),
+	]
+	labels = [b[0] for b in buckets]
+	values = [0] * len(buckets)
+	for row in data:
+		days = row.get("days_open") or 0
+		for idx, (_label, predicate) in enumerate(buckets):
+			if predicate(days):
+				values[idx] += 1
+				break
+	return {
+		"data": {
+			"labels": labels,
+			"datasets": [{"name": _("Open Orders"), "values": values}],
+		},
+		"type": "bar",
+		"height": 300,
+		"colors": ["#7575ff"],
+	}
 
 
 def get_columns():

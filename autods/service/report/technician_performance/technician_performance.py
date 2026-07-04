@@ -8,7 +8,37 @@ from frappe import _
 def execute(filters=None):
 	columns = get_columns()
 	data = get_data(filters)
-	return columns, data
+	chart = get_chart(data)
+	return columns, data, None, chart
+
+
+def get_chart(data):
+	if not data:
+		return None
+	totals = {}
+	for d in data:
+		key = d.get("technician_name") or d.get("technician") or _("(Unknown)")
+		row = totals.setdefault(key, {"completed": 0, "open_or_wip": 0})
+		row["completed"] += int(d.get("completed") or 0)
+		row["open_or_wip"] += int(d.get("open_or_wip") or 0)
+	sorted_techs = sorted(
+		totals.items(), key=lambda kv: kv[1]["completed"] + kv[1]["open_or_wip"], reverse=True
+	)[:10]
+	labels = [t[0] for t in sorted_techs]
+	completed = [t[1]["completed"] for t in sorted_techs]
+	open_or_wip = [t[1]["open_or_wip"] for t in sorted_techs]
+	return {
+		"data": {
+			"labels": labels,
+			"datasets": [
+				{"name": _("Completed"), "values": completed},
+				{"name": _("Open / WIP"), "values": open_or_wip},
+			],
+		},
+		"type": "bar",
+		"barOptions": {"stacked": 1},
+		"height": 300,
+	}
 
 
 def get_columns():

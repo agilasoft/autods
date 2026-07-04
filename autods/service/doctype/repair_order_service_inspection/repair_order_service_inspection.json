@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-01-24 00:00:00.000000",
+ "creation": "2026-01-24 00:00:00",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -16,6 +16,7 @@
  ],
  "fields": [
   {
+   "fetch_from": "quality_inspection.inspection_name",
    "fieldname": "inspection_name",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -30,30 +31,34 @@
    "options": "Service Inspection"
   },
   {
+   "default": "Pending",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "Pending\nIn Progress\nCompleted\nRejected",
-   "default": "Pending"
+   "options": "Pending\nIn Progress\nCompleted\nRejected"
   },
   {
    "fieldname": "column_break_1",
    "fieldtype": "Column Break"
   },
   {
+   "fetch_from": "quality_inspection.inspection_date",
    "fieldname": "inspection_date",
    "fieldtype": "Date",
-   "label": "Inspection Date"
+   "label": "Inspection Date",
+   "search_index": 1
   },
   {
+   "fetch_from": "quality_inspection.inspected_by",
    "fieldname": "inspected_by",
    "fieldtype": "Link",
    "label": "Inspected By",
-   "options": "User"
+   "options": "Employee"
   },
   {
+   "fetch_from": "quality_inspection.remarks",
    "fieldname": "remarks",
    "fieldtype": "Long Text",
    "label": "Remarks"
@@ -63,8 +68,8 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-01-24 00:00:00.000000",
- "modified_by": "Administrator",
+ "modified": "2026-06-25 11:30:04.063713",
+ "modified_by": "ejay.sambrano@agilasoft.com",
  "module": "Service",
  "name": "Repair Order Service Inspection",
  "owner": "Administrator",

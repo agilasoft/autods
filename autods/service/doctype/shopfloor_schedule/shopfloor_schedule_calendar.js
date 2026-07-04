@@ -1,25 +1,18 @@
 // Copyright (c) 2025, Agilasoft Technologies Inc. and contributors
 // For license information, please see license.txt
 
-// Inject dark text for calendar events (override Frappe's light text for readability)
+// Inject calendar styles for ShopFloor Schedule. See the matching file in
+// service_appointment for the rationale; we use a separate style id and
+// class prefix here so the two calendars stay independent.
 (function () {
-	if (document.getElementById('autods-calendar-contrast')) return;
+	var STYLE_ID = 'autods-sfs-calendar';
+	if (document.getElementById(STYLE_ID)) return;
 	var style = document.createElement('style');
-	style.id = 'autods-calendar-contrast';
+	style.id = STYLE_ID;
 	style.textContent = [
-		'body .fc-theme-standard .fc-event,',
-		'body .fc-theme-standard .fc-event .fc-event-main,',
-		'body .fc-theme-standard .fc-event .fc-event-main-frame,',
-		'body .fc-theme-standard .fc-event .fc-event-title-container,',
-		'body .fc-theme-standard .fc-event a,',
-		'body .fc-theme-standard .fc-event .fc-event-main a,',
-		'body .fc-theme-standard .fc-time-grid-event .fc-event-main,',
-		'body .fc-theme-standard .fc-daygrid-event .fc-event-main,',
-		'body .fc-theme-standard .fc-time-grid-event .fc-event-title,',
-		'body .fc-theme-standard .fc-daygrid-event .fc-event-title {',
-		'  color: rgb(0, 112, 204) !important;',
-		'}',
-		'body .fc-theme-standard .fc-event .fc-event-title { font-weight: 600; }'
+		'body .fc-theme-standard .fc-event .fc-event-title { font-weight: 600; }',
+		'body .fc-theme-standard .fc-event.sfs-status-cancelled { opacity: 0.55; }',
+		'body .fc-theme-standard .fc-event.sfs-status-cancelled .fc-event-title { text-decoration: line-through; }'
 	].join('\n');
 	document.head.appendChild(style);
 })();
@@ -53,13 +46,20 @@ frappe.views.calendar['ShopFloor Schedule'] = {
 			label: __('Status')
 		}
 	],
-	style_map: {
-		Scheduled: 'default',
-		'In Progress': 'warning',
-		Completed: 'success',
-		Cancelled: 'default'
+	get_css_class: function (data) {
+		var palette = {
+			'Scheduled':   'blue',
+			'In Progress': 'orange',
+			'Completed':   'green',
+			'Cancelled':   'gray'
+		};
+		return palette[data && data.status] || 'blue';
 	},
-	get_css_class: function(data) {
-		return data.status ? 'calendar-' + (data.status.toLowerCase().replace(/\s+/g, '-')) : '';
+	options: {
+		eventClassNames: function (arg) {
+			var status = arg && arg.event && arg.event.extendedProps && arg.event.extendedProps.status;
+			if (!status) return [];
+			return ['sfs-status-' + String(status).toLowerCase().replace(/\s+/g, '-')];
+		}
 	}
 };

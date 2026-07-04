@@ -1,0 +1,84 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-13 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "default_vehicle_warehouse",
+  "default_cost_center",
+  "column_break_1",
+  "default_vehicle_inventory_account",
+  "default_cogs_account",
+  "default_stock_received_but_not_billed",
+  "default_supplier_account"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "default_vehicle_warehouse",
+   "fieldtype": "Link",
+   "label": "Default Vehicle Warehouse (Display Only)",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_vehicle_inventory_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Vehicle Inventory Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "default_cogs_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Cost of Goods Sold Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "default_stock_received_but_not_billed",
+   "fieldtype": "Link",
+   "label": "Stock Received But Not Billed",
+   "options": "Account"
+  },
+  {
+   "fieldname": "default_supplier_account",
+   "fieldtype": "Link",
+   "label": "Default Supplier (Creditors) Account",
+   "options": "Account"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-13 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Vehicle Sales",
+ "name": "Vehicle Sales Company Settings",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

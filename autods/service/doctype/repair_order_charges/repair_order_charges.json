@@ -1,0 +1,201 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-09 00:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+  "field_order": [
+  "service_item_type",
+  "item",
+  "item_name",
+  "service_type",
+  "description",
+  "service_row",
+  "column_break_main",
+  "standard_hours",
+  "qty",
+  "uom",
+  "rate",
+  "amount",
+  "column_break_bill",
+  "bill_type",
+  "bill_to",
+  "section_spare",
+  "item_type",
+  "warehouse",
+  "section_paint",
+  "color_code",
+  "paint_type",
+  "service_template"
+ ],
+ "fields": [
+  {
+   "default": "Service",
+   "fieldname": "service_item_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Service Item Type",
+   "options": "Service\nSpareparts\nOverhead",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Item",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "item.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.service_item_type=='Service'",
+   "fetch_from": "item.custom_service_type",
+   "fieldname": "service_type",
+   "fieldtype": "Link",
+   "label": "Service Type",
+   "options": "Service Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text",
+   "label": "Description"
+  },
+  {
+   "depends_on": "eval:[\"Spareparts\",\"Overhead\"].includes(doc.service_item_type)",
+   "description": "Which Service line this spare part or overhead belongs to (shown as #: item name).",
+   "fieldname": "service_row",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Service",
+   "options": ""
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.service_item_type=='Service'",
+   "fetch_from": "item.custom_std_hours",
+   "fetch_if_empty": 1,
+   "fieldname": "standard_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Standard Hours"
+  },
+  {
+   "depends_on": "eval:[\"Service\",\"Spareparts\",\"Overhead\"].includes(doc.service_item_type)",
+   "fieldname": "qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Qty"
+  },
+  {
+   "depends_on": "eval:[\"Service\",\"Spareparts\",\"Overhead\"].includes(doc.service_item_type)",
+   "fetch_from": "item.stock_uom",
+   "fieldname": "uom",
+   "fieldtype": "Link",
+   "label": "UOM",
+   "options": "UOM"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Rate"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_bill",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bill_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Bill To",
+   "options": "Customer\nInsurance\nWarranty"
+  },
+  {
+   "fieldname": "bill_to",
+   "fieldtype": "Link",
+   "label": "Bill To Party",
+   "options": "Customer"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.service_item_type=='Spareparts'",
+   "fieldname": "section_spare",
+   "fieldtype": "Section Break",
+   "label": "Part details"
+  },
+  {
+   "depends_on": "eval:doc.service_item_type=='Spareparts'",
+   "fieldname": "item_type",
+   "fieldtype": "Select",
+   "label": "Item Type",
+   "options": "Mechanical Part\nBody Part\nPaint Material\nOther"
+  },
+  {
+   "depends_on": "eval:doc.service_item_type=='Spareparts'",
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "depends_on": "eval:doc.service_item_type=='Spareparts' && doc.item_type=='Paint Material'",
+   "fieldname": "section_paint",
+   "fieldtype": "Section Break",
+   "label": "Paint Details"
+  },
+  {
+   "depends_on": "eval:doc.service_item_type=='Spareparts' && doc.item_type=='Paint Material'",
+   "fieldname": "color_code",
+   "fieldtype": "Data",
+   "label": "Color Code"
+  },
+  {
+   "depends_on": "eval:doc.service_item_type=='Spareparts' && doc.item_type=='Paint Material'",
+   "fieldname": "paint_type",
+   "fieldtype": "Select",
+   "label": "Paint Type",
+   "options": "Base\nClear\nPrimer\nOther"
+  },
+  {
+   "fieldname": "service_template",
+   "fieldtype": "Link",
+   "label": "Service Template",
+   "options": "Service Template",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-04-09 00:00:00",
+ "modified_by": "Administrator",
+ "module": "Service",
+ "name": "Repair Order Charges",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

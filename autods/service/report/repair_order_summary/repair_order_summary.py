@@ -18,7 +18,7 @@ def get_columns():
 		{"fieldname": "customer", "label": _("Customer"), "fieldtype": "Link", "options": "Customer", "width": 140},
 		{"fieldname": "vehicle_unit", "label": _("Vehicle Unit"), "fieldtype": "Link", "options": "Vehicle Unit", "width": 130},
 		{"fieldname": "status", "label": _("Status"), "fieldtype": "Data", "width": 100},
-		{"fieldname": "service_order_type", "label": _("Order Type"), "fieldtype": "Link", "options": "Service Order Type", "width": 120},
+		{"fieldname": "service_type", "label": _("Service Type"), "fieldtype": "Link", "options": "Service Type", "width": 120},
 		{"fieldname": "repair_type", "label": _("Repair Type"), "fieldtype": "Link", "options": "Repair Type", "width": 100},
 		{"fieldname": "grand_total", "label": _("Grand Total"), "fieldtype": "Currency", "width": 120},
 	]
@@ -47,7 +47,7 @@ def get_data(filters):
 			r.customer,
 			r.vehicle_unit,
 			r.status,
-			r.service_order_type,
+			r.service_type,
 			r.repair_type,
 			r.grand_total
 		from `tabRepair Order` r

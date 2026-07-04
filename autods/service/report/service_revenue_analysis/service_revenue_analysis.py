@@ -16,7 +16,7 @@ def get_columns():
 		{"fieldname": "name", "label": _("Repair Order"), "fieldtype": "Link", "options": "Repair Order", "width": 130},
 		{"fieldname": "repair_date", "label": _("Repair Date"), "fieldtype": "Date", "width": 100},
 		{"fieldname": "customer", "label": _("Customer"), "fieldtype": "Link", "options": "Customer", "width": 140},
-		{"fieldname": "service_order_type", "label": _("Order Type"), "fieldtype": "Link", "options": "Service Order Type", "width": 120},
+		{"fieldname": "service_type", "label": _("Service Type"), "fieldtype": "Link", "options": "Service Type", "width": 120},
 		{"fieldname": "repair_type", "label": _("Repair Type"), "fieldtype": "Link", "options": "Repair Type", "width": 100},
 		{"fieldname": "total_service_amount", "label": _("Service Amount"), "fieldtype": "Currency", "width": 120},
 		{"fieldname": "total_parts_amount", "label": _("Parts Amount"), "fieldtype": "Currency", "width": 120},
@@ -43,16 +43,16 @@ def get_data(filters):
 	if filters.get("repair_type"):
 		conditions.append("r.repair_type = %(repair_type)s")
 		values["repair_type"] = filters["repair_type"]
-	if filters.get("service_order_type"):
-		conditions.append("r.service_order_type = %(service_order_type)s")
-		values["service_order_type"] = filters["service_order_type"]
+	if filters.get("service_type"):
+		conditions.append("r.service_type = %(service_type)s")
+		values["service_type"] = filters["service_type"]
 	where = " and ".join(conditions)
 	query = f"""
 		select
 			r.name,
 			r.repair_date,
 			r.customer,
-			r.service_order_type,
+			r.service_type,
 			r.repair_type,
 			ifnull(r.total_service_items_amount, 0) as total_service_amount,
 			ifnull(r.total_parts_amount, 0) as total_parts_amount,

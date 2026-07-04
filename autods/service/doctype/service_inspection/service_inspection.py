@@ -6,6 +6,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import today
 
+from autods.service.service_inspection_sync import link_service_inspection_to_repair_order
+
 
 class ServiceInspection(Document):
 	def validate(self):
@@ -13,14 +15,20 @@ class ServiceInspection(Document):
 		# Auto-set inspection date if not set
 		if not self.inspection_date:
 			self.inspection_date = today()
-		
+
 		# Auto-set inspected_by to current user if not set
 		if not self.inspected_by:
 			self.inspected_by = frappe.session.user
-		
+
 		# Calculate overall result based on items if not manually set
 		if not self.overall_result or self.overall_result == "Pending":
 			self.calculate_overall_result()
+
+	def after_insert(self):
+		link_service_inspection_to_repair_order(self)
+
+	def on_update(self):
+		link_service_inspection_to_repair_order(self)
 	
 	def calculate_overall_result(self):
 		"""Calculate overall result based on inspection items"""

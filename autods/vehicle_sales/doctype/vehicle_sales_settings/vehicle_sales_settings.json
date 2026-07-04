@@ -1,0 +1,135 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "creation": "2026-06-13 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_section",
+  "vehicle_quote_naming_series",
+  "vehicle_sales_order_naming_series",
+  "column_break_naming",
+  "vehicle_delivery_naming_series",
+  "vehicle_receiving_naming_series",
+  "vehicle_cost_ledger_naming_series",
+  "behavior_section",
+  "block_vehicle_items_in_standard_flow",
+  "auto_post_je",
+  "column_break_behavior",
+  "auto_create_vehicle_unit",
+  "company_settings_section",
+  "company_settings"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_section",
+   "fieldtype": "Section Break",
+   "label": "Naming Series"
+  },
+  {
+   "default": "VSQ-.YYYY.-",
+   "fieldname": "vehicle_quote_naming_series",
+   "fieldtype": "Data",
+   "label": "Vehicle Sales Quote Naming Series"
+  },
+  {
+   "default": "VSO-.YYYY.-",
+   "fieldname": "vehicle_sales_order_naming_series",
+   "fieldtype": "Data",
+   "label": "Vehicle Sales Order Naming Series"
+  },
+  {
+   "fieldname": "column_break_naming",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "VDN-.YYYY.-",
+   "fieldname": "vehicle_delivery_naming_series",
+   "fieldtype": "Data",
+   "label": "Vehicle Delivery Note Naming Series"
+  },
+  {
+   "default": "VRC-.YYYY.-",
+   "fieldname": "vehicle_receiving_naming_series",
+   "fieldtype": "Data",
+   "label": "Vehicle Receiving Naming Series"
+  },
+  {
+   "default": "VCL-.YYYY.-",
+   "fieldname": "vehicle_cost_ledger_naming_series",
+   "fieldtype": "Data",
+   "label": "Vehicle Cost Ledger Naming Series"
+  },
+  {
+   "fieldname": "behavior_section",
+   "fieldtype": "Section Break",
+   "label": "Behavior"
+  },
+  {
+   "default": "1",
+   "description": "If checked, vehicle-tagged items cannot be used in standard Quotation, Sales Order, Delivery Note, or Purchase Receipt; they must be routed through Vehicle Sales Quote / Order / Delivery / Receiving.",
+   "fieldname": "block_vehicle_items_in_standard_flow",
+   "fieldtype": "Check",
+   "label": "Block Vehicle Items in Standard Selling/Buying Flow"
+  },
+  {
+   "default": "1",
+   "description": "If checked, Vehicle Receiving and Vehicle Delivery Note will auto-create and submit Journal Entries for GL posting on submit.",
+   "fieldname": "auto_post_je",
+   "fieldtype": "Check",
+   "label": "Auto-post Journal Entry on Submit"
+  },
+  {
+   "fieldname": "column_break_behavior",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "If checked, Vehicle Receiving will create a Vehicle Unit master automatically when one does not already exist for the chassis/VIN.",
+   "fieldname": "auto_create_vehicle_unit",
+   "fieldtype": "Check",
+   "label": "Auto-create Vehicle Unit on Receiving"
+  },
+  {
+   "fieldname": "company_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Per-Company Settings"
+  },
+  {
+   "fieldname": "company_settings",
+   "fieldtype": "Table",
+   "label": "Per-Company GL Defaults",
+   "options": "Vehicle Sales Company Settings"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_single": 1,
+ "links": [],
+ "modified": "2026-06-13 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Vehicle Sales",
+ "name": "Vehicle Sales Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Accounts Manager"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

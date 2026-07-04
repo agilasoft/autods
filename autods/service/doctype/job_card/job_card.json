@@ -7,6 +7,9 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "dashboard_tab",
+  "dashboard_html",
+  "details_tab",
   "naming_series",
   "repair_order",
   "customer",
@@ -22,10 +25,12 @@
   "technician",
   "technician_skills_group",
   "column_break_3",
-  "service_category",
   "repair_type",
+  "service_charge_row",
+  "planning_summary",
   "work_details_tab",
   "work_details",
+  "work_details_total_hours",
   "spareparts_request_tab",
   "spareparts_requests",
   "time_tracking_tab",
@@ -35,6 +40,17 @@
   "notes"
  ],
  "fields": [
+  {
+   "fieldname": "dashboard_tab",
+   "fieldtype": "Tab Break",
+   "label": "Dashboard"
+  },
+  {
+   "fieldname": "dashboard_html",
+   "fieldtype": "HTML",
+   "label": " ",
+   "options": "<div class=\"autods-repair-dashboard-root\"></div>"
+  },
   {
    "fieldname": "naming_series",
    "fieldtype": "Select",
@@ -79,6 +95,8 @@
    "label": "Repair Date"
   },
   {
+   "description": "Shop local time (system timezone)",
+   "fetch_from": "repair_order.expected_completion_date",
    "fieldname": "expected_completion_date",
    "fieldtype": "Datetime",
    "label": "Expected Completion Date"
@@ -127,16 +145,24 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "service_category",
-   "fieldtype": "Link",
-   "label": "Service Category",
-   "options": "Service Category"
-  },
-  {
    "fieldname": "repair_type",
    "fieldtype": "Link",
    "label": "Repair Type",
    "options": "Repair Type"
+  },
+  {
+   "fieldname": "service_charge_row",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Repair Order charge row",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "planning_summary",
+   "fieldtype": "Small Text",
+   "label": "Planning summary",
+   "read_only": 1
   },
   {
    "fieldname": "work_details_tab",
@@ -148,6 +174,12 @@
    "fieldtype": "Table",
    "label": "Work Details",
    "options": "Job Card Work Detail"
+  },
+  {
+   "fieldname": "work_details_total_hours",
+   "fieldtype": "Float",
+   "label": "Total Hours Spent",
+   "read_only": 1
   },
   {
    "fieldname": "spareparts_request_tab",
@@ -185,12 +217,17 @@
    "fieldname": "notes",
    "fieldtype": "Text Editor",
    "label": "Notes"
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-30 13:36:10.098552",
- "modified_by": "Administrator",
+ "modified": "2026-07-01 14:54:58.521752",
+ "modified_by": "ejay.sambrano@agilasoft.com",
  "module": "Service",
  "name": "Job Card",
  "naming_rule": "By \"Naming Series\" field",

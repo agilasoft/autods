@@ -7,21 +7,26 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "dashboard_tab",
+  "dashboard_html",
+  "details_tab",
   "details_section",
   "naming_series",
-  "appointment_date",
-  "appointment_start_time",
-  "appointment_end_time",
-  "status",
-  "column_break_details",
-  "service_advisor",
   "customer",
   "vehicle_unit",
+  "subject",
+  "column_break_details",
+  "appointment_date",
+  "expected_completion_date",
+  "appointment_start_time",
+  "appointment_end_time",
+  "service_advisor",
+  "status",
+  "vehicle_unit_details_section",
   "plate_no",
   "vehicle_id_no",
-  "subject",
   "service_info_section",
-  "service_order_type",
+  "service_type",
   "repair_type",
   "column_break_service_info",
   "contact_person",
@@ -126,15 +131,16 @@
    "label": "Subject / Description"
   },
   {
+   "collapsible": 1,
    "fieldname": "service_info_section",
    "fieldtype": "Section Break",
    "label": "Service Info"
   },
   {
-   "fieldname": "service_order_type",
+   "fieldname": "service_type",
    "fieldtype": "Link",
-   "label": "Service Order Type",
-   "options": "Service Order Type"
+   "label": "Service Type",
+   "options": "Service Type"
   },
   {
    "fieldname": "repair_type",
@@ -157,6 +163,7 @@
    "label": "Contact Mobile"
   },
   {
+   "collapsible": 1,
    "fieldname": "links_section",
    "fieldtype": "Section Break",
    "label": "Links"
@@ -165,6 +172,7 @@
    "fieldname": "repair_estimate",
    "fieldtype": "Link",
    "label": "Repair Estimate",
+   "no_copy": 1,
    "options": "Repair Estimate",
    "read_only": 1
   },
@@ -172,8 +180,8 @@
    "fieldname": "repair_order",
    "fieldtype": "Link",
    "label": "Repair Order",
-   "options": "Repair Order",
-   "read_only": 1
+   "no_copy": 1,
+   "options": "Repair Order"
   },
   {
    "fieldname": "other_section",
@@ -189,16 +197,51 @@
    "fieldname": "cancellation_reason",
    "fieldtype": "Small Text",
    "label": "Cancellation Reason"
+  },
+  {
+   "fieldname": "dashboard_tab",
+   "fieldtype": "Tab Break",
+   "label": "Dashboard"
+  },
+  {
+   "fieldname": "dashboard_html",
+   "fieldtype": "HTML",
+   "label": " ",
+   "options": "<div class=\"autods-repair-dashboard-root\"></div>"
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "vehicle_unit_details_section",
+   "fieldtype": "Section Break",
+   "label": "Vehicle Unit Details"
+  },
+  {
+   "fieldname": "expected_completion_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Expected Completion Date",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
+ "modified": "2026-07-01 11:56:01.500881",
+ "modified_by": "ejay.sambrano@agilasoft.com",
  "module": "Service",
  "name": "Service Appointment",
  "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
+   "amend": 1,
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -208,9 +251,12 @@
    "report": 1,
    "role": "Service User",
    "share": 1,
+   "submit": 1,
    "write": 1
   },
   {
+   "amend": 1,
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -220,9 +266,11 @@
    "report": 1,
    "role": "Service Manager",
    "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

@@ -43,7 +43,33 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+	"Job Card": [
+		"public/js/service_datetime.js",
+		"public/js/job_card_dashboard.js",
+	],
+	"Repair Estimate": [
+		"public/js/service_datetime.js",
+		"public/js/job_card_plan_from_repair_order.js",
+		"public/js/charges_overview.js",
+		"public/js/repair_service_dashboard.js",
+	],
+	"Repair Order": [
+		"public/js/service_datetime.js",
+		"public/js/job_card_plan_from_repair_order.js",
+		"public/js/charges_overview.js",
+		"public/js/repair_service_dashboard.js",
+	],
+	"Service Template": [
+		"public/js/charges_overview.js",
+		"service/doctype/service_template/service_template.js",
+	],
+	"Service Appointment": [
+		"public/js/service_datetime.js",
+		"public/js/job_card_plan_from_repair_order.js",
+		"public/js/repair_service_dashboard.js",
+	],
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -83,7 +109,11 @@ app_license = "mit"
 # ------------
 
 # before_install = "autods.install.before_install"
-# after_install = "autods.install.after_install"
+after_install = "autods.vehicle_sales.setup.after_install"
+
+# Migration
+# ---------
+after_migrate = "autods.vehicle_sales.setup.after_migrate"
 
 # Uninstallation
 # ------------
@@ -137,13 +167,31 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Item": {
+		"validate": "autods.vehicle_sales.validators.validate_vehicle_item",
+	},
+	"Purchase Order": {
+		"validate": "autods.vehicle_sales.validators.flag_vehicle_po",
+	},
+	"Purchase Receipt": {
+		"validate": "autods.vehicle_sales.validators.block_vehicle_items_in_pr",
+	},
+	"Quotation": {
+		"validate": "autods.vehicle_sales.validators.block_vehicle_items_in_standard",
+	},
+	"Sales Order": {
+		"validate": "autods.vehicle_sales.validators.block_vehicle_items_in_standard",
+	},
+	"Delivery Note": {
+		"validate": "autods.vehicle_sales.validators.block_vehicle_items_in_standard",
+	},
+	"Sales Invoice": {
+		"validate": "autods.vehicle_sales.si_integration.set_vehicle_links",
+		"on_submit": "autods.vehicle_sales.si_integration.on_si_submit",
+		"on_cancel": "autods.vehicle_sales.si_integration.on_si_cancel",
+	},
+}
 
 # Scheduled Tasks
 # ---------------

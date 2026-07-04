@@ -8,7 +8,23 @@ from frappe import _
 def execute(filters=None):
 	columns = get_columns()
 	data = get_data(filters)
-	return columns, data
+	chart = get_chart(data)
+	return columns, data, None, chart
+
+
+def get_chart(data):
+	if not data:
+		return None
+	labels = [d.get("bill_type") or _("(Not Set)") for d in data]
+	values = [float(d.get("total_amount") or 0) for d in data]
+	return {
+		"data": {
+			"labels": labels,
+			"datasets": [{"name": _("Total Amount"), "values": values}],
+		},
+		"type": "donut",
+		"height": 300,
+	}
 
 
 def get_columns():
@@ -39,9 +55,9 @@ def get_data(filters):
 			count(distinct p.parent) as order_count,
 			sum(p.qty) as total_qty,
 			sum(ifnull(p.amount, 0)) as total_amount
-		from `tabRepair Order Parts` p
+		from `tabRepair Order Charges` p
 		inner join `tabRepair Order` r on r.name = p.parent
-		where {where}
+		where p.service_item_type = 'Spareparts' and {where}
 		group by p.bill_type
 		order by total_amount desc
 	"""

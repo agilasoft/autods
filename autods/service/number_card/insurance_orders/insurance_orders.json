@@ -4,7 +4,7 @@
  "docstatus": 0,
  "doctype": "Number Card",
  "document_type": "Repair Order",
- "filters_json": "[[\"Repair Order\",\"repair_date\",\"Timespan\",\"this month\"],[\"Repair Order\",\"docstatus\",\"=\",1],[\"Repair Order\",\"name\",\"in\",\"(SELECT DISTINCT parent FROM `tabRepair Order Service Items` WHERE bill_type = 'Insurance' UNION SELECT DISTINCT parent FROM `tabRepair Order Parts` WHERE bill_type = 'Insurance' UNION SELECT DISTINCT parent FROM `tabRepair Order Sundry Items` WHERE bill_type = 'Insurance')\"]]",
+ "filters_json": "[[\"Repair Order\",\"repair_date\",\"Timespan\",\"this month\"],[\"Repair Order\",\"docstatus\",\"=\",1],[\"Repair Order\",\"name\",\"in\",\"(SELECT DISTINCT parent FROM `tabRepair Order Charges` WHERE bill_type = 'Insurance')\"]]",
  "function": "Count",
  "idx": 0,
  "is_public": 1,

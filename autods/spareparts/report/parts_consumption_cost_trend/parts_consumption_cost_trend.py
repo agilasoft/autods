@@ -41,9 +41,9 @@ def get_data(filters):
 			count(distinct p.parent) as repair_order_count,
 			sum(ifnull(p.amount, 0)) as total_parts_amount,
 			sum(p.qty) as total_qty
-		from `tabRepair Order Parts` p
+		from `tabRepair Order Charges` p
 		inner join `tabRepair Order` r on r.name = p.parent
-		where {where}
+		where p.service_item_type = 'Spareparts' and {where}
 		group by {group_expr}
 		order by period desc
 	"""

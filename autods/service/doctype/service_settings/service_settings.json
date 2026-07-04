@@ -12,7 +12,24 @@
   "column_break_jssj",
   "autogenerate_job_card",
   "allow_overlapping_schedules",
-  "notify_assigned_technician"
+  "notify_assigned_technician",
+  "section_job_card_planning",
+  "auto_assign_work_area",
+  "auto_assign_technician",
+  "respect_work_area_capacity",
+  "respect_technician_load",
+  "column_break_planning_1",
+  "planning_max_extra_days",
+  "planning_work_area_full",
+  "planning_past_shop_close",
+  "planning_technician_overlap",
+  "column_break_planning_1b",
+  "planning_default_work_area",
+  "planning_default_technician_skills_group",
+  "column_break_planning_2",
+  "planning_shop_opens",
+  "planning_shop_closes",
+  "planning_slot_hours"
  ],
  "fields": [
   {
@@ -60,13 +77,121 @@
    "fieldname": "notify_assigned_technician",
    "fieldtype": "Check",
    "label": "Notify Assigned Technician"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_job_card_planning",
+   "fieldtype": "Section Break",
+   "label": "Job card planning"
+  },
+  {
+   "default": "0",
+   "description": "Suggest a work area (workstation) from Service Type defaults or the fallbacks below.",
+   "fieldname": "auto_assign_work_area",
+   "fieldtype": "Check",
+   "label": "Auto-assign work area"
+  },
+  {
+   "default": "0",
+   "description": "Pick the least-loaded active technician, respecting overlap rules when enabled.",
+   "fieldname": "auto_assign_technician",
+   "fieldtype": "Check",
+   "label": "Auto-assign technician"
+  },
+  {
+   "default": "1",
+   "description": "Warn in the planning preview when the work area is already at vehicle capacity for that day.",
+   "fieldname": "respect_work_area_capacity",
+   "fieldtype": "Check",
+   "label": "Respect work area capacity"
+  },
+  {
+   "default": "1",
+   "description": "Prefer technicians without overlapping job windows on the same day (unless overlapping schedules are allowed).",
+   "fieldname": "respect_technician_load",
+   "fieldtype": "Check",
+   "label": "Respect technician load / overlap"
+  },
+  {
+   "fieldname": "column_break_planning_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "How many calendar days after the repair order date the planner may move slots when using slide rules below. 0 = same calendar day only.",
+   "fieldname": "planning_max_extra_days",
+   "fieldtype": "Int",
+   "label": "Max extra days for sliding slots"
+  },
+  {
+   "default": "warn_only",
+   "description": "When the work area is already at vehicle capacity on a day. Sliding requires Max extra days > 0.",
+   "fieldname": "planning_work_area_full",
+   "fieldtype": "Select",
+   "label": "When work area is at capacity",
+   "options": "warn_only\nomit_work_area\nslide_next_day"
+  },
+  {
+   "default": "warn_only",
+   "description": "When a job would run past workshop closing time. Sliding requires Max extra days > 0.",
+   "fieldname": "planning_past_shop_close",
+   "fieldtype": "Select",
+   "label": "When slot passes shop close",
+   "options": "warn_only\nslide_next_day"
+  },
+  {
+   "default": "warn_only",
+   "description": "When no technician is free of overlapping jobs in the planned window (and overlapping schedules are not allowed).",
+   "fieldname": "planning_technician_overlap",
+   "fieldtype": "Select",
+   "label": "When every technician overlaps",
+   "options": "warn_only\nomit_technician\nblock_plan"
+  },
+  {
+   "fieldname": "column_break_planning_1b",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "planning_default_work_area",
+   "fieldtype": "Link",
+   "label": "Default work area",
+   "options": "Work Area"
+  },
+  {
+   "fieldname": "planning_default_technician_skills_group",
+   "fieldtype": "Link",
+   "label": "Default technician skills group",
+   "options": "Technician Skills Group"
+  },
+  {
+   "fieldname": "column_break_planning_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "09:00:00",
+   "fieldname": "planning_shop_opens",
+   "fieldtype": "Time",
+   "label": "Workshop day starts"
+  },
+  {
+   "default": "17:00:00",
+   "fieldname": "planning_shop_closes",
+   "fieldtype": "Time",
+   "label": "Workshop day ends"
+  },
+  {
+   "default": "2",
+   "description": "Minimum planned duration per service job card when staggering (hours).",
+   "fieldname": "planning_slot_hours",
+   "fieldtype": "Float",
+   "label": "Planning slot hours"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-06-04 23:47:02.754111",
+ "modified": "2026-04-10 18:00:00.000000",
  "modified_by": "Administrator",
  "module": "Service",
  "name": "Service Settings",

@@ -1,1 +1,413 @@
-{"app": "autods", "charts": [], "content": "[{\"id\":\"c1\",\"type\":\"card\",\"data\":{\"card_name\":\"Parts & Compatibility\",\"col\":6}},{\"id\":\"c2\",\"type\":\"card\",\"data\":{\"card_name\":\"Operational Reports\",\"col\":4}},{\"id\":\"c3\",\"type\":\"card\",\"data\":{\"card_name\":\"Cost Analysis Reports\",\"col\":4}},{\"id\":\"c4\",\"type\":\"card\",\"data\":{\"card_name\":\"Analytics & Insights\",\"col\":4}}]", "custom_blocks": [], "docstatus": 0, "doctype": "Workspace", "for_user": "", "hide_custom": 0, "icon": "package", "idx": 0, "is_hidden": 0, "label": "Spareparts", "link_type": "DocType", "links": [{"hidden": 0, "is_query_report": 0, "label": "Parts & Compatibility", "link_count": 0, "onboard": 0, "type": "Card Break"}, {"dependencies": "", "hidden": 0, "is_query_report": 0, "label": "Parts Compatibility", "link_count": 0, "link_to": "Parts Compatibility", "link_type": "DocType", "onboard": 1, "type": "Link"}, {"dependencies": "", "hidden": 0, "is_query_report": 0, "label": "Parts Supersession", "link_count": 0, "link_to": "Parts Supersession", "link_type": "DocType", "onboard": 0, "type": "Link"}, {"hidden": 0, "is_query_report": 0, "label": "Operational Reports", "link_count": 4, "onboard": 0, "type": "Card Break"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Open Orders Parts Demand", "link_count": 0, "link_to": "Open Orders Parts Demand", "link_type": "Report", "onboard": 0, "type": "Link"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Parts Compatibility List", "link_count": 0, "link_to": "Parts Compatibility List", "link_type": "Report", "onboard": 0, "type": "Link"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Compatible Parts by Model", "link_count": 0, "link_to": "Compatible Parts by Model", "link_type": "Report", "onboard": 0, "type": "Link"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Compatibility by Make", "link_count": 0, "link_to": "Compatibility by Make", "link_type": "Report", "onboard": 0, "type": "Link"}, {"hidden": 0, "is_query_report": 0, "label": "Cost Analysis Reports", "link_count": 4, "onboard": 0, "type": "Card Break"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Parts Consumption Cost Trend", "link_count": 0, "link_to": "Parts Consumption Cost Trend", "link_type": "Report", "onboard": 0, "type": "Link"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Spareparts Usage in Repairs", "link_count": 0, "link_to": "Spareparts Usage in Repairs", "link_type": "Report", "onboard": 0, "type": "Link"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Parts Cost by Item Type", "link_count": 0, "link_to": "Parts Cost by Item Type", "link_type": "Report", "onboard": 0, "type": "Link"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Parts Avg Price Trend", "link_count": 0, "link_to": "Parts Avg Price Trend", "link_type": "Report", "onboard": 0, "type": "Link"}, {"hidden": 0, "is_query_report": 0, "label": "Analytics & Insights", "link_count": 4, "onboard": 0, "type": "Card Break"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Top Parts by Usage", "link_count": 0, "link_to": "Top Parts by Usage", "link_type": "Report", "onboard": 0, "type": "Link"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Parts Supersession List", "link_count": 0, "link_to": "Parts Supersession List", "link_type": "Report", "onboard": 0, "type": "Link"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Compatibility Count by Part", "link_count": 0, "link_to": "Compatibility Count by Part", "link_type": "Report", "onboard": 0, "type": "Link"}, {"dependencies": "", "hidden": 0, "is_query_report": 1, "label": "Parts Usage by Make", "link_count": 0, "link_to": "Parts Usage by Make", "link_type": "Report", "onboard": 0, "type": "Link"}, {"hidden": 0, "is_query_report": 0, "label": "Settings", "link_count": 0, "onboard": 0, "type": "Card Break"}, {"dependencies": "", "hidden": 0, "is_query_report": 0, "label": "Spareparts Settings", "link_count": 0, "link_to": "Spareparts Settings", "link_type": "DocType", "onboard": 0, "type": "Link"}], "modified": "2026-02-06 00:00:00.000000", "modified_by": "Administrator", "module": "Spareparts", "name": "Spareparts", "number_cards": [], "owner": "Administrator", "parent_page": "", "public": 1, "quick_lists": [], "roles": [], "sequence_id": 7, "shortcuts": [{"color": "Blue", "doc_view": "List", "label": "Parts Compatibility", "link_to": "Parts Compatibility", "stats_filter": "[]", "type": "DocType"}, {"color": "Green", "doc_view": "List", "label": "Parts Supersession", "link_to": "Parts Supersession", "stats_filter": "[]", "type": "DocType"}, {"color": "Orange", "doc_view": "Report", "label": "Parts Compatibility List", "link_to": "Parts Compatibility List", "stats_filter": "[]", "type": "Report"}], "title": "Spareparts", "type": "Workspace"}
+{
+ "app": "autods",
+ "charts": [],
+ "content": "[{\"id\":\"sp_nc1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Parts Compatibility\",\"col\":4}},{\"id\":\"sp_nc2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Parts Supersessions\",\"col\":4}},{\"id\":\"sp_nc3\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Supersessions\",\"col\":4}},{\"id\":\"sp_nc4\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Two-Way Supersessions\",\"col\":4}},{\"id\":\"sp_nc5\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Direct Replacement Supersessions\",\"col\":4}},{\"id\":\"sp_sp1\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"sp_h_qa\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Quick Access</b></span>\",\"col\":12}},{\"id\":\"sp_sc1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Parts Compatibility\",\"col\":3}},{\"id\":\"sp_sc2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Parts Supersession\",\"col\":3}},{\"id\":\"sp_sc3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Material Request\",\"col\":3}},{\"id\":\"sp_sc4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"sp_sp2\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"sp_h_ms\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters and Setup</b></span>\",\"col\":12}},{\"id\":\"sp_c1\",\"type\":\"card\",\"data\":{\"card_name\":\"Parts & Compatibility\",\"col\":4}},{\"id\":\"sp_c2\",\"type\":\"card\",\"data\":{\"card_name\":\"Inventory & Stock\",\"col\":4}},{\"id\":\"sp_c3\",\"type\":\"card\",\"data\":{\"card_name\":\"Sales\",\"col\":4}},{\"id\":\"sp_sp3\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"sp_h_rp\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports & Analytics</b></span>\",\"col\":12}},{\"id\":\"sp_c4\",\"type\":\"card\",\"data\":{\"card_name\":\"Operational Reports\",\"col\":4}},{\"id\":\"sp_c5\",\"type\":\"card\",\"data\":{\"card_name\":\"Cost Analysis Reports\",\"col\":4}},{\"id\":\"sp_c6\",\"type\":\"card\",\"data\":{\"card_name\":\"Analytics & Insights\",\"col\":4}}]",
+ "creation": "2026-02-06 00:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "package",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Spareparts",
+ "link_type": "DocType",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Parts & Compatibility",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Parts Compatibility",
+   "link_count": 0,
+   "link_to": "Parts Compatibility",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Parts Supersession",
+   "link_count": 0,
+   "link_to": "Parts Supersession",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Inventory & Stock",
+   "link_count": 5,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Item",
+   "link_count": 0,
+   "link_to": "Item",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Material Request",
+   "link_count": 0,
+   "link_to": "Material Request",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock Entry",
+   "link_count": 0,
+   "link_to": "Stock Entry",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Purchase Receipt",
+   "link_count": 0,
+   "link_to": "Purchase Receipt",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Stock Reconciliation",
+   "link_count": 0,
+   "link_to": "Stock Reconciliation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Quotation",
+   "link_count": 0,
+   "link_to": "Quotation",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales Order",
+   "link_count": 0,
+   "link_to": "Sales Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Delivery Note",
+   "link_count": 0,
+   "link_to": "Delivery Note",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales Invoice",
+   "link_count": 0,
+   "link_to": "Sales Invoice",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Operational Reports",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Open Orders Parts Demand",
+   "link_count": 0,
+   "link_to": "Open Orders Parts Demand",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Parts Compatibility List",
+   "link_count": 0,
+   "link_to": "Parts Compatibility List",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Compatible Parts by Model",
+   "link_count": 0,
+   "link_to": "Compatible Parts by Model",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Compatibility by Make",
+   "link_count": 0,
+   "link_to": "Compatibility by Make",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cost Analysis Reports",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Parts Consumption Cost Trend",
+   "link_count": 0,
+   "link_to": "Parts Consumption Cost Trend",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Spareparts Usage in Repairs",
+   "link_count": 0,
+   "link_to": "Spareparts Usage in Repairs",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Parts Cost by Item Type",
+   "link_count": 0,
+   "link_to": "Parts Cost by Item Type",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Parts Avg Price Trend",
+   "link_count": 0,
+   "link_to": "Parts Avg Price Trend",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Analytics & Insights",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Top Parts by Usage",
+   "link_count": 0,
+   "link_to": "Top Parts by Usage",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Parts Supersession List",
+   "link_count": 0,
+   "link_to": "Parts Supersession List",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Compatibility Count by Part",
+   "link_count": 0,
+   "link_to": "Compatibility Count by Part",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Parts Usage by Make",
+   "link_count": 0,
+   "link_to": "Parts Usage by Make",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Settings",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Spareparts Settings",
+   "link_count": 0,
+   "link_to": "Spareparts Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-06-13 04:45:36.571583",
+ "modified_by": "Administrator",
+ "module": "Spareparts",
+ "name": "Spareparts",
+ "number_cards": [
+  {
+   "label": "Total Parts Compatibility",
+   "number_card_name": "Total Parts Compatibility"
+  },
+  {
+   "label": "Total Parts Supersessions",
+   "number_card_name": "Total Parts Supersessions"
+  },
+  {
+   "label": "Active Supersessions",
+   "number_card_name": "Active Supersessions"
+  },
+  {
+   "label": "Two-Way Supersessions",
+   "number_card_name": "Two-Way Supersessions"
+  },
+  {
+   "label": "Direct Replacement Supersessions",
+   "number_card_name": "Direct Replacement Supersessions"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 7.0,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Parts Compatibility",
+   "link_to": "Parts Compatibility",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Parts Supersession",
+   "link_to": "Parts Supersession",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Material Request",
+   "link_to": "Material Request",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Invoice",
+   "link_to": "Sales Invoice",
+   "stats_filter": "[]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Spareparts",
+ "type": "Workspace"
+}

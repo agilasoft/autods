@@ -21,12 +21,10 @@
   "vehicle_drive_type",
   "vehicle_fuel_type",
   "vehicle_body_type",
-  "service_items_tab",
-  "service_items",
-  "spareparts_tab",
-  "spareparts",
-  "sundry_items_tab",
-  "sundry_items"
+  "charges_tab",
+  "charges",
+  "service_inspections_tab",
+  "service_inspections"
  ],
  "fields": [
   {
@@ -115,37 +113,15 @@
    "options": "Body Type"
   },
   {
-   "fieldname": "service_items_tab",
+   "fieldname": "charges_tab",
    "fieldtype": "Tab Break",
-   "label": "Service Items"
+   "label": "Charges"
   },
   {
-   "fieldname": "service_items",
+   "fieldname": "charges",
    "fieldtype": "Table",
-   "label": "Service Items",
-   "options": "Service Template Service Items"
-  },
-  {
-   "fieldname": "spareparts_tab",
-   "fieldtype": "Tab Break",
-   "label": "Spareparts"
-  },
-  {
-   "fieldname": "spareparts",
-   "fieldtype": "Table",
-   "label": "Spareparts",
-   "options": "Service Template Parts"
-  },
-  {
-   "fieldname": "sundry_items_tab",
-   "fieldtype": "Tab Break",
-   "label": "Sundry Items"
-  },
-  {
-   "fieldname": "sundry_items",
-   "fieldtype": "Table",
-   "label": "Sundry Items",
-   "options": "Service Template Sundry Items"
+   "label": "Charges",
+   "options": "Service Template Charges"
   },
   {
    "fieldname": "service_inspections_tab",

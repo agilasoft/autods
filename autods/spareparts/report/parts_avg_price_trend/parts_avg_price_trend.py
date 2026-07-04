@@ -34,7 +34,7 @@ def get_data(filters):
 		"select date_format(r.repair_date, '%%Y-%%m') as period, sum(p.qty) as total_qty, "
 		"sum(ifnull(p.amount, 0)) as total_amount, "
 		"round(sum(ifnull(p.amount, 0)) / nullif(sum(p.qty), 0), 2) as avg_price "
-		"from `tabRepair Order Parts` p inner join `tabRepair Order` r on r.name = p.parent "
-		"where " + where + " group by period order by period desc"
+		"from `tabRepair Order Charges` p inner join `tabRepair Order` r on r.name = p.parent "
+		"where p.service_item_type = 'Spareparts' and " + where + " group by period order by period desc"
 	)
 	return frappe.db.sql(query, values, as_dict=1)

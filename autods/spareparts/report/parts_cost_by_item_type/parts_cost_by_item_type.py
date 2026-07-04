@@ -35,8 +35,8 @@ def get_data(filters):
 	where = " and ".join(conditions)
 	query = (
 		"select p.item_type, count(distinct p.parent) as order_count, sum(p.qty) as total_qty, "
-		"sum(ifnull(p.amount, 0)) as total_amount from `tabRepair Order Parts` p "
-		"inner join `tabRepair Order` r on r.name = p.parent where " + where + " "
+		"sum(ifnull(p.amount, 0)) as total_amount from `tabRepair Order Charges` p "
+		"inner join `tabRepair Order` r on r.name = p.parent where p.service_item_type = 'Spareparts' and " + where + " "
 		"group by p.item_type order by total_amount desc"
 	)
 	return frappe.db.sql(query, values, as_dict=1)

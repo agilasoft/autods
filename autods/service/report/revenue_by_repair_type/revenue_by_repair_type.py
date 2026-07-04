@@ -8,7 +8,25 @@ from frappe import _
 def execute(filters=None):
 	columns = get_columns()
 	data = get_data(filters)
-	return columns, data
+	chart = get_chart(data)
+	return columns, data, None, chart
+
+
+def get_chart(data):
+	if not data:
+		return None
+	labels = [d.get("repair_type") or _("(Not Set)") for d in data]
+	values = [float(d.get("grand_total") or 0) for d in data]
+	return {
+		"data": {
+			"labels": labels,
+			"datasets": [{"name": _("Total Revenue"), "values": values}],
+		},
+		"type": "bar",
+		"axisOptions": {"shortenYAxisNumbers": 1},
+		"height": 300,
+		"colors": ["#29cd42"],
+	}
 
 
 def get_columns():

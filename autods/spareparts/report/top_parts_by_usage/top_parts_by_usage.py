@@ -40,9 +40,9 @@ def get_data(filters):
 			sum(p.qty) as total_qty,
 			sum(ifnull(p.amount, 0)) as total_amount,
 			count(distinct p.parent) as order_count
-		from `tabRepair Order Parts` p
+		from `tabRepair Order Charges` p
 		inner join `tabRepair Order` r on r.name = p.parent
-		where """ + where + """
+		where p.service_item_type = 'Spareparts' and """ + where + """
 		group by p.item
 		order by total_qty desc, total_amount desc
 		limit %(limit)s

@@ -9,10 +9,17 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import get_time, getdate, today
 
+from autods.service.service_appointment_utils import get_expected_completion_datetime
+
 
 class ServiceAppointment(Document):
 	def validate(self):
+		self.validate_expected_completion()
 		self.validate_time_range()
+
+	def validate_expected_completion(self):
+		if not self.expected_completion_date:
+			frappe.throw(_("Expected Completion Date is required"))
 
 	def validate_time_range(self):
 		if not self.appointment_start_time or not self.appointment_end_time:
@@ -20,12 +27,23 @@ class ServiceAppointment(Document):
 		if get_time(self.appointment_end_time) <= get_time(self.appointment_start_time):
 			frappe.throw(_("End Time must be after Start Time"))
 
+	def on_submit(self):
+		if self.status == "Scheduled":
+			frappe.db.set_value("Service Appointment", self.name, "status", "Confirmed")
+			self.status = "Confirmed"
+
+	def on_cancel(self):
+		frappe.db.set_value("Service Appointment", self.name, "status", "Cancelled")
+		self.status = "Cancelled"
+
 	@frappe.whitelist()
 	def create_repair_estimate(self):
-		"""Create Repair Estimate from this appointment. Allowed when status is Scheduled/Confirmed/In Progress and no estimate yet."""
-		allowed_statuses = ("Scheduled", "Confirmed", "In Progress")
+		"""Create Repair Estimate from this appointment. Allowed when submitted and status is Confirmed/In Progress."""
+		if self.docstatus != 1:
+			frappe.throw(_("Submit this Service Appointment before creating a Repair Estimate"))
+		allowed_statuses = ("Confirmed", "In Progress")
 		if self.status not in allowed_statuses:
-			frappe.throw(_("Create Repair Estimate only when status is Scheduled, Confirmed, or In Progress"))
+			frappe.throw(_("Create Repair Estimate only when status is Confirmed or In Progress"))
 		if self.repair_estimate:
 			frappe.throw(_("Repair Estimate already linked: {0}").format(self.repair_estimate))
 		if not self.customer:
@@ -35,13 +53,17 @@ class ServiceAppointment(Document):
 
 		estimate = frappe.new_doc("Repair Estimate")
 		estimate.service_appointment = self.name
+		estimate.company = frappe.defaults.get_user_default("Company")
+		if estimate.company:
+			estimate.currency = frappe.db.get_value("Company", estimate.company, "default_currency")
 		estimate.customer = self.customer
 		estimate.vehicle_unit = self.vehicle_unit
 		estimate.service_advisor = self.service_advisor
-		estimate.service_order_type = self.service_order_type
+		estimate.service_type = self.service_type
 		estimate.repair_type = self.repair_type
 		estimate.estimate_date = today()
 		estimate.status = "Draft"
+		estimate.expected_completion_date = get_expected_completion_datetime(self)
 		estimate.flags.ignore_mandatory = True
 		estimate.insert()
 
@@ -53,9 +75,11 @@ class ServiceAppointment(Document):
 	@frappe.whitelist()
 	def create_repair_order(self):
 		"""Create Repair Order from this appointment. If repair_estimate exists and is Approved, create from estimate; else create blank RO from appointment header."""
-		allowed_statuses = ("Scheduled", "Confirmed", "In Progress")
+		if self.docstatus != 1:
+			frappe.throw(_("Submit this Service Appointment before creating a Repair Order"))
+		allowed_statuses = ("Confirmed", "In Progress")
 		if self.status not in allowed_statuses:
-			frappe.throw(_("Create Repair Order only when status is Scheduled, Confirmed, or In Progress"))
+			frappe.throw(_("Create Repair Order only when status is Confirmed or In Progress"))
 		if self.repair_order:
 			frappe.throw(_("Repair Order already linked: {0}").format(self.repair_order))
 		if not self.customer:
@@ -80,11 +104,13 @@ class ServiceAppointment(Document):
 		ro.customer = self.customer
 		ro.vehicle_unit = self.vehicle_unit
 		ro.service_advisor = self.service_advisor
-		ro.service_order_type = self.service_order_type
+		if ro.meta.get_field("service_type"):
+			ro.service_type = self.service_type
 		ro.repair_type = self.repair_type
 		ro.status = "Draft"
 		if frappe.db.has_column("Repair Order", "service_appointment"):
 			ro.service_appointment = self.name
+		ro.expected_completion_date = get_expected_completion_datetime(self)
 		ro.insert()
 		ro_name = ro.name
 

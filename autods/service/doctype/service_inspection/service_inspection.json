@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2026-01-25 00:00:00.000000",
+ "creation": "2026-01-25 00:00:00",
  "default_view": "List",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -41,6 +41,7 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Inspection Name",
+   "options": "Repair Order Service Inspection",
    "reqd": 1
   },
   {
@@ -52,13 +53,13 @@
    "options": "Pre-Repair\nPre-Delivery\nDiagnostic\nSafety\nPreventive\nIncoming\nQuality Control\nRelease\nWarranty Claim\nInsurance\nPost-Repair"
   },
   {
+   "default": "Draft",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "Draft\nPending\nIn Progress\nCompleted\nRejected",
-   "default": "Draft"
+   "options": "Draft\nPending\nIn Progress\nCompleted\nRejected"
   },
   {
    "fieldname": "column_break_1",
@@ -72,17 +73,17 @@
    "options": "Repair Order"
   },
   {
+   "default": "Today",
    "fieldname": "inspection_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Inspection Date",
-   "default": "Today"
+   "label": "Inspection Date"
   },
   {
    "fieldname": "inspected_by",
    "fieldtype": "Link",
    "label": "Inspected By",
-   "options": "User"
+   "options": "Employee"
   },
   {
    "fieldname": "section_break_template",
@@ -150,8 +151,8 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-25 00:00:00.000000",
- "modified_by": "Administrator",
+ "modified": "2026-06-24 18:25:47.814108",
+ "modified_by": "ejay.sambrano@agilasoft.com",
  "module": "Service",
  "name": "Service Inspection",
  "naming_rule": "By \"Naming Series\" field",

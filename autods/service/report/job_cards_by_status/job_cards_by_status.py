@@ -8,7 +8,27 @@ from frappe import _
 def execute(filters=None):
 	columns = get_columns()
 	data = get_data(filters)
-	return columns, data
+	chart = get_chart(data)
+	return columns, data, None, chart
+
+
+def get_chart(data):
+	if not data:
+		return None
+	totals = {}
+	for d in data:
+		key = d.get("status") or _("(Not Set)")
+		totals[key] = totals.get(key, 0) + (d.get("job_count") or 0)
+	labels = list(totals.keys())
+	values = list(totals.values())
+	return {
+		"data": {
+			"labels": labels,
+			"datasets": [{"name": _("Job Cards"), "values": values}],
+		},
+		"type": "donut",
+		"height": 300,
+	}
 
 
 def get_columns():

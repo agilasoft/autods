@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "customer_concern",
+  "concern_category",
   "concern",
   "column_break_1",
   "description",
@@ -18,6 +19,13 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Customer Concern"
+  },
+  {
+   "fieldname": "concern_category",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Concern Category",
+   "options": "Concern Category"
   },
   {
    "fieldname": "concern",

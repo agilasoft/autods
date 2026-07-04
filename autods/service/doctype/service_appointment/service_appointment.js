@@ -5,7 +5,8 @@ frappe.ui.form.on('Service Appointment', {
 	refresh: function(frm) {
 		if (frm.doc.__islocal) return;
 
-		var allowed = ['Scheduled', 'Confirmed', 'In Progress'].indexOf(frm.doc.status) >= 0;
+		var submitted = frm.doc.docstatus === 1;
+		var allowed = submitted && ['Confirmed', 'In Progress'].indexOf(frm.doc.status) >= 0;
 
 		if (allowed && !frm.doc.repair_estimate) {
 			frm.add_custom_button(__('Create Repair Estimate'), function() {
@@ -23,7 +24,7 @@ frappe.ui.form.on('Service Appointment', {
 						});
 					}
 				);
-			}, __('Actions'));
+			}, __('Create'));
 		}
 
 		if (allowed && !frm.doc.repair_order) {
@@ -42,7 +43,7 @@ frappe.ui.form.on('Service Appointment', {
 						});
 					}
 				);
-			}, __('Actions'));
+			}, __('Create'));
 		}
 
 		if (frm.doc.repair_estimate) {
@@ -58,10 +59,5 @@ frappe.ui.form.on('Service Appointment', {
 	},
 	appointment_date: function(frm) {
 		// Optional: set default start/end time for new appointments
-	},
-	vehicle_unit: function(frm) {
-		if (frm.doc.vehicle_unit) {
-			frm.trigger('reload_doc');
-		}
 	}
 });

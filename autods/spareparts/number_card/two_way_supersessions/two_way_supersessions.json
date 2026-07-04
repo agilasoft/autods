@@ -1,0 +1,22 @@
+{
+ "aggregate_function_based_on": "name",
+ "creation": "2026-02-06 00:00:00",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "Parts Supersession",
+ "filters_json": "[[\"Parts Supersession\",\"is_two_way\",\"=\",1],[\"Parts Supersession\",\"status\",\"=\",\"Active\"]]",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "label": "Two-Way Supersessions",
+ "modified": "2026-06-13 04:45:36.571583",
+ "modified_by": "Administrator",
+ "module": "Spareparts",
+ "name": "Two-Way Supersessions",
+ "owner": "Administrator",
+ "show_full_number": 0,
+ "show_percentage_stats": 0,
+ "stats_time_interval": "Monthly",
+ "type": "Document Type"
+}

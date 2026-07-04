@@ -7,6 +7,7 @@
  "field_order": [
   "code",
   "description",
+  "icon",
   "diagnostic",
   "column_break_peer",
   "is_general_repair",
@@ -22,6 +23,12 @@
    "fieldname": "description",
    "fieldtype": "Data",
    "label": "Description"
+  },
+  {
+   "default": "fa fa-exclamation-circle",
+   "fieldname": "icon",
+   "fieldtype": "Icon",
+   "label": "Icon"
   },
   {
    "fieldname": "diagnostic",
@@ -49,7 +56,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-06-04 23:49:20.357471",
+ "modified": "2026-04-08 14:24:14.460156",
  "modified_by": "Administrator",
  "module": "Service",
  "name": "Repair Concern",
@@ -69,6 +76,7 @@
   }
  ],
  "row_format": "Dynamic",
+ "search_fields": "description,diagnostic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": []

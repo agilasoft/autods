@@ -1,8 +1,45 @@
 {
  "app": "autods",
- "charts": [],
- "content": "[{\"id\":\"cards_overview\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Revenue\",\"col\":4}},{\"id\":\"nc2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Repair Orders\",\"col\":4}},{\"id\":\"nc3\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Open Job Cards\",\"col\":4}},{\"id\":\"BffWj1gGtp\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"Nr8KDeVlwl\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Quick Access</b></span>\",\"col\":12}},{\"id\":\"0wN8_ncWZr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Appointment\",\"col\":3}},{\"id\":\"5PA4h70QEt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Repair Estimate\",\"col\":3}},{\"id\":\"YExXoPlrCu\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Repair Order\",\"col\":3}},{\"id\":\"bVgP2DKmJO\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Job Card\",\"col\":3}},{\"id\":\"aPp_ak4fGG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Spareparts Request\",\"col\":3}},{\"id\":\"kK5hnxtzoY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Shopfloor Schedule\",\"col\":3}},{\"id\":\"9NyFs0W5By\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"3_1pRTVODh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Gate Pass\",\"col\":3}},{\"id\":\"_I0DISn5CE\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"h3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Setup &amp; Masters</b></span>\",\"col\":12}},{\"id\":\"c3\",\"type\":\"card\",\"data\":{\"card_name\":\"Repair Setup\",\"col\":4}},{\"id\":\"L5opnyX8xj\",\"type\":\"card\",\"data\":{\"card_name\":\"Vehicles\",\"col\":4}},{\"id\":\"MPTe65CzPm\",\"type\":\"card\",\"data\":{\"card_name\":\"Job Management\",\"col\":4}},{\"id\":\"Wi3BRDGqpP\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"c7T46ZrnAm\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports &amp; Analytics</b></span>\",\"col\":12}},{\"id\":\"BCtOjE8N8I\",\"type\":\"card\",\"data\":{\"card_name\":\"Operational\",\"col\":4}},{\"id\":\"sO7vo-w75Q\",\"type\":\"card\",\"data\":{\"card_name\":\"Cost Analysis\",\"col\":4}},{\"id\":\"7jDH8TVYHg\",\"type\":\"card\",\"data\":{\"card_name\":\"Analytics & Insights\",\"col\":4}}]",
- "creation": "2026-02-06 16:07:48.626393",
+ "charts": [
+  {
+   "chart_name": "Repair Orders by Status Chart",
+   "label": "Repair Orders by Status"
+  },
+  {
+   "chart_name": "Job Cards by Status Chart",
+   "label": "Job Cards by Status"
+  },
+  {
+   "chart_name": "Repair Order Aging Chart",
+   "label": "Repair Order Aging"
+  },
+  {
+   "chart_name": "Labor vs Parts by Repair Type Chart",
+   "label": "Labor vs Parts by Repair Type"
+  },
+  {
+   "chart_name": "Parts Cost by Bill Type Chart",
+   "label": "Parts Cost by Bill Type"
+  },
+  {
+   "chart_name": "Cost by Service Type Chart",
+   "label": "Cost by Service Type"
+  },
+  {
+   "chart_name": "Revenue by Repair Type Chart",
+   "label": "Revenue by Repair Type"
+  },
+  {
+   "chart_name": "Top Customers by Revenue Chart",
+   "label": "Top Customers by Revenue"
+  },
+  {
+   "chart_name": "Technician Performance Chart",
+   "label": "Technician Performance"
+  }
+ ],
+ "content": "[{\"id\":\"cards_overview\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Revenue\",\"col\":4}},{\"id\":\"nc2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Repair Orders\",\"col\":4}},{\"id\":\"nc3\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Open Job Cards\",\"col\":4}},{\"id\":\"BffWj1gGtp\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"Nr8KDeVlwl\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Quick Access</b></span>\",\"col\":12}},{\"id\":\"0wN8_ncWZr\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Appointment\",\"col\":3}},{\"id\":\"5PA4h70QEt\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Repair Estimate\",\"col\":3}},{\"id\":\"YExXoPlrCu\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Repair Order\",\"col\":3}},{\"id\":\"bVgP2DKmJO\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Job Card\",\"col\":3}},{\"id\":\"aPp_ak4fGG\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Spareparts Request\",\"col\":3}},{\"id\":\"kK5hnxtzoY\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Shopfloor Schedule\",\"col\":3}},{\"id\":\"9NyFs0W5By\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"3_1pRTVODh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Gate Pass\",\"col\":3}},{\"id\":\"_I0DISn5CE\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"h3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Setup and Masters</b></span>\",\"col\":12}},{\"id\":\"c3\",\"type\":\"card\",\"data\":{\"card_name\":\"Repair Setup\",\"col\":4}},{\"id\":\"L5opnyX8xj\",\"type\":\"card\",\"data\":{\"card_name\":\"Vehicles\",\"col\":4}},{\"id\":\"MPTe65CzPm\",\"type\":\"card\",\"data\":{\"card_name\":\"Job Management\",\"col\":4}},{\"id\":\"Wi3BRDGqpP\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"c7T46ZrnAm\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"BCtOjE8N8I\",\"type\":\"card\",\"data\":{\"card_name\":\"Operational\",\"col\":4}},{\"id\":\"sO7vo-w75Q\",\"type\":\"card\",\"data\":{\"card_name\":\"Cost Analysis\",\"col\":4}},{\"id\":\"7jDH8TVYHg\",\"type\":\"card\",\"data\":{\"card_name\":\"Analytics & Insights\",\"col\":4}},{\"id\":\"sp_ch\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"h_charts\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Charts</b></span>\",\"col\":12}},{\"id\":\"ch_1\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Repair Orders by Status Chart\",\"col\":6}},{\"id\":\"ch_2\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Job Cards by Status Chart\",\"col\":6}},{\"id\":\"ch_3\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Repair Order Aging Chart\",\"col\":6}},{\"id\":\"ch_4\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Labor vs Parts by Repair Type Chart\",\"col\":6}},{\"id\":\"ch_5\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Parts Cost by Bill Type Chart\",\"col\":6}},{\"id\":\"ch_6\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Cost by Service Type Chart\",\"col\":6}},{\"id\":\"ch_7\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Revenue by Repair Type Chart\",\"col\":6}},{\"id\":\"ch_8\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Top Customers by Revenue Chart\",\"col\":6}},{\"id\":\"ch_9\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Technician Performance Chart\",\"col\":12}}]",
+ "creation": "2026-06-15 10:00:53.171950",
  "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
@@ -63,20 +100,9 @@
    "dependencies": "",
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Service Order Type",
+   "label": "Service Type",
    "link_count": 0,
-   "link_to": "Service Order Type",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "dependencies": "",
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Service Category",
-   "link_count": 0,
-   "link_to": "Service Category",
+   "link_to": "Service Type",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -154,6 +180,87 @@
    "label": "Service Settings",
    "link_count": 0,
    "link_to": "Service Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Repair Setup",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Type",
+   "link_count": 0,
+   "link_to": "Service Type",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service Template",
+   "link_count": 0,
+   "link_to": "Service Template",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Repair Concern",
+   "link_count": 0,
+   "link_to": "Repair Concern",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicles",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Unit",
+   "link_count": 0,
+   "link_to": "Vehicle Unit",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Make",
+   "link_count": 0,
+   "link_to": "Vehicle Make",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Model",
+   "link_count": 0,
+   "link_to": "Vehicle Model",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -301,13 +408,13 @@
    "link_to": "Parts Cost by Bill Type",
    "link_type": "Report",
    "onboard": 0,
-   "report_ref_doctype": "Repair Order Parts",
+   "report_ref_doctype": "Repair Order Charges",
    "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Cost by Service Order Type",
+   "label": "Cost by Service Type",
    "link_count": 0,
    "link_to": "Cost by Service Order Type",
    "link_type": "Report",
@@ -334,7 +441,7 @@
    "link_to": "Service Parts Consumption",
    "link_type": "Report",
    "onboard": 0,
-   "report_ref_doctype": "Repair Order Parts",
+   "report_ref_doctype": "Repair Order Charges",
    "type": "Link"
   },
   {
@@ -388,101 +495,9 @@
    "onboard": 0,
    "report_ref_doctype": "Job Card",
    "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Repair Setup",
-   "link_count": 4,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "dependencies": "",
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Service Order Type",
-   "link_count": 0,
-   "link_to": "Service Order Type",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "dependencies": "",
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Service Category",
-   "link_count": 0,
-   "link_to": "Service Category",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "dependencies": "",
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Service Template",
-   "link_count": 0,
-   "link_to": "Service Template",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "dependencies": "",
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Repair Concern",
-   "link_count": 0,
-   "link_to": "Repair Concern",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Vehicles",
-   "link_count": 3,
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Card Break"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Vehicle Unit",
-   "link_count": 0,
-   "link_to": "Vehicle Unit",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Vehicle Make",
-   "link_count": 0,
-   "link_to": "Vehicle Make",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Vehicle Model",
-   "link_count": 0,
-   "link_to": "Vehicle Model",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
   }
  ],
- "modified": "2026-02-07 11:24:41.789743",
+ "modified": "2026-06-15 10:01:00.000000",
  "modified_by": "Administrator",
  "module": "Service",
  "name": "Service",

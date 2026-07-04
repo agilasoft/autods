@@ -21,11 +21,11 @@ def get_columns():
 		{"fieldname": "model", "label": _("Model"), "fieldtype": "Link", "options": "Vehicle Model", "width": 100},
 		{"fieldname": "status", "label": _("Status"), "fieldtype": "Data", "width": 90},
 		{"fieldname": "warehouse", "label": _("Warehouse"), "fieldtype": "Link", "options": "Warehouse", "width": 120},
-		{"fieldname": "current_cost", "label": _("Inventory Cost (SLE)"), "fieldtype": "Currency", "width": 120},
+		{"fieldname": "current_cost", "label": _("Inventory Cost (Cost Ledger)"), "fieldtype": "Currency", "width": 140},
 		{"fieldname": "total_accessory_cost", "label": _("Accessory/Config Cost"), "fieldtype": "Currency", "width": 130},
 		{"fieldname": "total_unit_cost", "label": _("Total Unit Cost"), "fieldtype": "Currency", "width": 120},
-		{"fieldname": "purchase_receipt", "label": _("Purchase Receipt"), "fieldtype": "Link", "options": "Purchase Receipt", "width": 130},
-		{"fieldname": "delivery_note", "label": _("Delivery Note"), "fieldtype": "Link", "options": "Delivery Note", "width": 130},
+		{"fieldname": "vehicle_receiving", "label": _("Vehicle Receiving"), "fieldtype": "Link", "options": "Vehicle Receiving", "width": 140},
+		{"fieldname": "vehicle_delivery_note", "label": _("Vehicle Delivery Note"), "fieldtype": "Link", "options": "Vehicle Delivery Note", "width": 150},
 		{"fieldname": "sales_invoice", "label": _("Sales Invoice"), "fieldtype": "Link", "options": "Sales Invoice", "width": 130},
 	]
 
@@ -55,8 +55,8 @@ def get_data(filters):
 			v.current_cost,
 			v.total_accessory_cost,
 			v.total_unit_cost,
-			v.purchase_receipt,
-			v.delivery_note,
+			v.vehicle_receiving,
+			v.vehicle_delivery_note,
 			v.sales_invoice
 		from `tabVehicle Unit` v
 		where 1=1 {where}

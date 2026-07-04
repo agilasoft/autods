@@ -1,20 +1,127 @@
 // Copyright (c) 2026, Agilasoft Technologies Inc. and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on('Job Card', {
-	refresh: function(frm) {
-		// Create Material Request (Material Issue) – references: Job Card, Repair Order
-		if (frm.doc.status !== 'Completed' && frm.doc.status !== 'Cancelled') {
-			frm.add_custom_button(__('Create Material Request'), function() {
+function update_work_details_total_hours(frm) {
+	let total = 0;
+	(frm.doc.work_details || []).forEach(function(row) {
+		total += flt(row.hours_spent);
+	});
+	frm.set_value('work_details_total_hours', total);
+}
+
+function open_job_card_material_request_dialog(frm) {
+	frm.call({
+		doc: frm.doc,
+		method: 'get_material_request_candidates',
+		callback: function(r) {
+			const data = r.message || {};
+			if (data.mode === 'none') {
+				frappe.msgprint({
+					title: __('Material Request'),
+					message: data.message || __('Nothing to issue.'),
+					indicator: 'orange'
+				});
+				return;
+			}
+
+			function run_create(charge_row_names) {
 				frm.call({
 					doc: frm.doc,
 					method: 'create_material_request',
-					callback: function(r) {
-						if (r.message && r.message.name) {
-							frappe.set_route('Form', 'Material Request', r.message.name);
+					args: { charge_row_names: charge_row_names && charge_row_names.length ? charge_row_names : null },
+					freeze: true,
+					freeze_message: __('Creating Material Request...'),
+					callback: function(cr) {
+						if (cr.message && cr.message.name) {
+							frappe.set_route('Form', 'Material Request', cr.message.name);
 						}
 					}
 				});
+			}
+
+			const lines = data.lines || [];
+			const fallback = data.fallback_lines || [];
+
+			if (data.mode === 'scoped' && lines.length) {
+				frappe.confirm(
+					__(
+						'Create Material Request for {0} sparepart line(s) linked to this job\'s service line?',
+						[lines.length]
+					),
+					function() {
+						run_create(lines.map(function(l) {
+							return l.name;
+						}));
+					}
+				);
+				return;
+			}
+
+			const pick_lines = (data.mode === 'scoped_empty' || data.mode === 'invalid_service_line')
+				? fallback
+				: lines;
+			if (data.message) {
+				frappe.msgprint({ message: data.message, indicator: 'orange' });
+			}
+			if (!(pick_lines && pick_lines.length)) {
+				if (!data.message) {
+					frappe.msgprint(__('No sparepart lines on this Repair Order.'));
+				}
+				return;
+			}
+			show_pick_spareparts_dialog(frm, pick_lines, run_create);
+		}
+	});
+}
+
+function show_pick_spareparts_dialog(frm, lines, run_create) {
+	const esc = frappe.utils.escape_html;
+	let body = '<p class="text-muted small">' +
+		__('Select sparepart charge lines to include on the Material Request.') + '</p>';
+	body += '<div class="job-card-mr-pick" style="max-height:260px;overflow:auto">';
+	body += '<table class="table table-bordered"><thead><tr><th></th><th>Item</th><th>Qty</th><th>Service</th></tr></thead><tbody>';
+	lines.forEach(function(line) {
+		const id = 'jc-mr-' + frappe.utils.get_random(8);
+		body += '<tr><td><input type="checkbox" class="job-card-mr-line-cb" data-row-name="' +
+			esc(line.name) + '" id="' + id + '" checked></td>';
+		body += '<td><label for="' + id + '" style="margin:0;font-weight:normal">' +
+			esc(line.item_code || '') + ' — ' + esc(line.item_name || '') + '</label></td>';
+		body += '<td>' + esc(String(flt(line.qty))) + '</td>';
+		body += '<td>' + esc(line.service_row || '') + '</td></tr>';
+	});
+	body += '</tbody></table></div>';
+
+	const d = new frappe.ui.Dialog({
+		title: __('Select spareparts'),
+		fields: [{ fieldtype: 'HTML', fieldname: 'pick_html', options: body }],
+		primary_action_label: __('Create Material Request'),
+		primary_action: function() {
+			const names = [];
+			d.$wrapper.find('.job-card-mr-line-cb:checked').each(function() {
+				names.push($(this).attr('data-row-name'));
+			});
+			if (!names.length) {
+				frappe.msgprint(__('Select at least one line.'));
+				return;
+			}
+			d.hide();
+			run_create(names);
+		}
+	});
+	d.show();
+}
+
+frappe.ui.form.on('Job Card', {
+	onload: function(frm) {
+		autods.service_datetime.patch_system_datetime_control(frm, 'expected_completion_date');
+	},
+
+	refresh: function(frm) {
+		update_work_details_total_hours(frm);
+		// Create Material Request (Material Issue) – references: Job Card, Repair Order
+		if (frm.doc.status !== 'Completed' && frm.doc.status !== 'Cancelled') {
+			frm.add_custom_button(__('Create Material Request'), function() {
+				open_job_card_material_request_dialog(frm);
 			}, __("Actions"));
 		}
 
@@ -26,12 +133,13 @@ frappe.ui.form.on('Job Card', {
 					method: 'assign_technician_by_skills',
 					callback: function(r) {
 						if (r.message && r.message.length > 0) {
-							let d = new frappe.ui.Dialog({
-								title: __('Available Technicians'),
+							const d = new frappe.ui.Dialog({
+								title: __('Ranked technicians'),
 								fields: [
 									{
 										fieldtype: 'HTML',
-										options: '<div id="technician-list"></div>'
+										fieldname: 'tech_table',
+										options: '<div></div>'
 									}
 								],
 								primary_action_label: __('Close'),
@@ -40,21 +148,36 @@ frappe.ui.form.on('Job Card', {
 								}
 							});
 
-							let html = '<table class="table table-bordered"><thead><tr><th>Technician</th><th>Action</th></tr></thead><tbody>';
+							const $wrap = d.fields_dict.tech_table.$wrapper;
+							const $table = $('<table class="table table-bordered"><thead><tr>' +
+								'<th>' + __('Technician') + '</th>' +
+								'<th class="text-right">' + __('Skills match') + '</th>' +
+								'<th class="text-right">' + __('Open jobs (day)') + '</th>' +
+								'<th class="text-right">' + __('Bay jobs') + '</th>' +
+								'<th class="text-right">' + __('Score') + '</th>' +
+								'<th></th></tr></thead></table>');
+							const $tbody = $('<tbody>');
 							r.message.forEach(function(tech) {
-								html += `<tr>
-									<td>${tech.employee_name || tech.name}</td>
-									<td><button class="btn btn-sm btn-primary" onclick="assignTechnician('${tech.name}')">Assign</button></td>
-								</tr>`;
+								const $tr = $('<tr>');
+								$tr.append($('<td>').text(tech.employee_name || tech.employee));
+								$tr.append($('<td class="text-right">').text(
+									tech.skills_match_pct != null ? tech.skills_match_pct + '%' : ''
+								));
+								$tr.append($('<td class="text-right">').text(tech.open_jobs_today != null ? tech.open_jobs_today : ''));
+								$tr.append($('<td class="text-right">').text(
+									tech.bay_jobs_same_area != null ? tech.bay_jobs_same_area : ''
+								));
+								$tr.append($('<td class="text-right">').text(tech.score != null ? tech.score : ''));
+								const $btn = $('<button class="btn btn-sm btn-primary">').text(__('Assign'));
+								$btn.on('click', function() {
+									frm.set_value('technician', tech.employee);
+									d.hide();
+								});
+								$tr.append($('<td>').append($btn));
+								$tbody.append($tr);
 							});
-							html += '</tbody></table>';
-
-							d.fields_dict['technician-list'].$wrapper.html(html);
-
-							window.assignTechnician = function(technician) {
-								frm.set_value('technician', technician);
-								d.hide();
-							};
+							$table.append($tbody);
+							$wrap.empty().append($table);
 
 							d.show();
 						}
@@ -158,5 +281,19 @@ frappe.ui.form.on('Job Card', {
 		if (frm.doc.start_time && frm.doc.end_time) {
 			frm.call('calculate_total_hours');
 		}
+	},
+
+	work_details_add: function(frm) {
+		update_work_details_total_hours(frm);
+	},
+
+	work_details_remove: function(frm) {
+		update_work_details_total_hours(frm);
+	}
+});
+
+frappe.ui.form.on('Job Card Work Detail', {
+	hours_spent: function(frm) {
+		update_work_details_total_hours(frm);
 	}
 });
