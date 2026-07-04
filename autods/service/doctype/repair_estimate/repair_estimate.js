@@ -50,6 +50,18 @@ function autods_clear_charge_item_row(row) {
 	row.qty = 0;
 }
 
+function autods_set_repair_type_query(frm) {
+	frm.set_query('repair_type', function() {
+		if (!frm.doc.service_type) {
+			return {};
+		}
+		return {
+			query: 'autods.service.queries.repair_type_link_query',
+			filters: { service_type: frm.doc.service_type },
+		};
+	});
+}
+
 function autods_sync_expected_completion_from_sa(frm) {
 	if (!frm.doc.service_appointment || frm.doc.expected_completion_date || frm.doc.docstatus > 0) {
 		return;
@@ -66,11 +78,18 @@ function autods_sync_expected_completion_from_sa(frm) {
 }
 
 frappe.ui.form.on('Repair Estimate', {
+	setup: function(frm) {
+		autods_set_repair_type_query(frm);
+	},
 	onload: function(frm) {
 		autods.service_datetime.patch_system_datetime_control(frm, 'expected_completion_date');
 		autods_sync_expected_completion_from_sa(frm);
 	},
 	service_type: function(frm) {
+		autods_set_repair_type_query(frm);
+		if (frm.doc.repair_type) {
+			frm.set_value('repair_type', '');
+		}
 		if (frm.fields_dict.charges) {
 			frm.refresh_field('charges');
 		}
@@ -126,6 +145,7 @@ frappe.ui.form.on('Repair Estimate', {
 		}
 	},
 	refresh: function(frm) {
+		autods_set_repair_type_query(frm);
 		autods_sync_expected_completion_from_sa(frm);
 		if (frm.fields_dict.charges) {
 			frm.set_query('item', 'charges', function(doc, cdt, cdn) {

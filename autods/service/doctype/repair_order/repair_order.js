@@ -50,11 +50,30 @@ function autods_clear_charge_item_row(row) {
 	row.qty = 0;
 }
 
+function autods_set_repair_type_query(frm) {
+	frm.set_query('repair_type', function() {
+		if (!frm.doc.service_type) {
+			return {};
+		}
+		return {
+			query: 'autods.service.queries.repair_type_link_query',
+			filters: { service_type: frm.doc.service_type },
+		};
+	});
+}
+
 frappe.ui.form.on('Repair Order', {
+	setup: function(frm) {
+		autods_set_repair_type_query(frm);
+	},
 	onload: function(frm) {
 		autods.service_datetime.patch_system_datetime_control(frm, 'expected_completion_date');
 	},
 	service_type: function(frm) {
+		autods_set_repair_type_query(frm);
+		if (frm.doc.repair_type) {
+			frm.set_value('repair_type', '');
+		}
 		if (frm.fields_dict.charges) {
 			frm.refresh_field('charges');
 		}
@@ -107,6 +126,7 @@ frappe.ui.form.on('Repair Order', {
 		}
 	},
 	refresh: function(frm) {
+		autods_set_repair_type_query(frm);
 		if (frm.fields_dict.charges) {
 			frm.set_query('item', 'charges', function(doc, cdt, cdn) {
 				return autods_charges_item_query(doc, locals[cdt][cdn]);
