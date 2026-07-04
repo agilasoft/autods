@@ -96,3 +96,38 @@ class TestJobCardSparepartsPopulate(unittest.TestCase):
 		)
 		JobCard.populate_spareparts_from_charges(jc, ro=self._make_ro())
 		jc.append.assert_not_called()
+
+
+class TestJobCardClose(unittest.TestCase):
+	def _work_detail(self, status="Pending"):
+		row = MagicMock()
+		row.status = status
+		return row
+
+	def test_mark_completed_for_close_updates_status_work_rows_and_timestamps(self):
+		jc = MagicMock(spec=JobCard)
+		jc.status = "Work In Progress"
+		jc.actual_completion_date = None
+		jc.end_time = None
+		jc.work_details = [self._work_detail("Pending"), self._work_detail("Completed")]
+
+		with patch(
+			"autods.service.doctype.job_card.job_card.now",
+			return_value="2026-07-04 16:00:00",
+		):
+			JobCard.mark_completed_for_close(jc)
+
+		self.assertEqual(jc.status, "Completed")
+		self.assertEqual(jc.actual_completion_date, "2026-07-04 16:00:00")
+		self.assertEqual(jc.end_time, "2026-07-04 16:00:00")
+		self.assertEqual(jc.work_details[0].status, "Completed")
+		self.assertEqual(jc.work_details[1].status, "Completed")
+
+	def test_before_submit_marks_job_card_completed(self):
+		jc = MagicMock(spec=JobCard)
+		jc.status = "Open"
+		jc.work_details = [self._work_detail("Pending")]
+
+		with patch.object(JobCard, "mark_completed_for_close") as mark_completed:
+			JobCard.before_submit(jc)
+			mark_completed.assert_called_once_with()

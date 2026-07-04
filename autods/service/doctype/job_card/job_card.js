@@ -111,6 +111,38 @@ function show_pick_spareparts_dialog(frm, lines, run_create) {
 	d.show();
 }
 
+function job_card_can_close(frm) {
+	return !frm.is_new()
+		&& frm.doc.docstatus === 0
+		&& frm.doc.status !== 'Completed'
+		&& frm.doc.status !== 'Cancelled';
+}
+
+function setup_job_card_close_actions(frm) {
+	if (!job_card_can_close(frm)) {
+		return;
+	}
+
+	// Expose the standard Submit control as "Close Job Card" for service users.
+	if (frm.page.btn_secondary && frm.page.btn_secondary.length) {
+		frm.page.btn_secondary.text(__('Close Job Card'));
+	}
+}
+
+function confirm_close_job_card(frm) {
+	frappe.confirm(__('Submit and close this Job Card?'), function() {
+		frm.call({
+			doc: frm.doc,
+			method: 'complete_job_card',
+			freeze: true,
+			freeze_message: __('Closing Job Card...'),
+			callback: function() {
+				frm.reload_doc();
+			}
+		});
+	});
+}
+
 frappe.ui.form.on('Job Card', {
 	onload: function(frm) {
 		autods.service_datetime.patch_system_datetime_control(frm, 'expected_completion_date');
@@ -118,24 +150,15 @@ frappe.ui.form.on('Job Card', {
 
 	refresh: function(frm) {
 		update_work_details_total_hours(frm);
+		setup_job_card_close_actions(frm);
 		// Create Material Request (Material Issue) – references: Job Card, Repair Order
 		if (frm.doc.status !== 'Completed' && frm.doc.status !== 'Cancelled') {
 			frm.add_custom_button(__('Create Material Request'), function() {
 				open_job_card_material_request_dialog(frm);
 			}, __("Actions"));
-			if (!frm.is_new()) {
+			if (job_card_can_close(frm)) {
 				frm.add_custom_button(__('Close Job Card'), function() {
-					frappe.confirm(__('Mark this Job Card and its work details as Completed?'), function() {
-						frm.call({
-							doc: frm.doc,
-							method: 'complete_job_card',
-							freeze: true,
-							freeze_message: __('Closing Job Card...'),
-							callback: function() {
-								frm.reload_doc();
-							}
-						});
-					});
+					confirm_close_job_card(frm);
 				}, __("Actions"));
 			}
 		}

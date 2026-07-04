@@ -64,6 +64,14 @@ class JobCard(Document):
 		if not self.end_time:
 			self.end_time = self.actual_completion_date
 
+	def mark_completed_for_close(self):
+		"""Mark this Job Card and pending work rows Completed before submit/close."""
+		self.status = "Completed"
+		self.set_completion_timestamps()
+		for row in self.work_details or []:
+			if row.status != "Completed":
+				row.status = "Completed"
+
 	def validate_entry_gate_pass(self):
 		if self.status in ("Completed", "Cancelled"):
 			return
@@ -131,6 +139,9 @@ class JobCard(Document):
 				self.total_hours = time_diff_in_hours(end, start)
 			else:
 				frappe.throw(_("End Time must be greater than Start Time"))
+
+	def before_submit(self):
+		self.mark_completed_for_close()
 
 	def on_submit(self):
 		if self.status != "Completed":
@@ -275,20 +286,20 @@ class JobCard(Document):
 
 	@frappe.whitelist()
 	def complete_job_card(self):
-		"""Close this Job Card by marking it and its pending work rows Completed."""
+		"""Close this Job Card by marking it Completed and submitting."""
 		if not self.name:
 			frappe.throw(_("Please save the Job Card first"))
-		self.status = "Completed"
-		if not self.actual_completion_date:
-			self.actual_completion_date = now()
-		if not self.end_time:
-			self.end_time = self.actual_completion_date
-		for row in self.work_details or []:
-			if row.status != "Completed":
-				row.status = "Completed"
+		if self.docstatus == 1:
+			frappe.msgprint(_("Job Card {0} is already submitted.").format(frappe.bold(self.name)))
+			return {"doctype": self.doctype, "name": self.name, "docstatus": self.docstatus}
+
+		self.mark_completed_for_close()
 		self.save()
-		frappe.msgprint(_("Job Card {0} completed.").format(frappe.bold(self.name)))
-		return {"doctype": self.doctype, "name": self.name}
+		if self.docstatus == 0:
+			self.submit()
+
+		frappe.msgprint(_("Job Card {0} submitted and closed.").format(frappe.bold(self.name)))
+		return {"doctype": self.doctype, "name": self.name, "docstatus": self.docstatus}
 
 
 def resolve_sparepart_charge_rows(ro, service_charge_row, charge_row_names=None):
