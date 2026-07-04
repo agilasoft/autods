@@ -4,12 +4,13 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, get_datetime, getdate, now, time_diff_in_hours
+from frappe.utils import add_to_date, flt, get_datetime, getdate, now, time_diff_in_hours
 
 from autods.service.charge_service_row import (
 	service_line_index_for_charge_row_name,
 	sparepart_rows_for_material_request,
 )
+from autods.service.gate_pass_utils import require_entry_gate_pass
 
 
 class JobCard(Document):
@@ -20,6 +21,9 @@ class JobCard(Document):
 		self.sync_expected_completion_from_repair_order()
 		self.calculate_total_hours()
 		self.set_work_details_total_hours()
+		self.set_completion_timestamps()
+		self.validate_entry_gate_pass()
+		self.validate_vehicle_schedule()
 
 	def sync_expected_completion_from_repair_order(self):
 		if not self.repair_order:
@@ -52,6 +56,71 @@ class JobCard(Document):
 			total += flt(row.hours_spent)
 		self.work_details_total_hours = total
 
+	def set_completion_timestamps(self):
+		if self.status != "Completed":
+			return
+		if not self.actual_completion_date:
+			self.actual_completion_date = now()
+		if not self.end_time:
+			self.end_time = self.actual_completion_date
+
+	def validate_entry_gate_pass(self):
+		if self.status in ("Completed", "Cancelled"):
+			return
+		if not (self.vehicle_unit or self.customer):
+			return
+		require_entry_gate_pass(
+			vehicle_unit=self.vehicle_unit,
+			repair_order=self.repair_order,
+			customer=self.customer,
+			context=_("Job Card work"),
+		)
+
+	def validate_vehicle_schedule(self):
+		if self.status in ("Completed", "Cancelled"):
+			return
+		vehicle_key = self.vehicle_unit or self.plate_no
+		if not vehicle_key or not self.repair_date:
+			return
+
+		filters = [
+			["Job Card", "status", "not in", ("Completed", "Cancelled")],
+			["Job Card", "repair_date", "=", getdate(self.repair_date)],
+		]
+		if self.name:
+			filters.append(["Job Card", "name", "!=", self.name])
+		if self.vehicle_unit:
+			filters.append(["Job Card", "vehicle_unit", "=", self.vehicle_unit])
+		else:
+			filters.append(["Job Card", "plate_no", "=", self.plate_no])
+
+		existing = frappe.get_all(
+			"Job Card",
+			filters=filters,
+			fields=["name", "start_time", "end_time", "expected_completion_date"],
+			limit_page_length=50,
+		)
+		if not existing:
+			return
+
+		start_dt, end_dt = job_card_window(self)
+		if not start_dt or not end_dt:
+			frappe.throw(
+				_("An active Job Card already exists for this vehicle on {0}: {1}").format(
+					getdate(self.repair_date),
+					frappe.bold(existing[0].name),
+				),
+			)
+
+		for row in existing:
+			row_start, row_end = row_window(row, getdate(self.repair_date))
+			if not row_start or not row_end or intervals_overlap(start_dt, end_dt, row_start, row_end):
+				frappe.throw(
+					_("Job Card {0} already covers this vehicle in the selected repair window.").format(
+						frappe.bold(row.name),
+					),
+				)
+
 	@frappe.whitelist()
 	def calculate_total_hours(self):
 		"""Calculate total hours from start and end time"""
@@ -63,12 +132,21 @@ class JobCard(Document):
 			else:
 				frappe.throw(_("End Time must be greater than Start Time"))
 
-	def on_update(self):
-		"""Update completion date when status is Completed"""
-		if self.status == "Completed" and not self.actual_completion_date:
-			self.actual_completion_date = frappe.utils.now()
-			if not self.end_time:
-				self.end_time = frappe.utils.now()
+	def on_submit(self):
+		if self.status != "Completed":
+			frappe.db.set_value("Job Card", self.name, "status", "Completed")
+			self.status = "Completed"
+		if not self.actual_completion_date:
+			completed_at = now()
+			frappe.db.set_value("Job Card", self.name, "actual_completion_date", completed_at)
+			self.actual_completion_date = completed_at
+		if not self.end_time:
+			frappe.db.set_value("Job Card", self.name, "end_time", self.actual_completion_date)
+			self.end_time = self.actual_completion_date
+
+	def on_cancel(self):
+		frappe.db.set_value("Job Card", self.name, "status", "Cancelled")
+		self.status = "Cancelled"
 
 	@frappe.whitelist()
 	def assign_technician_by_skills(self):
@@ -176,11 +254,11 @@ class JobCard(Document):
 		shopfloor_schedule.technician = self.technician
 		shopfloor_schedule.scheduled_date = self.repair_date
 
-		if self.expected_completion_date:
-			completion_dt = get_datetime(self.expected_completion_date)
-			shopfloor_schedule.scheduled_start_time = completion_dt.time()
-			from datetime import timedelta
-			shopfloor_schedule.scheduled_end_time = (completion_dt + timedelta(hours=1)).time()
+		start_dt, end_dt = job_card_window(self)
+		if start_dt and end_dt:
+			shopfloor_schedule.scheduled_date = getdate(start_dt)
+			shopfloor_schedule.scheduled_start_time = start_dt.time()
+			shopfloor_schedule.scheduled_end_time = end_dt.time()
 
 		shopfloor_schedule.status = "Scheduled"
 		shopfloor_schedule.insert()
@@ -194,6 +272,23 @@ class JobCard(Document):
 	def check_technician_availability(self, technician, start_date, end_date):
 		"""Check if technician is available for the given time period"""
 		return check_technician_availability(technician, start_date, end_date, self.name)
+
+	@frappe.whitelist()
+	def complete_job_card(self):
+		"""Close this Job Card by marking it and its pending work rows Completed."""
+		if not self.name:
+			frappe.throw(_("Please save the Job Card first"))
+		self.status = "Completed"
+		if not self.actual_completion_date:
+			self.actual_completion_date = now()
+		if not self.end_time:
+			self.end_time = self.actual_completion_date
+		for row in self.work_details or []:
+			if row.status != "Completed":
+				row.status = "Completed"
+		self.save()
+		frappe.msgprint(_("Job Card {0} completed.").format(frappe.bold(self.name)))
+		return {"doctype": self.doctype, "name": self.name}
 
 
 def resolve_sparepart_charge_rows(ro, service_charge_row, charge_row_names=None):
@@ -271,6 +366,7 @@ def _material_request_line_payloads(ro, rows):
 				"item_name": item_name,
 				"qty": flt(getattr(r, "qty", None)),
 				"service_row": getattr(r, "service_row", None) or "",
+				"warehouse": getattr(r, "warehouse", None) or "",
 			}
 		)
 	return payloads
@@ -409,11 +505,13 @@ def _create_material_request_from_repair_order(repair_order, job_card, items):
 	material_request.repair_order = repair_order
 	material_request.schedule_date = getdate(nowdate())
 
+	default_warehouse = frappe.db.get_single_value("Service Settings", "default_warehouse")
+
 	# Company from item warehouses so MR company matches (avoid InvalidWarehouseCompany)
 	company = None
 	companies = set()
 	for row in items:
-		wh = getattr(row, "warehouse", None)
+		wh = getattr(row, "warehouse", None) or default_warehouse
 		if wh:
 			wh_company = frappe.db.get_value("Warehouse", wh, "company")
 			if wh_company:
@@ -431,12 +529,19 @@ def _create_material_request_from_repair_order(repair_order, job_card, items):
 		item_code = getattr(row, "item", None)
 		if not item_code:
 			continue
+		warehouse = getattr(row, "warehouse", None) or default_warehouse
+		if not warehouse and frappe.db.get_value("Item", item_code, "is_stock_item"):
+			frappe.throw(
+				_("Warehouse is required for stock item {0}. Set a Warehouse on the Repair Order sparepart line or Default Warehouse in Service Settings.").format(
+					frappe.bold(item_code),
+				),
+			)
 		uom = getattr(row, "uom", None) or frappe.db.get_value("Item", item_code, "stock_uom")
 		material_request.append("items", {
 			"item_code": item_code,
 			"qty": row.qty or 1,
 			"uom": uom,
-			"warehouse": getattr(row, "warehouse", None),
+			"warehouse": warehouse,
 			"schedule_date": material_request.schedule_date,
 		})
 
@@ -447,19 +552,66 @@ def _create_material_request_from_repair_order(repair_order, job_card, items):
 @frappe.whitelist()
 def check_technician_availability(technician, start_date, end_date, docname=None):
 	"""Check if technician is available for the given time period (module-level for RPC)."""
-	overlapping = frappe.db.sql("""
-		SELECT name, status
-		FROM `tabJob Card`
-		WHERE technician = %s
-		AND (name != %s OR %s IS NULL)
-		AND status NOT IN ('Completed', 'Cancelled')
-		AND (
-			(repair_date <= %s AND expected_completion_date >= %s)
-			OR (repair_date <= %s AND expected_completion_date >= %s)
-		)
-	""", (technician, docname or '', docname, start_date, start_date, end_date, end_date))
+	if not technician or not start_date or not end_date:
+		return {"available": True, "overlapping_jobs": []}
+
+	start_dt = get_datetime(start_date)
+	end_dt = get_datetime(end_date)
+	if end_dt <= start_dt:
+		return {"available": False, "overlapping_jobs": []}
+
+	filters = [
+		["Job Card", "technician", "=", technician],
+		["Job Card", "repair_date", "=", getdate(start_dt)],
+		["Job Card", "status", "not in", ("Completed", "Cancelled")],
+	]
+	if docname:
+		filters.append(["Job Card", "name", "!=", docname])
+	jobs = frappe.get_all(
+		"Job Card",
+		filters=filters,
+		fields=["name", "status", "start_time", "end_time", "expected_completion_date"],
+	)
+	overlapping = []
+	for job in jobs:
+		job_start, job_end = row_window(job, getdate(start_dt))
+		if not job_start or not job_end:
+			continue
+		if intervals_overlap(start_dt, end_dt, job_start, job_end):
+			overlapping.append((job.name, job.status))
 
 	return {
 		"available": len(overlapping) == 0,
 		"overlapping_jobs": overlapping
 	}
+
+
+def job_card_window(doc):
+	if doc.start_time and doc.end_time:
+		return get_datetime(doc.start_time), get_datetime(doc.end_time)
+	if doc.start_time and doc.expected_completion_date:
+		return get_datetime(doc.start_time), get_datetime(doc.expected_completion_date)
+	if doc.repair_date and doc.expected_completion_date:
+		return get_datetime(f"{getdate(doc.repair_date)} 00:00:00"), get_datetime(doc.expected_completion_date)
+	if doc.repair_date:
+		start = get_datetime(f"{getdate(doc.repair_date)} 09:00:00")
+		return start, add_to_date(start, hours=1)
+	return None, None
+
+
+def row_window(row, repair_date=None):
+	if row.start_time and row.end_time:
+		return get_datetime(row.start_time), get_datetime(row.end_time)
+	if row.start_time and row.expected_completion_date:
+		return get_datetime(row.start_time), get_datetime(row.expected_completion_date)
+	if repair_date and row.expected_completion_date:
+		return get_datetime(f"{getdate(repair_date)} 00:00:00"), get_datetime(row.expected_completion_date)
+	return None, None
+
+
+def intervals_overlap(a0, a1, b0, b1):
+	if a0 > a1:
+		a0, a1 = a1, a0
+	if b0 > b1:
+		b0, b1 = b1, b0
+	return a0 < b1 and a1 > b0

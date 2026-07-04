@@ -1,13 +1,15 @@
 # Copyright (c) 2026, Agilasoft Technologies Inc. and contributors
 # For license information, please see license.txt
 
-"""Repair Order → Job Card planning: one card per service line; Service Settings drive capacity, close time, overlap, and multi-day sliding."""
+"""Repair Order → Job Card planning: one card per Repair Order; Service Settings drive capacity, close time, overlap, and multi-day sliding."""
 
 from __future__ import annotations
 
 import frappe
 from frappe import _
 from frappe.utils import add_to_date, cint, flt, get_datetime, getdate, today
+
+from autods.service.gate_pass_utils import require_entry_gate_pass
 
 
 def _time_field_to_str(val) -> str:
@@ -366,7 +368,7 @@ def _pick_technician(
 
 
 def build_plan(ro) -> dict:
-	"""Return planned job cards (one per service charge line) for preview."""
+	"""Return the consolidated planned Job Card for a Repair Order."""
 	if not ro.name:
 		frappe.throw(_("Save the Repair Order before planning job cards"))
 
@@ -379,92 +381,113 @@ def build_plan(ro) -> dict:
 
 	cursor = get_datetime(f"{base} {opens}")
 	lines = []
-	seq = 0
 	reserved_slots: list[tuple[str, object, object]] = []
 	prior_planned: list = []
+	service_rows = sorted(_service_charge_rows(ro), key=lambda r: r.idx or 0)
 
-	for row in sorted(_service_charge_rows(ro), key=lambda r: r.idx or 0):
+	if not service_rows:
+		return {
+			"repair_order": ro.name,
+			"repair_date": str(base),
+			"lines": [],
+			"settings": planning_settings_payload(settings),
+		}
+
+	for row in service_rows:
 		if not row.name:
 			frappe.throw(_("Save charge lines before planning job cards"))
-		seq += 1
+
+	primary_row = service_rows[0]
+	descriptions = []
+	total_hours = 0.0
+	work_details = []
+	for row in service_rows:
 		desc = (row.description or "").strip() or (row.item_name or "").strip() or (row.item or "").strip()
-		if not desc:
-			desc = _("Service line")
+		desc = desc or _("Service line")
 		hours = _charge_labor_hours(row, slot_hours)
-		duration = max(hours, slot_hours)
-
-		resolved_wa = _resolve_work_area(row.service_type, settings)
-		planned_start, planned_end, eff_wa, slot_warnings = _allocate_slot(
-			cursor, duration, resolved_wa, ro, settings, prior_planned
+		total_hours += hours
+		descriptions.append(desc)
+		work_details.append(
+			{
+				"charge_row": row.name,
+				"description": desc[:140],
+				"standard_hours": hours,
+			},
 		)
-		warnings = list(slot_warnings)
 
-		skills_group = _resolve_skills_group(row.service_type, settings)
-		technician = _pick_technician(skills_group, planned_start, planned_end, settings, reserved_slots)
+	duration = max(total_hours, slot_hours)
+	resolved_wa = _resolve_work_area(primary_row.service_type, settings)
+	planned_start, planned_end, eff_wa, slot_warnings = _allocate_slot(
+		cursor, duration, resolved_wa, ro, settings, prior_planned
+	)
+	warnings = list(slot_warnings)
 
-		overlap_mode = getattr(settings, "planning_technician_overlap", None) or "warn_only"
-		if (
-			technician
-			and not getattr(settings, "allow_overlapping_schedules", None)
-			and getattr(settings, "respect_technician_load", None)
-			and overlap_mode == "warn_only"
-			and _technician_time_overlap(technician, planned_start, planned_end, None, None)
-		):
-			warnings.append(
-				_("Technician {0} may overlap existing jobs in the system.").format(technician),
-			)
+	skills_group = _resolve_skills_group(primary_row.service_type, settings)
+	technician = _pick_technician(skills_group, planned_start, planned_end, settings, reserved_slots)
 
-		if technician:
-			reserved_slots.append((technician, planned_start, planned_end))
+	overlap_mode = getattr(settings, "planning_technician_overlap", None) or "warn_only"
+	if (
+		technician
+		and not getattr(settings, "allow_overlapping_schedules", None)
+		and getattr(settings, "respect_technician_load", None)
+		and overlap_mode == "warn_only"
+		and _technician_time_overlap(technician, planned_start, planned_end, None, None)
+	):
+		warnings.append(
+			_("Technician {0} may overlap existing jobs in the system.").format(technician),
+		)
 
-		line_dict = {
-			"seq": seq,
-			"charge_row": row.name,
-			"item": row.item,
-			"description": desc[:200],
-			"standard_hours": hours,
-			"hours": hours,
-			"work_area": eff_wa,
-			"technician_skills_group": skills_group,
-			"technician": technician,
-			"planned_start": str(planned_start),
-			"planned_end": str(planned_end),
-			"assignment_date": str(getdate(planned_start)),
-			"warnings": warnings,
-			"existing_job_card": frappe.db.get_value(
-				"Job Card",
-				{"repair_order": ro.name, "service_charge_row": row.name},
-				"name",
-			),
-		}
-		lines.append(line_dict)
-		prior_planned.append(line_dict)
-		cursor = planned_end
+	if technician:
+		reserved_slots.append((technician, planned_start, planned_end))
+
+	existing_job_card = frappe.db.get_value(
+		"Job Card",
+		{"repair_order": ro.name, "status": ("!=", "Cancelled")},
+		"name",
+	)
+	description = "; ".join(descriptions[:3])
+	if len(descriptions) > 3:
+		description = _("{0} service lines").format(len(descriptions))
+	line_dict = {
+		"seq": 1,
+		"charge_row": "",
+		"charge_rows": [row.name for row in service_rows],
+		"item": primary_row.item,
+		"description": description[:200],
+		"standard_hours": total_hours,
+		"hours": total_hours,
+		"work_area": eff_wa,
+		"technician_skills_group": skills_group,
+		"technician": technician,
+		"planned_start": str(planned_start),
+		"planned_end": str(planned_end),
+		"assignment_date": str(getdate(planned_start)),
+		"warnings": warnings,
+		"existing_job_card": existing_job_card,
+		"work_details": work_details,
+	}
+	lines.append(line_dict)
 
 	return {
 		"repair_order": ro.name,
 		"repair_date": str(base),
 		"lines": lines,
-		"settings": {
-			"auto_assign_work_area": bool(getattr(settings, "auto_assign_work_area", None)),
-			"auto_assign_technician": bool(getattr(settings, "auto_assign_technician", None)),
-			"respect_work_area_capacity": bool(getattr(settings, "respect_work_area_capacity", None)),
-			"respect_technician_load": bool(getattr(settings, "respect_technician_load", None)),
-			"allow_overlapping_schedules": bool(getattr(settings, "allow_overlapping_schedules", None)),
-			"planning_max_extra_days": cint(getattr(settings, "planning_max_extra_days", None) or 0),
-			"planning_work_area_full": getattr(settings, "planning_work_area_full", None) or "warn_only",
-			"planning_past_shop_close": getattr(settings, "planning_past_shop_close", None) or "warn_only",
-			"planning_technician_overlap": getattr(settings, "planning_technician_overlap", None) or "warn_only",
-		},
+		"settings": planning_settings_payload(settings),
 	}
 
 
 def create_job_cards(ro) -> dict:
-	"""Insert one Job Card per planned service line; skip rows that already have a card."""
+	"""Insert one consolidated Job Card for this Repair Order; skip when one already exists."""
 	if not ro.name:
 		frappe.throw(_("Save the Repair Order before creating job cards"))
 	ro.check_permission("write")
 	frappe.has_permission("Job Card", "create", throw=True)
+	require_entry_gate_pass(
+		vehicle_unit=ro.vehicle_unit,
+		repair_order=ro.name,
+		customer=ro.customer,
+		context=_("Job Card creation"),
+	)
 
 	plan = build_plan(ro)
 	created = []
@@ -473,7 +496,7 @@ def create_job_cards(ro) -> dict:
 	for line in plan["lines"]:
 		if line.get("existing_job_card"):
 			skipped.append(
-				{"charge_row": line["charge_row"], "job_card": line["existing_job_card"]},
+				{"charge_row": line.get("charge_row") or "", "job_card": line["existing_job_card"]},
 			)
 			continue
 
@@ -485,7 +508,7 @@ def create_job_cards(ro) -> dict:
 		jc.repair_date = getdate(line["planned_start"])
 		jc.repair_type = ro.repair_type
 		jc.status = "Open"
-		jc.service_charge_row = line["charge_row"]
+		jc.service_charge_row = ""
 		jc.work_area = line.get("work_area")
 		jc.technician_skills_group = line.get("technician_skills_group")
 		jc.technician = line.get("technician")
@@ -498,20 +521,32 @@ def create_job_cards(ro) -> dict:
 			summary_bits.append(line["technician"])
 		jc.planning_summary = " · ".join(summary_bits)[:240]
 
-		desc = line.get("description") or _("Service")
-		charge_row = next((r for r in ro.charges if r.name == line["charge_row"]), None)
-		labor_hours = _charge_labor_hours(charge_row, 0) if charge_row else 0
-		jc.append(
-			"work_details",
-			{
-				"work_description": (desc or "")[:140],
-				"status": "Pending",
-				"hours_spent": 0,
-				"standard_hours": labor_hours,
-			},
-		)
+		for detail in line.get("work_details") or []:
+			jc.append(
+				"work_details",
+				{
+					"work_description": (detail.get("description") or _("Service"))[:140],
+					"status": "Pending",
+					"hours_spent": 0,
+					"standard_hours": detail.get("standard_hours") or 0,
+				},
+			)
 
 		jc.insert()
 		created.append(jc.name)
 
 	return {"created": created, "skipped": skipped, "plan": plan}
+
+
+def planning_settings_payload(settings) -> dict:
+	return {
+		"auto_assign_work_area": bool(getattr(settings, "auto_assign_work_area", None)),
+		"auto_assign_technician": bool(getattr(settings, "auto_assign_technician", None)),
+		"respect_work_area_capacity": bool(getattr(settings, "respect_work_area_capacity", None)),
+		"respect_technician_load": bool(getattr(settings, "respect_technician_load", None)),
+		"allow_overlapping_schedules": bool(getattr(settings, "allow_overlapping_schedules", None)),
+		"planning_max_extra_days": cint(getattr(settings, "planning_max_extra_days", None) or 0),
+		"planning_work_area_full": getattr(settings, "planning_work_area_full", None) or "warn_only",
+		"planning_past_shop_close": getattr(settings, "planning_past_shop_close", None) or "warn_only",
+		"planning_technician_overlap": getattr(settings, "planning_technician_overlap", None) or "warn_only",
+	}

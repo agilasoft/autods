@@ -1187,7 +1187,7 @@
 				"service_advisor",
 				"service_description",
 			],
-			order_by: "repair_date desc, modified desc",
+			order_by: "repair_date asc, modified asc",
 			limit: 100,
 		});
 	}

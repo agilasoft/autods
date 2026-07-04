@@ -561,16 +561,17 @@
   {
    "fieldname": "charges_tab",
    "fieldtype": "Tab Break",
-   "label": "Charges"
+   "label": "Items / Charges"
   },
   {
    "fieldname": "section_charges_table",
-   "fieldtype": "Section Break"
+   "fieldtype": "Section Break",
+   "label": "Services, Spareparts, and Overhead Items"
   },
   {
    "fieldname": "charges",
    "fieldtype": "Table",
-   "label": "Charges",
+   "label": "Items / Charges",
    "options": "Repair Order Charges"
   },
   {

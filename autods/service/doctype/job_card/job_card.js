@@ -123,10 +123,25 @@ frappe.ui.form.on('Job Card', {
 			frm.add_custom_button(__('Create Material Request'), function() {
 				open_job_card_material_request_dialog(frm);
 			}, __("Actions"));
+			if (!frm.is_new()) {
+				frm.add_custom_button(__('Close Job Card'), function() {
+					frappe.confirm(__('Mark this Job Card and its work details as Completed?'), function() {
+						frm.call({
+							doc: frm.doc,
+							method: 'complete_job_card',
+							freeze: true,
+							freeze_message: __('Closing Job Card...'),
+							callback: function() {
+								frm.reload_doc();
+							}
+						});
+					});
+				}, __("Actions"));
+			}
 		}
 
 		// Add button to assign technician by skills
-		if (frm.doc.technician_skills_group && !frm.doc.technician) {
+		if (!frm.doc.technician && frm.doc.status !== 'Completed' && frm.doc.status !== 'Cancelled') {
 			frm.add_custom_button(__('Find Technicians by Skills'), function() {
 				frm.call({
 					doc: frm.doc,
@@ -180,6 +195,8 @@ frappe.ui.form.on('Job Card', {
 							$wrap.empty().append($table);
 
 							d.show();
+						} else {
+							frappe.msgprint(__('No matching technicians were found for this Job Card.'));
 						}
 					}
 				});

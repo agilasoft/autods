@@ -162,6 +162,20 @@ frappe.ui.form.on('Repair Order', {
 					frappe.msgprint(__('Job card planning script is missing. Rebuild assets or refresh.'));
 				}
 			}, __('Create'));
+			frm.add_custom_button(__('Gate Pass Entry'), function() {
+				frm.call({
+					doc: frm.doc,
+					method: 'create_gate_pass',
+					args: { gate_pass_type: 'Entry' },
+					freeze: true,
+					freeze_message: __('Creating Gate Pass...'),
+					callback: function(r) {
+						if (r.message && r.message.name) {
+							frappe.set_route('Form', 'Gate Pass', r.message.name);
+						}
+					}
+				});
+			}, __('Create'));
 		}
 		frm.add_custom_button(__('Load Service Template'), function() {
 			load_service_template(frm);
@@ -471,6 +485,11 @@ function fetch_template_items_ro(frm, template_name) {
 				if (r.message.doc.service_template) {
 					frm.set_value('service_template', r.message.doc.service_template);
 				}
+				['terms_and_conditions', 'tc_notes'].forEach(function(fieldname) {
+					if (frm.fields_dict[fieldname] && r.message.doc[fieldname] !== undefined) {
+						frm.set_value(fieldname, r.message.doc[fieldname]);
+					}
+				});
 				if (frm.docname && !frm.is_new()) {
 					frm.reload_doc();
 				}
