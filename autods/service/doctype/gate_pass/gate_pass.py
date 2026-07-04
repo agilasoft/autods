@@ -5,7 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-from autods.service.gate_pass_utils import require_completed_job_cards_for_exit
+from autods.service.gate_pass_utils import EXIT_STATUSES, is_exit_gate_pass, require_completed_job_cards_for_exit
 
 
 class GatePass(Document):
@@ -41,10 +41,10 @@ class GatePass(Document):
 	def validate_entry_exit_status(self):
 		status = (self.status or "").strip()
 		gate_pass_type = (self.gate_pass_type or "").strip()
-		if gate_pass_type == "Entry" and status in ("Exit Only", "Completed"):
+		if gate_pass_type == "Entry" and status in EXIT_STATUSES:
 			frappe.throw(_("Gate Pass Type Entry cannot be saved as {0}.").format(status))
 		if gate_pass_type == "Exit" and status == "Entry Only":
 			frappe.throw(_("Gate Pass Type Exit cannot be saved as Entry Only."))
-		if status not in ("Exit Only", "Completed") and gate_pass_type != "Exit":
+		if not is_exit_gate_pass(gate_pass_type=gate_pass_type, status=status):
 			return
 		require_completed_job_cards_for_exit(job_card=self.job_card, repair_order=self.repair_order)
