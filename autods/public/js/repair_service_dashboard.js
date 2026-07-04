@@ -1173,6 +1173,21 @@
 			.join("")}</div>`;
 	}
 
+	function repair_order_history_sort_key(ro) {
+		return ro.expected_completion_date || ro.repair_date || ro.name || "";
+	}
+
+	function sort_repair_orders_for_history(orders) {
+		return (orders || []).slice().sort((a, b) => {
+			const ka = repair_order_history_sort_key(a);
+			const kb = repair_order_history_sort_key(b);
+			if (ka !== kb) return ka < kb ? -1 : 1;
+			const na = a.name || "";
+			const nb = b.name || "";
+			return na < nb ? -1 : na > nb ? 1 : 0;
+		});
+	}
+
 	function fetch_repair_orders_for_vehicle(vehicle_unit) {
 		if (!vehicle_unit) return Promise.resolve([]);
 		return frappe.db.get_list("Repair Order", {
@@ -1187,14 +1202,15 @@
 				"service_advisor",
 				"service_description",
 			],
-			order_by: "repair_date asc, modified asc",
+			order_by: "repair_date asc, expected_completion_date asc, name asc",
 			limit: 100,
 		});
 	}
 
 	async function safe_fetch_repair_orders_for_vehicle(vehicle_unit) {
 		try {
-			return await fetch_repair_orders_for_vehicle(vehicle_unit);
+			const orders = await fetch_repair_orders_for_vehicle(vehicle_unit);
+			return sort_repair_orders_for_history(orders);
 		} catch (e) {
 			console.warn("autods dashboard: repair order history", e);
 			return [];
