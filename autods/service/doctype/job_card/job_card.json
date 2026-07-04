@@ -227,7 +227,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-01 14:54:58.521752",
+ "modified": "2026-07-04 16:10:00.000000",
  "modified_by": "ejay.sambrano@agilasoft.com",
  "module": "Service",
  "name": "Job Card",
@@ -235,8 +235,8 @@
  "owner": "Administrator",
  "permissions": [
   {
-   "create": 1,
    "cancel": 1,
+   "create": 1,
    "delete": 1,
    "email": 1,
    "export": 1,
@@ -244,6 +244,32 @@
    "read": 1,
    "report": 1,
    "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Service User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Service Manager",
    "share": 1,
    "submit": 1,
    "write": 1
