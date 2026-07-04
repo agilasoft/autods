@@ -4,13 +4,18 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import add_to_date, flt, get_datetime, getdate, now, time_diff_in_hours
+from frappe.utils import flt, get_datetime, getdate, now, time_diff_in_hours
 
 from autods.service.charge_service_row import (
 	service_line_index_for_charge_row_name,
 	sparepart_rows_for_material_request,
 )
 from autods.service.gate_pass_utils import require_entry_gate_pass
+from autods.service.vehicle_schedule_utils import (
+	intervals_overlap,
+	job_card_schedule_window,
+	validate_vehicle_job_card_conflict,
+)
 
 
 class JobCard(Document):
@@ -25,6 +30,7 @@ class JobCard(Document):
 		self.validate_entry_gate_pass()
 		self.validate_single_job_card_per_repair_order()
 		self.validate_vehicle_schedule()
+		validate_vehicle_job_card_conflict(self)
 
 	def sync_expected_completion_from_repair_order(self):
 		if not self.repair_order:
@@ -287,7 +293,7 @@ class JobCard(Document):
 		shopfloor_schedule.technician = self.technician
 		shopfloor_schedule.scheduled_date = self.repair_date
 
-		start_dt, end_dt = job_card_window(self)
+		start_dt, end_dt = job_card_schedule_window(self)
 		if start_dt and end_dt:
 			shopfloor_schedule.scheduled_date = getdate(start_dt)
 			shopfloor_schedule.scheduled_start_time = start_dt.time()
@@ -607,7 +613,7 @@ def check_technician_availability(technician, start_date, end_date, docname=None
 	)
 	overlapping = []
 	for job in jobs:
-		job_start, job_end = row_window(job, getdate(start_dt))
+		job_start, job_end = job_card_schedule_window(job)
 		if not job_start or not job_end:
 			continue
 		if intervals_overlap(start_dt, end_dt, job_start, job_end):
@@ -620,31 +626,10 @@ def check_technician_availability(technician, start_date, end_date, docname=None
 
 
 def job_card_window(doc):
-	if doc.start_time and doc.end_time:
-		return get_datetime(doc.start_time), get_datetime(doc.end_time)
-	if doc.start_time and doc.expected_completion_date:
-		return get_datetime(doc.start_time), get_datetime(doc.expected_completion_date)
-	if doc.repair_date and doc.expected_completion_date:
-		return get_datetime(f"{getdate(doc.repair_date)} 00:00:00"), get_datetime(doc.expected_completion_date)
-	if doc.repair_date:
-		start = get_datetime(f"{getdate(doc.repair_date)} 09:00:00")
-		return start, add_to_date(start, hours=1)
-	return None, None
+	"""Backward-compatible alias for schedule window helpers."""
+	return job_card_schedule_window(doc)
 
 
 def row_window(row, repair_date=None):
-	if row.start_time and row.end_time:
-		return get_datetime(row.start_time), get_datetime(row.end_time)
-	if row.start_time and row.expected_completion_date:
-		return get_datetime(row.start_time), get_datetime(row.expected_completion_date)
-	if repair_date and row.expected_completion_date:
-		return get_datetime(f"{getdate(repair_date)} 00:00:00"), get_datetime(row.expected_completion_date)
-	return None, None
-
-
-def intervals_overlap(a0, a1, b0, b1):
-	if a0 > a1:
-		a0, a1 = a1, a0
-	if b0 > b1:
-		b0, b1 = b1, b0
-	return a0 < b1 and a1 > b0
+	"""Backward-compatible alias; ``repair_date`` is ignored (date comes from row fields)."""
+	return job_card_schedule_window(row)

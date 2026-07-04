@@ -522,15 +522,17 @@ def create_job_cards(ro) -> dict:
 		jc.customer = ro.customer
 		jc.vehicle_unit = ro.vehicle_unit
 		jc.plate_no = ro.plate_no
-		jc.repair_date = getdate(line["planned_start"])
+		ps = get_datetime(line["planned_start"])
+		pe = get_datetime(line["planned_end"])
+		jc.repair_date = getdate(ps)
+		jc.start_time = ps
+		jc.end_time = pe
 		jc.repair_type = ro.repair_type
 		jc.status = "Open"
 		jc.service_charge_row = ""
 		jc.work_area = line.get("work_area")
 		jc.technician_skills_group = line.get("technician_skills_group")
 		jc.technician = line.get("technician")
-		ps = get_datetime(line["planned_start"])
-		pe = get_datetime(line["planned_end"])
 		summary_bits = [str(getdate(ps)), f"{ps.strftime('%H:%M')}–{pe.strftime('%H:%M')}"]
 		if line.get("work_area"):
 			summary_bits.append(line["work_area"])

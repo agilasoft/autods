@@ -10,12 +10,14 @@ from frappe.model.document import Document
 from frappe.utils import get_time, getdate, today
 
 from autods.service.service_appointment_utils import get_expected_completion_datetime
+from autods.service.vehicle_schedule_utils import validate_vehicle_service_appointment_conflict
 
 
 class ServiceAppointment(Document):
 	def validate(self):
 		self.validate_expected_completion()
 		self.validate_time_range()
+		self.validate_vehicle_schedule()
 
 	def validate_expected_completion(self):
 		if not self.expected_completion_date:
@@ -26,6 +28,9 @@ class ServiceAppointment(Document):
 			return
 		if get_time(self.appointment_end_time) <= get_time(self.appointment_start_time):
 			frappe.throw(_("End Time must be after Start Time"))
+
+	def validate_vehicle_schedule(self):
+		validate_vehicle_service_appointment_conflict(self)
 
 	def on_submit(self):
 		if self.status == "Scheduled":
