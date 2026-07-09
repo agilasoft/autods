@@ -30,16 +30,16 @@ class ServiceAppointment(Document):
 			frappe.throw(_("End Time must be after Start Time"))
 
 	def validate_vehicle_schedule(self):
+		if self.vehicle_unit:
+			self.plate_no = frappe.db.get_value("Vehicle Unit", self.vehicle_unit, "plate_no")
 		validate_vehicle_service_appointment_conflict(self)
 
 	def on_submit(self):
 		if self.status == "Scheduled":
-			frappe.db.set_value("Service Appointment", self.name, "status", "Confirmed")
-			self.status = "Confirmed"
+			self.db_set("status", "Confirmed")
 
 	def on_cancel(self):
-		frappe.db.set_value("Service Appointment", self.name, "status", "Cancelled")
-		self.status = "Cancelled"
+		self.db_set("status", "Cancelled")
 
 	@frappe.whitelist()
 	def create_repair_estimate(self):
@@ -72,8 +72,7 @@ class ServiceAppointment(Document):
 		estimate.flags.ignore_mandatory = True
 		estimate.insert()
 
-		frappe.db.set_value("Service Appointment", self.name, "repair_estimate", estimate.name)
-		frappe.db.commit()
+		self.db_set("repair_estimate", estimate.name)
 		frappe.msgprint(_("Repair Estimate {0} created").format(frappe.bold(estimate.name)))
 		return estimate.name
 
@@ -99,8 +98,7 @@ class ServiceAppointment(Document):
 				ro_name = est.create_repair_order()
 				if frappe.db.has_column("Repair Order", "service_appointment"):
 					frappe.db.set_value("Repair Order", ro_name, "service_appointment", self.name)
-				frappe.db.set_value("Service Appointment", self.name, "repair_order", ro_name)
-				frappe.db.commit()
+				self.db_set("repair_order", ro_name)
 				frappe.msgprint(_("Repair Order {0} created from estimate").format(frappe.bold(ro_name)))
 				return ro_name
 
@@ -119,8 +117,7 @@ class ServiceAppointment(Document):
 		ro.insert()
 		ro_name = ro.name
 
-		frappe.db.set_value("Service Appointment", self.name, "repair_order", ro_name)
-		frappe.db.commit()
+		self.db_set("repair_order", ro_name)
 		frappe.msgprint(_("Repair Order {0} created from appointment").format(frappe.bold(ro_name)))
 		return ro_name
 

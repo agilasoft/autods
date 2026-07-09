@@ -60,9 +60,7 @@ def vehicle_identifiers(vehicle_unit=None, plate_no=None) -> tuple[set[str], set
 	plates: set[str] = set()
 	if vehicle_unit:
 		units.add(vehicle_unit)
-	if not plate_no and vehicle_unit:
-		plate_no = frappe.db.get_value("Vehicle Unit", vehicle_unit, "plate_no")
-	if plate_no:
+	elif plate_no:
 		plates.add(str(plate_no).strip())
 	return units, plates
 
@@ -120,17 +118,11 @@ def repair_order_schedule_window(doc):
 
 def _vehicle_match_sql(vehicle_unit=None, plate_no=None) -> tuple[str, list]:
 	units, plates = vehicle_identifiers(vehicle_unit, plate_no)
-	clauses: list[str] = []
-	params: list = []
 	if units:
-		clauses.append("vehicle_unit in %s")
-		params.append(tuple(units))
+		return "vehicle_unit in %s", [tuple(units)]
 	if plates:
-		clauses.append("plate_no in %s")
-		params.append(tuple(plates))
-	if not clauses:
-		return "", []
-	return f"({' or '.join(clauses)})", params
+		return "plate_no in %s", [tuple(plates)]
+	return "", []
 
 
 def fetch_rows_for_vehicle(
