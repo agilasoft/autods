@@ -15,3 +15,11 @@ def after_install():
 def after_migrate():
 	vehicle_sales_after_migrate()
 	principal_portal_after_migrate()
+
+
+def before_tests():
+	try:
+		from erpnext.setup.utils import before_tests as erpnext_before_tests
+	except ImportError:
+		return
+	erpnext_before_tests()

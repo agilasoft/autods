@@ -215,7 +215,7 @@ scheduler_events = {
 # Testing
 # -------
 
-# before_tests = "autods.install.before_tests"
+before_tests = "autods.install.before_tests"
 
 # Overriding Methods
 # ------------------------------
