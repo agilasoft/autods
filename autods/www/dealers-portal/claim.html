@@ -1,0 +1,32 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div style="max-width: 900px; margin: 0 auto; padding: 12px 0 40px;">
+	<p><a href="{{ back_href }}">{{ _("Back to portal") }}</a></p>
+	<h1>{{ doc.name }}</h1>
+	<p>{{ _("Status") }}: <strong>{{ doc.status }}</strong> · {{ doc.claim_date }}</p>
+	<p>{{ _("VIN") }}: {{ doc.vin or "—" }} · {{ _("Odometer") }}: {{ doc.odometer or "—" }}</p>
+	<p>{{ doc.failure_description or "" }}</p>
+	{% if doc.items %}
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th>{{ _("Item") }}</th>
+				<th>{{ _("Qty") }}</th>
+				<th>{{ _("Amount") }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in doc.items %}
+			<tr>
+				<td>{{ row.item_code or row.item_name or row.description }}</td>
+				<td>{{ row.qty }}</td>
+				<td>{{ row.amount }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	<p>{{ _("Claim Amount") }}: <strong>{{ doc.claim_amount }}</strong></p>
+</div>
+{% endblock %}

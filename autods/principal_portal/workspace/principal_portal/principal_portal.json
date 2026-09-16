@@ -1,0 +1,59 @@
+{
+ "app": "autods",
+ "charts": [],
+ "content": "[{\"id\":\"pp_nc1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Open Principal Orders\",\"col\":4}},{\"id\":\"pp_nc2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Claims In Review\",\"col\":4}},{\"id\":\"pp_nc3\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Approved Claims This Month\",\"col\":4}},{\"id\":\"pp_nc4\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Confirmed Orders\",\"col\":4}},{\"id\":\"pp_nc5\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Portal Sync Errors\",\"col\":4}},{\"id\":\"pp_sp1\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"pp_h_qa\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Quick Access</b></span>\",\"col\":12}},{\"id\":\"pp_sc1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Principal Order\",\"col\":3}},{\"id\":\"pp_sc2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warranty Claim\",\"col\":3}},{\"id\":\"pp_sc3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Principal\",\"col\":3}},{\"id\":\"pp_sc4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Portal Connection\",\"col\":3}},{\"id\":\"pp_sp2\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"pp_h_ms\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters and Setup</b></span>\",\"col\":12}},{\"id\":\"pp_c1\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"pp_c2\",\"type\":\"card\",\"data\":{\"card_name\":\"Masters\",\"col\":4}},{\"id\":\"pp_c3\",\"type\":\"card\",\"data\":{\"card_name\":\"Interconnection\",\"col\":4}},{\"id\":\"pp_sp3\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"pp_h_rp\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"pp_c4\",\"type\":\"card\",\"data\":{\"card_name\":\"Reports\",\"col\":4}}]",
+ "creation": "2026-09-16 00:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "organization",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "Principal Portal",
+ "link_type": "DocType",
+ "links": [
+  {"hidden": 0, "is_query_report": 0, "label": "Transactions", "link_count": 2, "link_type": "DocType", "onboard": 0, "type": "Card Break"},
+  {"hidden": 0, "is_query_report": 0, "label": "Principal Order", "link_count": 0, "link_to": "Principal Order", "link_type": "DocType", "onboard": 1, "type": "Link"},
+  {"hidden": 0, "is_query_report": 0, "label": "Warranty Claim", "link_count": 0, "link_to": "Warranty Claim", "link_type": "DocType", "onboard": 1, "type": "Link"},
+  {"hidden": 0, "is_query_report": 0, "label": "Masters", "link_count": 3, "link_type": "DocType", "onboard": 0, "type": "Card Break"},
+  {"hidden": 0, "is_query_report": 0, "label": "Principal", "link_count": 0, "link_to": "Principal", "link_type": "DocType", "onboard": 1, "type": "Link"},
+  {"hidden": 0, "is_query_report": 0, "label": "Dealer", "link_count": 0, "link_to": "Dealer", "link_type": "DocType", "onboard": 0, "type": "Link"},
+  {"hidden": 0, "is_query_report": 0, "label": "Principal Dealer Settings", "link_count": 0, "link_to": "Principal Dealer Settings", "link_type": "DocType", "onboard": 0, "type": "Link"},
+  {"hidden": 0, "is_query_report": 0, "label": "Interconnection", "link_count": 2, "link_type": "DocType", "onboard": 0, "type": "Card Break"},
+  {"hidden": 0, "is_query_report": 0, "label": "Portal Connection", "link_count": 0, "link_to": "Portal Connection", "link_type": "DocType", "onboard": 1, "type": "Link"},
+  {"hidden": 0, "is_query_report": 0, "label": "Portal Sync Log", "link_count": 0, "link_to": "Portal Sync Log", "link_type": "DocType", "onboard": 0, "type": "Link"},
+  {"hidden": 0, "is_query_report": 0, "label": "Reports", "link_count": 2, "link_type": "DocType", "onboard": 0, "type": "Card Break"},
+  {"hidden": 0, "is_query_report": 1, "label": "Principal Order Status", "link_count": 0, "link_to": "Principal Order Status", "link_type": "Report", "onboard": 0, "type": "Link"},
+  {"hidden": 0, "is_query_report": 1, "label": "Warranty Claims Register", "link_count": 0, "link_to": "Warranty Claims Register", "link_type": "Report", "onboard": 0, "type": "Link"}
+ ],
+ "modified": "2026-09-16 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Principal Portal",
+ "name": "Principal Portal",
+ "number_cards": [
+  {"label": "Open Principal Orders", "number_card_name": "Open Principal Orders"},
+  {"label": "Claims In Review", "number_card_name": "Claims In Review"},
+  {"label": "Approved Claims This Month", "number_card_name": "Approved Claims This Month"},
+  {"label": "Confirmed Orders", "number_card_name": "Confirmed Orders"},
+  {"label": "Portal Sync Errors", "number_card_name": "Portal Sync Errors"}
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {"role": "Principal Portal User"},
+  {"role": "System Manager"}
+ ],
+ "sequence_id": 20.0,
+ "shortcuts": [
+  {"color": "Grey", "doc_view": "List", "label": "Principal Order", "link_to": "Principal Order", "stats_filter": "[]", "type": "DocType"},
+  {"color": "Grey", "doc_view": "List", "label": "Warranty Claim", "link_to": "Warranty Claim", "stats_filter": "[]", "type": "DocType"},
+  {"color": "Grey", "doc_view": "List", "label": "Principal", "link_to": "Principal", "stats_filter": "[]", "type": "DocType"},
+  {"color": "Grey", "doc_view": "List", "label": "Portal Connection", "link_to": "Portal Connection", "stats_filter": "[]", "type": "DocType"}
+ ],
+ "title": "Principal Portal",
+ "type": "Workspace"
+}

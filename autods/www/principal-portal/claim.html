@@ -1,0 +1,13 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div style="max-width: 900px; margin: 0 auto; padding: 12px 0 40px;">
+	<p><a href="{{ back_href }}">{{ _("Back to portal") }}</a></p>
+	<h1>{{ doc.name }}</h1>
+	<p>{{ _("Status") }}: <strong>{{ doc.status }}</strong> · {{ doc.claim_date }}</p>
+	<p>{{ _("VIN") }}: {{ doc.vin or "—" }}</p>
+	<p>{{ doc.failure_description or "" }}</p>
+	<p>{{ _("Claim Amount") }}: <strong>{{ doc.claim_amount }}</strong></p>
+	<p>{{ _("Sync") }}: {{ doc.sync_status or "—" }}</p>
+</div>
+{% endblock %}

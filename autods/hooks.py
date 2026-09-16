@@ -59,6 +59,7 @@ doctype_js = {
 		"public/js/job_card_plan_from_repair_order.js",
 		"public/js/charges_overview.js",
 		"public/js/repair_service_dashboard.js",
+		"public/js/repair_order_warranty_claim.js",
 	],
 	"Service Template": [
 		"public/js/charges_overview.js",
@@ -86,9 +87,10 @@ doctype_js = {
 # home_page = "login"
 
 # website user home page (by Role)
-# role_home_page = {
-# 	"Role": "home_page"
-# }
+role_home_page = {
+	"Dealer Portal User": "dealers-portal",
+	"Principal Portal User": "principal-portal",
+}
 
 # Generators
 # ----------
@@ -109,11 +111,11 @@ doctype_js = {
 # ------------
 
 # before_install = "autods.install.before_install"
-after_install = "autods.vehicle_sales.setup.after_install"
+after_install = "autods.install.after_install"
 
 # Migration
 # ---------
-after_migrate = "autods.vehicle_sales.setup.after_migrate"
+after_migrate = "autods.install.after_migrate"
 
 # Uninstallation
 # ------------
@@ -147,13 +149,21 @@ after_migrate = "autods.vehicle_sales.setup.after_migrate"
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+permission_query_conditions = {
+	"Principal Order": "autods.principal_portal.permissions.get_permission_query_conditions_for_order",
+	"Warranty Claim": "autods.principal_portal.permissions.get_permission_query_conditions_for_claim",
+	"Dealer Circular": "autods.principal_portal.permissions.get_permission_query_conditions_for_circular",
+	"Portal Connection": "autods.principal_portal.permissions.get_permission_query_conditions_for_connection",
+	"Portal Sync Log": "autods.principal_portal.permissions.get_permission_query_conditions_for_sync_log",
+}
+
+has_permission = {
+	"Principal Order": "autods.principal_portal.permissions.has_permission_transaction",
+	"Warranty Claim": "autods.principal_portal.permissions.has_permission_transaction",
+	"Dealer Circular": "autods.principal_portal.permissions.has_permission_circular",
+	"Portal Connection": "autods.principal_portal.permissions.has_permission_connection",
+	"Portal Sync Log": "autods.principal_portal.permissions.has_permission_sync_log",
+}
 
 # DocType Class
 # ---------------
@@ -196,28 +206,16 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"autods.tasks.all"
-# 	],
-# 	"daily": [
-# 		"autods.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"autods.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"autods.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"autods.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"hourly": [
+		"autods.principal_portal.sync.retry_failed_logs",
+	],
+}
 
 # Testing
 # -------
 
-# before_tests = "autods.install.before_tests"
+before_tests = "autods.install.before_tests"
 
 # Overriding Methods
 # ------------------------------
@@ -289,4 +287,3 @@ doc_events = {
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-

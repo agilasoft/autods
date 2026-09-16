@@ -1,0 +1,139 @@
+{
+ "actions": [],
+ "creation": "2026-09-16 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "identity_section",
+  "site_role",
+  "party_code",
+  "column_break_identity",
+  "default_principal",
+  "naming_section",
+  "principal_order_naming_series",
+  "warranty_claim_naming_series",
+  "column_break_naming",
+  "dealer_circular_naming_series",
+  "sync_section",
+  "enqueue_on_submit",
+  "column_break_sync",
+  "max_sync_retries"
+ ],
+ "fields": [
+  {
+   "fieldname": "identity_section",
+   "fieldtype": "Section Break",
+   "label": "Site Identity"
+  },
+  {
+   "fieldname": "site_role",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Site Role",
+   "options": "\nDealer\nPrincipal",
+   "reqd": 1
+  },
+  {
+   "description": "This site's own code. Must match the counterpart Principal or Dealer master code on the other AutoDS site.",
+   "fieldname": "party_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Party Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_identity",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.site_role==='Dealer'",
+   "description": "Used on dealer sites when a user is not mapped to a Principal.",
+   "fieldname": "default_principal",
+   "fieldtype": "Link",
+   "label": "Default Principal",
+   "options": "Principal"
+  },
+  {
+   "fieldname": "naming_section",
+   "fieldtype": "Section Break",
+   "label": "Naming Series"
+  },
+  {
+   "default": "POR-.YYYY.-",
+   "fieldname": "principal_order_naming_series",
+   "fieldtype": "Data",
+   "label": "Principal Order Naming Series"
+  },
+  {
+   "default": "WCL-.YYYY.-",
+   "fieldname": "warranty_claim_naming_series",
+   "fieldtype": "Data",
+   "label": "Warranty Claim Naming Series"
+  },
+  {
+   "fieldname": "column_break_naming",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "CIR-.YYYY.-",
+   "fieldname": "dealer_circular_naming_series",
+   "fieldtype": "Data",
+   "label": "Dealer Circular Naming Series"
+  },
+  {
+   "fieldname": "sync_section",
+   "fieldtype": "Section Break",
+   "label": "Interconnection"
+  },
+  {
+   "default": "1",
+   "description": "Queue a push to the counterpart AutoDS site after submit, status change, cancel, or circular publish.",
+   "fieldname": "enqueue_on_submit",
+   "fieldtype": "Check",
+   "label": "Enqueue Sync on Submit"
+  },
+  {
+   "fieldname": "column_break_sync",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "5",
+   "fieldname": "max_sync_retries",
+   "fieldtype": "Int",
+   "label": "Max Sync Retries"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_single": 1,
+ "links": [],
+ "modified": "2026-09-16 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Principal Portal",
+ "name": "Principal Dealer Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Principal Portal User"
+  },
+  {
+   "read": 1,
+   "role": "Dealers Portal User"
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

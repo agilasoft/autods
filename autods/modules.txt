@@ -2,3 +2,5 @@ AutoDS
 Vehicle Sales
 Service
 Spareparts
+Principal Portal
+Dealers Portal

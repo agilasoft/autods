@@ -1,0 +1,32 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<div style="max-width: 900px; margin: 0 auto; padding: 12px 0 40px;">
+	<p><a href="{{ back_href }}">{{ _("Back to portal") }}</a></p>
+	<h1>{{ doc.name }}</h1>
+	<p>{{ _("Status") }}: <strong>{{ doc.status }}</strong> · {{ doc.order_type }} · {{ doc.order_date }}</p>
+	<p>{{ _("Principal") }}: {{ doc.principal }} {% if doc.dealer %}· {{ _("Dealer") }}: {{ doc.dealer }}{% endif %}</p>
+	<p>{{ _("Sync") }}: {{ doc.sync_status or "—" }}</p>
+	<table class="table table-bordered">
+		<thead>
+			<tr>
+				<th>{{ _("Item") }}</th>
+				<th>{{ _("Qty") }}</th>
+				<th>{{ _("Rate") }}</th>
+				<th>{{ _("Amount") }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in doc.items %}
+			<tr>
+				<td>{{ row.item_code }} {{ row.item_name or "" }}</td>
+				<td>{{ row.qty }}</td>
+				<td>{{ row.rate }}</td>
+				<td>{{ row.amount }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<p>{{ _("Net Total") }}: <strong>{{ doc.net_total }}</strong></p>
+</div>
+{% endblock %}

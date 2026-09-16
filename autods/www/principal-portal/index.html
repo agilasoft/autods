@@ -1,0 +1,68 @@
+{% extends "templates/web.html" %}
+
+{% block page_content %}
+<style>
+	.autods-portal { max-width: 1100px; margin: 0 auto; padding: 12px 0 40px; }
+	.autods-portal h1 { font-size: 1.6rem; margin-bottom: 4px; }
+	.autods-portal .lede { color: #5c6678; margin-bottom: 24px; }
+	.autods-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+	.autods-card { background: #fff; border: 1px solid #e8ecf1; border-radius: 12px; padding: 16px 18px; }
+	.autods-card h2 { font-size: 1.05rem; margin: 0 0 12px; }
+	.autods-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f0f3f7; }
+	.autods-row:last-child { border-bottom: 0; }
+	.autods-muted { color: #8b95a5; font-size: 0.85rem; }
+	.autods-status { font-weight: 600; font-size: 0.85rem; }
+	a.autods-link { color: #1b6cff; text-decoration: none; }
+</style>
+<div class="autods-portal">
+	<h1>{{ _("Principal Portal") }}</h1>
+	<p class="lede">{{ _("Monitor orders and warranty claims with your principal.") }}</p>
+	<div class="autods-grid">
+		<section class="autods-card">
+			<h2>{{ _("Orders") }}</h2>
+			{% if orders %}
+				{% for row in orders %}
+				<div class="autods-row">
+					<div>
+						<a class="autods-link" href="/principal-portal/order?name={{ row.name }}">{{ row.name }}</a>
+						<div class="autods-muted">{{ row.order_date }} · {{ row.status }}</div>
+					</div>
+					<div class="autods-status">{{ row.sync_status or "" }}</div>
+				</div>
+				{% endfor %}
+			{% else %}
+				<p class="autods-muted">{{ _("No orders yet.") }}</p>
+			{% endif %}
+		</section>
+		<section class="autods-card">
+			<h2>{{ _("Warranty Claims") }}</h2>
+			{% if claims %}
+				{% for row in claims %}
+				<div class="autods-row">
+					<div>
+						<a class="autods-link" href="/principal-portal/claim?name={{ row.name }}">{{ row.name }}</a>
+						<div class="autods-muted">{{ row.claim_date }} · {{ row.status }}</div>
+					</div>
+					<div class="autods-status">{{ row.sync_status or "" }}</div>
+				</div>
+				{% endfor %}
+			{% else %}
+				<p class="autods-muted">{{ _("No claims yet.") }}</p>
+			{% endif %}
+		</section>
+		<section class="autods-card">
+			<h2>{{ _("Circulars") }}</h2>
+			{% if circulars %}
+				{% for row in circulars %}
+				<div class="autods-row">
+					<div>{{ row.title }}</div>
+					<div class="autods-muted">{{ row.published_on or "" }}</div>
+				</div>
+				{% endfor %}
+			{% else %}
+				<p class="autods-muted">{{ _("No circulars from the principal.") }}</p>
+			{% endif %}
+		</section>
+	</div>
+</div>
+{% endblock %}
