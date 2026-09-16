@@ -76,13 +76,13 @@ def _apply_items(doc, table, items, fields):
 
 
 @frappe.whitelist()
-def handshake(payload=None):
+def handshake(payload: str | dict | None = None):
 	_require_sync_user()
 	return {"site_role": get_site_role(), "party_code": get_party_code()}
 
 
 @frappe.whitelist()
-def upsert_principal_order(payload=None):
+def upsert_principal_order(payload: str | dict | None = None):
 	_require_sync_user()
 	data = _parse_payload(payload)
 	set_inbound_guard(True)
@@ -96,7 +96,7 @@ def upsert_principal_order(payload=None):
 
 
 @frappe.whitelist()
-def update_principal_order_status(payload=None):
+def update_principal_order_status(payload: str | dict | None = None):
 	_require_sync_user()
 	data = _parse_payload(payload)
 	set_inbound_guard(True)
@@ -110,7 +110,7 @@ def update_principal_order_status(payload=None):
 
 
 @frappe.whitelist()
-def upsert_warranty_claim(payload=None):
+def upsert_warranty_claim(payload: str | dict | None = None):
 	_require_sync_user()
 	data = _parse_payload(payload)
 	set_inbound_guard(True)
@@ -124,7 +124,7 @@ def upsert_warranty_claim(payload=None):
 
 
 @frappe.whitelist()
-def update_warranty_claim_status(payload=None):
+def update_warranty_claim_status(payload: str | dict | None = None):
 	_require_sync_user()
 	data = _parse_payload(payload)
 	set_inbound_guard(True)
@@ -138,7 +138,7 @@ def update_warranty_claim_status(payload=None):
 
 
 @frappe.whitelist()
-def publish_circular(payload=None):
+def publish_circular(payload: str | dict | None = None):
 	_require_sync_user()
 	data = _parse_payload(payload)
 	set_inbound_guard(True)

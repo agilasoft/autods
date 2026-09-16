@@ -27,9 +27,8 @@ def execute(filters=None):
 	if filters.get("dealer"):
 		conditions.append("dealer = %(dealer)s")
 		values["dealer"] = filters["dealer"]
-	where = " and ".join(conditions)
-	rows = frappe.db.sql(
-		f"""
+	query = (
+		"""
 		select
 			dealer,
 			count(name) as order_count,
@@ -37,13 +36,14 @@ def execute(filters=None):
 			sum(case when status in ('Delivered', 'Closed') then 1 else 0 end) as delivered_count,
 			sum(ifnull(net_total, 0)) as net_total
 		from `tabPrincipal Order`
-		where {where}
+		where """
+		+ " and ".join(conditions)
+		+ """
 		group by dealer
 		order by order_count desc
-		""",
-		values,
-		as_dict=1,
+		"""
 	)
+	rows = frappe.db.sql(query, values, as_dict=1)
 	for row in rows:
 		row.dealer_name = frappe.db.get_value("Dealer", row.dealer, "dealer_name") if row.dealer else ""
 		row.net_total = flt(row.net_total)

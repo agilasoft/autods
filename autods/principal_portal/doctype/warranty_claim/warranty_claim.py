@@ -78,7 +78,7 @@ class WarrantyClaim(Document):
 		enqueue_sync(self, event)
 
 	@frappe.whitelist()
-	def update_status(self, status):
+	def update_status(self, status: str):
 		allowed = {
 			"Submitted": ("Under Review", "Approved", "Rejected"),
 			"Under Review": ("Approved", "Rejected"),
@@ -116,7 +116,7 @@ def _warranty_charge_rows(repair_order):
 
 
 @frappe.whitelist()
-def create_warranty_claim_from_repair_order(repair_order):
+def create_warranty_claim_from_repair_order(repair_order: str):
 	if not repair_order:
 		frappe.throw(_("Repair Order is required."))
 	ro = frappe.get_doc("Repair Order", repair_order)

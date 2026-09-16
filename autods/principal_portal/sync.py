@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 import frappe
+from frappe import _
 from frappe.utils import cint, now_datetime
 
 from autods.principal_portal.utils import (
@@ -116,7 +117,7 @@ def push_document(doc_type, name, event, connection_name, log_name=None):
 def retry_log(log_name):
 	log = frappe.get_doc("Portal Sync Log", log_name)
 	if log.direction != "Outbound":
-		frappe.throw("Only outbound logs can be retried.")
+		frappe.throw(_("Only outbound logs can be retried."))
 	push_document(log.reference_doctype, log.local_name, log.event, log.connection, log_name=log.name)
 	return log.name
 
@@ -151,7 +152,7 @@ def post_to_remote(connection, method, payload):
 	url = f"{connection.site_url.rstrip('/')}/api/method/autods.principal_portal.api.{method}"
 	secret = connection.get_password("api_secret") if connection.api_secret else ""
 	if not connection.api_key or not secret:
-		frappe.throw("Portal Connection is missing API key or secret.")
+		frappe.throw(_("Portal Connection is missing API key or secret."))
 	body = urlencode({"payload": json.dumps(payload, default=str)}).encode()
 	request = Request(url, data=body, method="POST")
 	request.add_header("Authorization", f"token {connection.api_key}:{secret}")

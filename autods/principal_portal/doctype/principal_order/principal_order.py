@@ -85,7 +85,7 @@ class PrincipalOrder(Document):
 		enqueue_sync(self, event)
 
 	@frappe.whitelist()
-	def update_status(self, status):
+	def update_status(self, status: str):
 		allowed = {
 			"Submitted": ("Confirmed", "Cancelled"),
 			"Confirmed": ("Partially Delivered", "Delivered", "Closed", "Cancelled"),

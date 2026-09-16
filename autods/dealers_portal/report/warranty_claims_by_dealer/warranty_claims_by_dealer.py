@@ -27,9 +27,8 @@ def execute(filters=None):
 	if filters.get("dealer"):
 		conditions.append("dealer = %(dealer)s")
 		values["dealer"] = filters["dealer"]
-	where = " and ".join(conditions)
-	rows = frappe.db.sql(
-		f"""
+	query = (
+		"""
 		select
 			dealer,
 			count(name) as claim_count,
@@ -38,13 +37,14 @@ def execute(filters=None):
 			sum(case when status = 'Rejected' then 1 else 0 end) as rejected_count,
 			sum(ifnull(claim_amount, 0)) as claim_amount
 		from `tabWarranty Claim`
-		where {where}
+		where """
+		+ " and ".join(conditions)
+		+ """
 		group by dealer
 		order by claim_count desc
-		""",
-		values,
-		as_dict=1,
+		"""
 	)
+	rows = frappe.db.sql(query, values, as_dict=1)
 	for row in rows:
 		row.claim_amount = flt(row.claim_amount)
 	return columns, rows
