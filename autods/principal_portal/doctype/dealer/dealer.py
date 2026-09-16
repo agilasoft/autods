@@ -1,0 +1,10 @@
+# Copyright (c) 2026, Agilasoft Technologies Inc. and contributors
+# For license information, please see license.txt
+
+from frappe.model.document import Document
+
+
+class Dealer(Document):
+	def validate(self):
+		if self.code:
+			self.code = self.code.strip()
