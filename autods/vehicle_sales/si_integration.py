@@ -23,8 +23,27 @@ def _meta_has(dt, field):
 		return False
 
 
+def _has_vehicle_sale_markers(doc):
+	"""True when this invoice was created as a vehicle sale, not only tagged with a vehicle unit."""
+	return bool(
+		doc.get("custom_vehicle_sales")
+		or doc.get("vehicle_sales_order")
+		or doc.get("vehicle_delivery_note")
+	)
+
+
+def _is_repair_service_invoice(doc):
+	return bool(doc.get("repair_order") or doc.get("custom_repair_bill_type"))
+
+
 def _is_vehicle_sale(doc):
-	"""Return True if this SI is part of a Vehicle Sales transaction."""
+	"""Return True if this SI is part of a Vehicle Sales transaction.
+
+	A Repair Order invoice also carries vehicle_unit (the car being repaired). That
+	must not write the service invoice onto Vehicle Unit.sales_invoice.
+	"""
+	if _is_repair_service_invoice(doc) and not _has_vehicle_sale_markers(doc):
+		return False
 	if doc.get("custom_vehicle_sales"):
 		return True
 	if doc.get("vehicle_unit") or doc.get("vehicle_sales_order") or doc.get("vehicle_delivery_note"):
@@ -42,7 +61,20 @@ def set_vehicle_links(doc, event=None):
 	"""
 	Validate hook: derive missing vehicle links (VSO <-> VDN <-> Vehicle Unit) and
 	enforce ``update_stock = 0`` for vehicle sales.
+
+	Repair Order invoices get vehicle_unit from the order when it is empty, then
+	stop. They are not vehicle sales.
 	"""
+	from autods.service.repair_order_invoice import (
+		apply_repair_order_dimensions,
+		validate_single_repair_invoice,
+	)
+
+	apply_repair_order_dimensions(doc)
+	if _is_repair_service_invoice(doc) and not _has_vehicle_sale_markers(doc):
+		validate_single_repair_invoice(doc)
+		return
+
 	if not _is_vehicle_sale(doc):
 		return
 

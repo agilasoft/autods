@@ -191,6 +191,15 @@ doc_events = {
 		"on_submit": "autods.vehicle_sales.si_integration.on_si_submit",
 		"on_cancel": "autods.vehicle_sales.si_integration.on_si_cancel",
 	},
+	"Stock Entry": {
+		"before_insert": "autods.overrides.stock_entry.before_insert",
+		"validate": "autods.overrides.stock_entry.validate",
+		"on_submit": "autods.overrides.stock_entry.on_submit",
+	},
+}
+
+override_doctype_dashboards = {
+	"Repair Order": "autods.service.doctype.repair_order.repair_order.get_dashboard_data",
 }
 
 # Scheduled Tasks
