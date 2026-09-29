@@ -44,6 +44,7 @@ sys.modules["frappe"].bold = lambda x: x
 sys.modules["frappe"].throw = MagicMock(side_effect=ValueError)
 sys.modules["frappe"].db = MagicMock()
 
+import autods.service.vehicle_schedule_utils as vehicle_schedule_utils
 from autods.service.vehicle_schedule_utils import (
 	_vehicle_match_sql,
 	intervals_overlap,
@@ -51,12 +52,17 @@ from autods.service.vehicle_schedule_utils import (
 	schedules_conflict,
 	same_schedule_start,
 	service_appointment_schedule_window,
+	validate_vehicle_job_card_conflict,
 	validate_vehicle_service_appointment_conflict,
 	vehicle_identifiers,
 )
 
 
 class TestVehicleScheduleUtils(unittest.TestCase):
+	def setUp(self):
+		sys.modules["frappe"].throw.reset_mock()
+		sys.modules["frappe"].db.sql = MagicMock(return_value=[])
+
 	def test_intervals_overlap_when_windows_share_time(self):
 		self.assertTrue(
 			intervals_overlap(
@@ -194,6 +200,83 @@ class TestVehicleScheduleUtils(unittest.TestCase):
 		)
 		with self.assertRaises(ValueError):
 			validate_vehicle_service_appointment_conflict(doc)
+
+	def test_repair_order_conflict_validator_removed(self):
+		self.assertFalse(hasattr(vehicle_schedule_utils, "validate_vehicle_repair_order_conflict"))
+		self.assertFalse(hasattr(vehicle_schedule_utils, "repair_order_schedule_window"))
+		self.assertFalse(hasattr(vehicle_schedule_utils, "REPAIR_ORDER_INACTIVE_STATUSES"))
+
+	def test_job_card_conflict_throws_for_same_unit_overlapping_window(self):
+		existing_row = SimpleNamespace(
+			name="JC-001",
+			repair_order="RO-OTHER",
+			repair_date="2026-07-04",
+			start_time="2026-07-04 09:00:00",
+			end_time="2026-07-04 10:00:00",
+			expected_completion_date=None,
+		)
+		sys.modules["frappe"].db.sql = MagicMock(return_value=[existing_row])
+		doc = SimpleNamespace(
+			name="JC-NEW",
+			status="Open",
+			repair_order="RO-NEW",
+			vehicle_unit="VU-A",
+			plate_no="PLATE-A",
+			repair_date="2026-07-04",
+			start_time="2026-07-04 09:00:00",
+			end_time="2026-07-04 10:00:00",
+			expected_completion_date=None,
+		)
+		with self.assertRaises(ValueError):
+			validate_vehicle_job_card_conflict(doc)
+
+	def test_job_card_conflict_allows_same_repair_order_overlap(self):
+		existing_row = SimpleNamespace(
+			name="JC-001",
+			repair_order="RO-001",
+			repair_date="2026-07-04",
+			start_time="2026-07-04 09:00:00",
+			end_time="2026-07-04 10:00:00",
+			expected_completion_date=None,
+		)
+		sys.modules["frappe"].db.sql = MagicMock(return_value=[existing_row])
+		doc = SimpleNamespace(
+			name="JC-NEW",
+			status="Open",
+			repair_order="RO-001",
+			vehicle_unit="VU-A",
+			plate_no="PLATE-A",
+			repair_date="2026-07-04",
+			start_time="2026-07-04 09:00:00",
+			end_time="2026-07-04 10:00:00",
+			expected_completion_date=None,
+		)
+		validate_vehicle_job_card_conflict(doc)
+		sys.modules["frappe"].throw.assert_not_called()
+
+	def test_job_card_conflict_throws_for_different_repair_order_overlap(self):
+		existing_row = SimpleNamespace(
+			name="JC-001",
+			repair_order="RO-001",
+			repair_date="2026-07-04",
+			start_time="2026-07-04 09:00:00",
+			end_time="2026-07-04 10:00:00",
+			expected_completion_date=None,
+		)
+		sys.modules["frappe"].db.sql = MagicMock(return_value=[existing_row])
+		doc = SimpleNamespace(
+			name="JC-NEW",
+			status="Open",
+			repair_order="RO-002",
+			vehicle_unit="VU-A",
+			plate_no="PLATE-A",
+			repair_date="2026-07-04",
+			start_time="2026-07-04 09:00:00",
+			end_time="2026-07-04 10:00:00",
+			expected_completion_date=None,
+		)
+		with self.assertRaises(ValueError):
+			validate_vehicle_job_card_conflict(doc)
 
 
 if __name__ == "__main__":

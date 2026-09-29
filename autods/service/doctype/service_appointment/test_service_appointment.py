@@ -63,6 +63,128 @@ class TestServiceAppointment(UnitTestCase):
 		self.assertEqual(result, "RE-TEST-001")
 		doc.db_set.assert_called_once_with("repair_estimate", "RE-TEST-001")
 
+	def test_create_repair_estimate_does_not_populate_charges(self):
+		"""SA → RE convert must leave charges empty (no template load)."""
+		doc = MagicMock()
+		doc.docstatus = 1
+		doc.status = "Confirmed"
+		doc.repair_estimate = None
+		doc.customer = "CUST-1"
+		doc.vehicle_unit = "VU-1"
+		doc.name = "SA-TEST-RE-NO-CHARGES"
+		doc.service_advisor = None
+		doc.service_type = None
+		doc.repair_type = None
+
+		mock_estimate = MagicMock()
+		mock_estimate.name = "RE-TEST-EMPTY"
+		mock_estimate.append = MagicMock()
+		mock_estimate.fetch_template_items = MagicMock()
+
+		with (
+			patch(
+				"autods.service.doctype.service_appointment.service_appointment.frappe.new_doc",
+				return_value=mock_estimate,
+			),
+			patch(
+				"autods.service.doctype.service_appointment.service_appointment.get_expected_completion_datetime",
+				return_value=add_days(today(), 2),
+			),
+			patch("autods.service.doctype.service_appointment.service_appointment.frappe.msgprint"),
+			patch(
+				"autods.service.doctype.service_appointment.service_appointment.frappe.defaults.get_user_default",
+				return_value=None,
+			),
+		):
+			ServiceAppointment.create_repair_estimate(doc)
+
+		mock_estimate.insert.assert_called_once()
+		mock_estimate.append.assert_not_called()
+		mock_estimate.fetch_template_items.assert_not_called()
+
+	def test_create_repair_order_uses_appointment_date_not_today(self):
+		appointment_date = add_days(today(), 7)
+		doc = MagicMock()
+		doc.docstatus = 1
+		doc.status = "Confirmed"
+		doc.repair_order = None
+		doc.repair_estimate = None
+		doc.customer = "CUST-1"
+		doc.vehicle_unit = "VU-1"
+		doc.name = "SA-TEST-CREATE-RO"
+		doc.appointment_date = appointment_date
+		doc.service_advisor = None
+		doc.service_type = None
+		doc.repair_type = None
+
+		mock_ro = MagicMock()
+		mock_ro.name = "RO-TEST-001"
+
+		with (
+			patch(
+				"autods.service.doctype.service_appointment.service_appointment.frappe.new_doc",
+				return_value=mock_ro,
+			),
+			patch(
+				"autods.service.doctype.service_appointment.service_appointment.get_expected_completion_datetime",
+				return_value=add_days(appointment_date, 1),
+			),
+			patch("autods.service.doctype.service_appointment.service_appointment.frappe.msgprint"),
+			patch(
+				"autods.service.doctype.service_appointment.service_appointment.frappe.db.has_column",
+				return_value=True,
+			),
+		):
+			result = ServiceAppointment.create_repair_order(doc)
+
+		self.assertEqual(result, "RO-TEST-001")
+		self.assertEqual(mock_ro.repair_date, appointment_date)
+		self.assertNotEqual(mock_ro.repair_date, today())
+		doc.db_set.assert_called_once_with("repair_order", "RO-TEST-001")
+
+	def test_create_repair_order_blank_does_not_populate_charges(self):
+		"""SA → blank RO convert must leave charges empty (no template load)."""
+		doc = MagicMock()
+		doc.docstatus = 1
+		doc.status = "Confirmed"
+		doc.repair_order = None
+		doc.repair_estimate = None
+		doc.customer = "CUST-1"
+		doc.vehicle_unit = "VU-1"
+		doc.name = "SA-TEST-RO-NO-CHARGES"
+		doc.appointment_date = today()
+		doc.service_advisor = None
+		doc.service_type = None
+		doc.repair_type = None
+
+		mock_ro = MagicMock()
+		mock_ro.name = "RO-TEST-EMPTY"
+		mock_ro.append = MagicMock()
+		mock_ro.fetch_template_items = MagicMock()
+		mock_ro.meta = MagicMock()
+		mock_ro.meta.get_field = MagicMock(return_value=True)
+
+		with (
+			patch(
+				"autods.service.doctype.service_appointment.service_appointment.frappe.new_doc",
+				return_value=mock_ro,
+			),
+			patch(
+				"autods.service.doctype.service_appointment.service_appointment.get_expected_completion_datetime",
+				return_value=add_days(today(), 1),
+			),
+			patch("autods.service.doctype.service_appointment.service_appointment.frappe.msgprint"),
+			patch(
+				"autods.service.doctype.service_appointment.service_appointment.frappe.db.has_column",
+				return_value=True,
+			),
+		):
+			ServiceAppointment.create_repair_order(doc)
+
+		mock_ro.insert.assert_called_once()
+		mock_ro.append.assert_not_called()
+		mock_ro.fetch_template_items.assert_not_called()
+
 
 def run_timestamp_regression_check():
 	"""Run on a full site via: bench --site <site> execute autods.service.doctype.service_appointment.test_service_appointment.run_timestamp_regression_check"""

@@ -12,6 +12,7 @@
   "service_type",
   "description",
   "service_row",
+  "parent_service_charge",
   "column_break_main",
   "standard_hours",
   "qty",
@@ -44,6 +45,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Item",
+   "no_copy": 1,
    "options": "Item",
    "reqd": 1
   },
@@ -76,7 +78,16 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Service",
+   "mandatory_depends_on": "eval:[\"Spareparts\",\"Overhead\"].includes(doc.service_item_type)",
    "options": ""
+  },
+  {
+   "fieldname": "parent_service_charge",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Parent Service Charge",
+   "no_copy": 1,
+   "read_only": 1
   },
   {
    "fieldname": "column_break_main",
@@ -133,6 +144,7 @@
   {
    "fieldname": "bill_to",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Bill To Party",
    "options": "Customer"
   },

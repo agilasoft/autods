@@ -3,6 +3,14 @@
 
 frappe.ui.form.on("Vehicle Unit", {
 	refresh(frm) {
+		if (!frm.is_new() && frm.doc.name) {
+			frm.add_custom_button(__("Compatible Parts"), () => {
+				frappe.set_route("query-report", "Compatible Parts by Vehicle Unit", {
+					vehicle_unit: frm.doc.name,
+				});
+			});
+		}
+
 		if (frm.doc.code && frm.doc.item && frm.doc.warehouse && !frm.is_new()) {
 			frm.add_custom_button(__("Add cost to inventory"), () => {
 				const d = new frappe.ui.Dialog({

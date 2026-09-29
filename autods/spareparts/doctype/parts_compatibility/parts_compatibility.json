@@ -8,11 +8,18 @@
  "field_order": [
   "naming_series",
   "part",
+  "applies_to_all_vehicles",
+  "column_break_scope",
+  "is_active",
+  "section_break_vehicle",
   "vehicle_make",
   "vehicle_model",
   "vehicle_variant",
+  "column_break_vehicle",
+  "transmission_type",
   "year_from",
   "year_to",
+  "section_break_notes",
   "notes"
  ],
  "fields": [
@@ -28,9 +35,35 @@
    "in_list_view": 1,
    "label": "Part",
    "link_filters": "[[\"Item\",\"custom_service_item_type\",\"=\",\"Spareparts\"]]",
-   "options": "Item"
+   "options": "Item",
+   "reqd": 1
   },
   {
+   "default": "0",
+   "fieldname": "applies_to_all_vehicles",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Applies to All Vehicles"
+  },
+  {
+   "fieldname": "column_break_scope",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active"
+  },
+  {
+   "depends_on": "eval:!doc.applies_to_all_vehicles",
+   "fieldname": "section_break_vehicle",
+   "fieldtype": "Section Break",
+   "label": "Vehicle Scope"
+  },
+  {
+   "depends_on": "eval:!doc.applies_to_all_vehicles",
    "fieldname": "vehicle_make",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -38,6 +71,7 @@
    "options": "Vehicle Make"
   },
   {
+   "depends_on": "eval:!doc.applies_to_all_vehicles",
    "fieldname": "vehicle_model",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -45,20 +79,41 @@
    "options": "Vehicle Model"
   },
   {
+   "depends_on": "eval:!doc.applies_to_all_vehicles",
    "fieldname": "vehicle_variant",
    "fieldtype": "Link",
    "label": "Vehicle Variant",
    "options": "Vehicle Variant"
   },
   {
+   "depends_on": "eval:!doc.applies_to_all_vehicles",
+   "fieldname": "column_break_vehicle",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:!doc.applies_to_all_vehicles",
+   "fieldname": "transmission_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Transmission Type",
+   "options": "Transmission Type"
+  },
+  {
+   "depends_on": "eval:!doc.applies_to_all_vehicles",
    "fieldname": "year_from",
    "fieldtype": "Int",
    "label": "Year From"
   },
   {
+   "depends_on": "eval:!doc.applies_to_all_vehicles",
    "fieldname": "year_to",
    "fieldtype": "Int",
    "label": "Year To"
+  },
+  {
+   "fieldname": "section_break_notes",
+   "fieldtype": "Section Break",
+   "label": "Notes"
   },
   {
    "fieldname": "notes",
@@ -92,4 +147,3 @@
  "sort_order": "DESC",
  "states": []
 }
-

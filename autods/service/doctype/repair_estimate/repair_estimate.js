@@ -1,17 +1,28 @@
 // Copyright (c) 2025, Agilasoft Technologies Inc. and contributors
 // For license information, please see license.txt
 
-/** Item link search: Service Job items, Spareparts by vehicle model, else Service Type match (Frappe 16). */
+/** Item link search: Service Job items, Spareparts by vehicle specs, else Service Type match (Frappe 16). */
+function autods_spareparts_vehicle_filters(doc) {
+	return {
+		vehicle_unit: doc.vehicle_unit,
+		vehicle_make: doc.vehicle_make,
+		vehicle_model: doc.vehicle_model,
+		vehicle_variant: doc.vehicle_variant,
+		vehicle_year_model: doc.vehicle_year_model,
+		vehicle_transmission_type: doc.vehicle_transmission_type,
+	};
+}
+
 function autods_charges_item_query(doc, row) {
 	var t = (row && row.service_item_type || '').trim();
 	if (t === 'Spareparts') {
-		if (!doc.vehicle_model) {
+		if (!doc.vehicle_unit && !doc.vehicle_model) {
 			frappe.msgprint(__('Set a Vehicle Unit with a model before selecting spare parts.'));
 			return { filters: { name: ['in', []] } };
 		}
 		return {
 			query: 'autods.service.queries.spareparts_item_link_query',
-			filters: { vehicle_model: doc.vehicle_model },
+			filters: autods_spareparts_vehicle_filters(doc),
 		};
 	}
 	if (t === 'Service') {
@@ -48,6 +59,20 @@ function autods_clear_charge_item_row(row) {
 	row.amount = 0;
 	row.standard_hours = 0;
 	row.qty = 0;
+	row.service_row = '';
+	row.parent_service_charge = '';
+}
+
+function autods_refresh_charge_row_amount(frm, cdt, cdn) {
+	var grid = frm.fields_dict.charges && frm.fields_dict.charges.grid;
+	if (grid) {
+		var grid_row = grid.get_row(cdn);
+		if (grid_row && grid_row.refresh_field) {
+			grid_row.refresh_field('amount');
+			return;
+		}
+	}
+	frm.refresh_field('charges');
 }
 
 function autods_set_repair_type_query(frm) {
@@ -197,7 +222,9 @@ frappe.ui.form.on('Repair Estimate Charges', {
 	service_item_type: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
 		autods_clear_charge_item_row(row);
-		frm.refresh_field('charges');
+		frappe.after_ajax(function() {
+			frm.refresh_field('charges');
+		});
 	},
 	standard_hours: function(frm, cdt, cdn) {
 		/* Standard Hours is labor/planning only; does not affect Amount (Qty x Rate). */
@@ -208,14 +235,14 @@ frappe.ui.form.on('Repair Estimate Charges', {
 		if (t === 'Service' || t === 'Spareparts' || t === 'Overhead') {
 			row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
 		}
-		frm.refresh_field('charges');
+		autods_refresh_charge_row_amount(frm, cdt, cdn);
 	},
 	qty: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
 		var t = (row.service_item_type || '').trim();
 		if (t === 'Service' || t === 'Spareparts' || t === 'Overhead') {
 			row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
-			frm.refresh_field('charges');
+			autods_refresh_charge_row_amount(frm, cdt, cdn);
 		}
 	},
 	bill_type: function(frm) {
@@ -416,17 +443,19 @@ function fetch_template_items(frm, template_name) {
 		},
 		callback: function(r) {
 			if (r.message && r.message.doc) {
-				if (r.message.doc.charges && r.message.doc.charges.length > 0) {
-					frm.clear_table('charges');
-					r.message.doc.charges.forEach(function(item) {
-						var row = frm.add_child('charges');
-						Object.keys(item).forEach(function(key) {
-							if (key !== 'name' && key !== 'idx') {
-								row[key] = item[key];
-							}
-						});
+				frm._autods_bulk_loading_charges = true;
+				// Always replace charges from template response (aligned with Repair Order).
+				frm.clear_table('charges');
+				(r.message.doc.charges || []).forEach(function(item) {
+					var row = frm.add_child('charges');
+					Object.keys(item).forEach(function(key) {
+						// Skip server temp child names and resolved parents — remap from
+						// client row names + service_row after add_child.
+						if (key !== 'name' && key !== 'idx' && key !== 'parent_service_charge') {
+							row[key] = item[key];
+						}
 					});
-				}
+				});
 				if (r.message.doc.quality_inspections && r.message.doc.quality_inspections.length > 0) {
 					var existing_names = (frm.doc.quality_inspections || []).map(function(qi) { return qi.inspection_name; });
 					r.message.doc.quality_inspections.forEach(function(item) {
@@ -442,6 +471,11 @@ function fetch_template_items(frm, template_name) {
 				}
 				frm.refresh_field('charges');
 				frm.refresh_field('quality_inspections');
+				if (autods.charges_overview && autods.charges_overview.update_service_row_select_options) {
+					autods.charges_overview.update_service_row_select_options(frm);
+					autods.charges_overview.schedule_render(frm);
+				}
+				frm._autods_bulk_loading_charges = false;
 				if (r.message.doc.service_template) {
 					frm.set_value('service_template', r.message.doc.service_template);
 				}

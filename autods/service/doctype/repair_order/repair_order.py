@@ -6,14 +6,18 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, flt, getdate, nowdate, nowtime
 
-from autods.service.charge_service_row import service_row_index
+from autods.service.charge_service_row import (
+	persist_charge_service_links,
+	resolve_charge_parent_service_links,
+	validate_charge_service_links,
+)
+from autods.service.job_card_planning import get_locked_charge_row_names
 from autods.service.gate_pass_utils import has_entry_gate_pass, require_entry_gate_pass
 from autods.service.service_appointment_utils import get_expected_completion_datetime
 from autods.service.service_inspection_sync import (
 	find_service_inspection,
 	sync_repair_order_inspection_links,
 )
-from autods.service.vehicle_schedule_utils import validate_vehicle_repair_order_conflict
 
 
 class RepairOrder(Document):
@@ -29,12 +33,8 @@ class RepairOrder(Document):
 		self.calculate_bill_to_summaries()
 		self.validate_insurance_lines()
 		self.validate_charges()
-		self.validate_vehicle_schedule()
 		if self.validity_date and self.estimate_date and getdate(self.validity_date) < getdate(self.estimate_date):
 			frappe.throw(_("Validity Date cannot be before Estimate Date"))
-
-	def validate_vehicle_schedule(self):
-		validate_vehicle_repair_order_conflict(self)
 
 	def before_submit(self):
 		require_entry_gate_pass(
@@ -68,27 +68,18 @@ class RepairOrder(Document):
 	def _charge_rows(self):
 		return list(self.charges or [])
 
-	def _service_line_count(self):
-		return len([r for r in self._charge_rows() if (r.service_item_type or "").strip() == "Service"])
-
 	def validate_charges(self):
-		n_svc = self._service_line_count()
-		for row in self._charge_rows():
-			t = (row.service_item_type or "").strip()
-			if t == "Service":
-				row.service_row = ""
-				continue
-			if t in ("Spareparts", "Overhead"):
-				sr = (row.service_row or "").strip()
-				if not sr:
-					frappe.throw(_("Service is required for Spareparts and Overhead lines."))
-				i = service_row_index(sr)
-				if i is None:
-					frappe.throw(_("Service must start with a number between 1 and {0}.").format(max(n_svc, 1)))
-				if n_svc < 1:
-					frappe.throw(_("Add at least one Service line before Spareparts or Overhead."))
-				if i < 1 or i > n_svc:
-					frappe.throw(_("Service must be between 1 and {0} (Service lines in this document).").format(n_svc))
+		from autods.service.job_card_planning import (
+			validate_charges_not_locked,
+			validate_no_new_links_to_locked_services,
+		)
+
+		validate_charges_not_locked(self)
+		validate_charge_service_links(self)
+		validate_no_new_links_to_locked_services(self)
+
+	def after_insert(self):
+		persist_charge_service_links(self, "Repair Order Charges")
 
 	def calculate_child_table_amounts(self):
 		for row in self._charge_rows():
@@ -97,6 +88,10 @@ class RepairOrder(Document):
 				row.amount = flt(row.qty) * flt(row.rate)
 			elif t in ("Spareparts", "Overhead"):
 				row.amount = flt(row.qty) * flt(row.rate)
+		for row in self.table_wlxj or []:
+			row.amount = flt(row.qty) * flt(row.rate)
+		for row in self.insurance_bills or []:
+			row.amount = flt(row.qty) * flt(row.rate)
 
 	def calculate_totals(self):
 		ch = self._charge_rows()
@@ -280,6 +275,7 @@ class RepairOrder(Document):
 
 	@frappe.whitelist()
 	def fetch_template_items(self, service_template=None):
+		"""Fetch charges and service inspections from Service Template (Actions → Load Service Template)."""
 		from autods.service.template_charges import apply_template_terms, charge_row_from_template
 
 		if not service_template:
@@ -292,7 +288,12 @@ class RepairOrder(Document):
 			self.charges = []
 
 			for row in template.charges or []:
-				self.append("charges", charge_row_from_template(row.as_dict(), template_name))
+				charge_row = charge_row_from_template(row.as_dict(), template_name)
+				if getattr(row, "item_tax_template", None):
+					charge_row["item_tax_template"] = row.item_tax_template
+				self.append("charges", charge_row)
+
+			resolve_charge_parent_service_links(self)
 
 			if template.service_inspections:
 				for template_inspection in template.service_inspections:
@@ -336,18 +337,18 @@ class RepairOrder(Document):
 			frappe.throw(_("Error fetching items from template: {0}").format(str(e)))
 
 	@frappe.whitelist()
-	def get_job_card_plan(self):
-		"""Preview the consolidated Job Card plan for this Repair Order."""
+	def get_job_card_plan(self, selected_charge_rows=None):
+		"""Preview the Job Card plan for selected Service lines on this Repair Order."""
 		from autods.service.job_card_planning import build_plan
 
-		return build_plan(self)
+		return build_plan(self, _parse_selected_charge_rows(selected_charge_rows))
 
 	@frappe.whitelist()
-	def create_job_cards_from_plan(self):
-		"""Create one Job Card for this Repair Order (skipped when one already exists)."""
+	def create_job_cards_from_plan(self, selected_charge_rows=None):
+		"""Create one Job Card per selected Service line (skipped when one already exists)."""
 		from autods.service.job_card_planning import create_job_cards
 
-		return create_job_cards(self)
+		return create_job_cards(self, _parse_selected_charge_rows(selected_charge_rows))
 
 	@frappe.whitelist()
 	def create_gate_pass(self, gate_pass_type="Entry"):
@@ -444,7 +445,39 @@ def get_repair_order_inspection_names(repair_order):
 
 
 @frappe.whitelist()
-def get_job_card_plan_by_repair_order(repair_order):
+def get_job_card_service_selection(repair_order):
+	"""Return Service charge lines for the job card selection modal."""
+	if not repair_order:
+		frappe.throw(_("Repair Order is required"))
+	ro = frappe.get_doc("Repair Order", repair_order)
+	ro.check_permission("read")
+	from autods.service.job_card_planning import build_service_selection
+
+	return build_service_selection(ro)
+
+
+@frappe.whitelist()
+def get_locked_charge_rows(repair_order):
+	"""Return {charge_row_name: job_card_name} for rows locked by a non-Cancelled Job Card."""
+	if not repair_order:
+		return {}
+	ro = frappe.get_doc("Repair Order", repair_order)
+	ro.check_permission("read")
+	return get_locked_charge_row_names(ro)
+
+
+def _parse_selected_charge_rows(selected_charge_rows):
+	if not selected_charge_rows:
+		return None
+	if isinstance(selected_charge_rows, str):
+		selected_charge_rows = frappe.parse_json(selected_charge_rows)
+	if not isinstance(selected_charge_rows, (list, tuple)):
+		frappe.throw(_("selected_charge_rows must be a list"))
+	return list(selected_charge_rows)
+
+
+@frappe.whitelist()
+def get_job_card_plan_by_repair_order(repair_order, selected_charge_rows=None):
 	"""Preview job card plan for a Repair Order (for Service Appointment / Repair Estimate)."""
 	if not repair_order:
 		frappe.throw(_("Repair Order is required"))
@@ -452,18 +485,18 @@ def get_job_card_plan_by_repair_order(repair_order):
 	ro.check_permission("read")
 	from autods.service.job_card_planning import build_plan
 
-	return build_plan(ro)
+	return build_plan(ro, _parse_selected_charge_rows(selected_charge_rows))
 
 
 @frappe.whitelist()
-def create_job_cards_from_plan_by_repair_order(repair_order):
+def create_job_cards_from_plan_by_repair_order(repair_order, selected_charge_rows=None):
 	"""Create job cards from plan for a Repair Order (for Service Appointment / Repair Estimate)."""
 	if not repair_order:
 		frappe.throw(_("Repair Order is required"))
 	ro = frappe.get_doc("Repair Order", repair_order)
 	from autods.service.job_card_planning import create_job_cards
 
-	return create_job_cards(ro)
+	return create_job_cards(ro, _parse_selected_charge_rows(selected_charge_rows))
 
 
 @frappe.whitelist()

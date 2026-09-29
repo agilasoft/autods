@@ -287,10 +287,10 @@
 							frappe.utils.get_form_link("Stock Entry", r.stock_entry)
 					  )}">${esc(r.stock_entry)}</a>`
 					: "—";
-				const spr = r.spareparts_request
+				const mr = r.material_request
 					? `<a class="autods-sa-text-link" href="${attr_url(
-							frappe.utils.get_form_link("Spareparts Request", r.spareparts_request)
-					  )}">${esc(r.spareparts_request)}</a>`
+							frappe.utils.get_form_link("Material Request", r.material_request)
+					  )}">${esc(r.material_request)}</a>`
 					: "—";
 				return `<div class="autods-sa-insp-row-card autods-jc-sp-card">
 					<div class="autods-sa-insp-row-quality-top">
@@ -307,7 +307,7 @@
 					fmt_datetime(r.requested_date)
 				)}</strong></div>
 						<div><span>${esc(__("Stock entry"))}</span><strong>${se}</strong></div>
-						<div><span>${esc(__("Spareparts request"))}</span><strong>${spr}</strong></div>
+						<div><span>${esc(__("Material Request"))}</span><strong>${mr}</strong></div>
 					</div>
 					${r.notes ? `<p class="autods-sa-insp-remarks" style="margin-top:0.5rem">${esc(r.notes)}</p>` : ""}
 				</div>`;

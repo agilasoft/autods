@@ -12,7 +12,17 @@ function autods_st_clear_charge_item_row(row) {
 	row.qty = 0;
 }
 
-/** Item link search: Service Job items, Spareparts by vehicle model (Frappe 16). */
+/** Item link search: Service Job items, Spareparts by vehicle specs (Frappe 16). */
+function autods_st_spareparts_vehicle_filters(doc) {
+	return {
+		vehicle_make: doc.vehicle_make,
+		vehicle_model: doc.vehicle_model,
+		vehicle_variant: doc.vehicle_variant,
+		vehicle_year_model: doc.vehicle_year_model,
+		vehicle_transmission_type: doc.vehicle_transmission_type,
+	};
+}
+
 function autods_st_charges_item_query(doc, row) {
 	var t = (row && row.service_item_type || '').trim();
 	if (t === 'Spareparts') {
@@ -22,7 +32,7 @@ function autods_st_charges_item_query(doc, row) {
 		}
 		return {
 			query: 'autods.service.queries.spareparts_item_link_query',
-			filters: { vehicle_model: doc.vehicle_model },
+			filters: autods_st_spareparts_vehicle_filters(doc),
 		};
 	}
 	if (t === 'Service') {

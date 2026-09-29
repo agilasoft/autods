@@ -28,8 +28,7 @@ class JobCard(Document):
 		self.set_work_details_total_hours()
 		self.set_completion_timestamps()
 		self.validate_entry_gate_pass()
-		self.validate_single_job_card_per_repair_order()
-		self.validate_vehicle_schedule()
+		self.validate_unique_job_card_per_service_line()
 		validate_vehicle_job_card_conflict(self)
 
 	def sync_expected_completion_from_repair_order(self):
@@ -92,9 +91,31 @@ class JobCard(Document):
 			context=_("Job Card work"),
 		)
 
-	def validate_single_job_card_per_repair_order(self):
+	def validate_unique_job_card_per_service_line(self):
 		if not self.repair_order or self.status == "Cancelled":
 			return
+
+		service_charge_row = (self.service_charge_row or "").strip()
+		if service_charge_row:
+			existing = frappe.get_all(
+				"Job Card",
+				filters={
+					"repair_order": self.repair_order,
+					"service_charge_row": service_charge_row,
+					"status": ("!=", "Cancelled"),
+					"name": ("!=", self.name or ""),
+				},
+				pluck="name",
+				limit=1,
+			)
+			if existing:
+				frappe.throw(
+					_(
+						"Repair Order {0} already has Job Card {1} for this service line."
+					).format(frappe.bold(self.repair_order), frappe.bold(existing[0])),
+				)
+			return
+
 		existing = frappe.get_all(
 			"Job Card",
 			filters={
@@ -102,60 +123,19 @@ class JobCard(Document):
 				"status": ("!=", "Cancelled"),
 				"name": ("!=", self.name or ""),
 			},
+			or_filters=[
+				["service_charge_row", "is", "not set"],
+				["service_charge_row", "=", ""],
+			],
 			pluck="name",
-			limit=5,
+			limit=1,
 		)
 		if existing:
 			frappe.throw(
 				_(
-					"Repair Order {0} already has Job Card {1}. Only one Job Card is allowed per Repair Order."
+					"Repair Order {0} already has Job Card {1}. Only one consolidated Job Card is allowed per Repair Order."
 				).format(frappe.bold(self.repair_order), frappe.bold(existing[0])),
 			)
-
-	def validate_vehicle_schedule(self):
-		if self.status in ("Completed", "Cancelled"):
-			return
-		vehicle_key = self.vehicle_unit or self.plate_no
-		if not vehicle_key or not self.repair_date:
-			return
-
-		filters = [
-			["Job Card", "status", "not in", ("Completed", "Cancelled")],
-			["Job Card", "repair_date", "=", getdate(self.repair_date)],
-		]
-		if self.name:
-			filters.append(["Job Card", "name", "!=", self.name])
-		if self.vehicle_unit:
-			filters.append(["Job Card", "vehicle_unit", "=", self.vehicle_unit])
-		else:
-			filters.append(["Job Card", "plate_no", "=", self.plate_no])
-
-		existing = frappe.get_all(
-			"Job Card",
-			filters=filters,
-			fields=["name", "start_time", "end_time", "expected_completion_date"],
-			limit_page_length=50,
-		)
-		if not existing:
-			return
-
-		start_dt, end_dt = job_card_window(self)
-		if not start_dt or not end_dt:
-			frappe.throw(
-				_("An active Job Card already exists for this vehicle on {0}: {1}").format(
-					getdate(self.repair_date),
-					frappe.bold(existing[0].name),
-				),
-			)
-
-		for row in existing:
-			row_start, row_end = row_window(row, getdate(self.repair_date))
-			if not row_start or not row_end or intervals_overlap(start_dt, end_dt, row_start, row_end):
-				frappe.throw(
-					_("Job Card {0} already covers this vehicle in the selected repair window.").format(
-						frappe.bold(row.name),
-					),
-				)
 
 	@frappe.whitelist()
 	def calculate_total_hours(self):
@@ -213,35 +193,82 @@ class JobCard(Document):
 				"message": _("Repair Order is not set on this Job Card."),
 			}
 
+		already_msg = _(
+			"Material Request already created for the spareparts on this Job Card. "
+			"Add a spareparts row without a Material Request to create another."
+		)
+
 		ro = frappe.get_doc("Repair Order", self.repair_order)
 		all_spare = sparepart_rows_for_material_request(ro, None, None)
-		all_payload = _material_request_line_payloads(ro, all_spare)
+		all_payload = _filter_material_request_payloads(
+			_material_request_line_payloads(ro, all_spare), self
+		)
 
 		if self.service_charge_row:
 			idx = service_line_index_for_charge_row_name(ro, self.service_charge_row)
 			if idx is None:
+				fallback = _merge_payloads_with_unlinked_jc_rows(all_payload, self)
+				if not fallback:
+					return {
+						"mode": "none",
+						"lines": [],
+						"fallback_lines": [],
+						"message": already_msg if _item_codes_already_requested(self) else _(
+							"This Job Card's service line is not on the Repair Order. Pick sparepart lines manually or relink the Job Card."
+						),
+					}
 				return {
 					"mode": "invalid_service_line",
 					"lines": [],
-					"fallback_lines": all_payload,
+					"fallback_lines": fallback,
 					"message": _(
 						"This Job Card's service line is not on the Repair Order. Pick sparepart lines manually or relink the Job Card."
 					),
 				}
 			scoped = sparepart_rows_for_material_request(ro, self.service_charge_row, None)
-			scoped_payload = _material_request_line_payloads(ro, scoped)
+			scoped_payload = _filter_material_request_payloads(
+				_material_request_line_payloads(ro, scoped), self
+			)
 			if not scoped_payload and all_payload:
+				fallback = _merge_payloads_with_unlinked_jc_rows(all_payload, self)
+				if not fallback:
+					return {
+						"mode": "none",
+						"lines": [],
+						"fallback_lines": [],
+						"message": already_msg,
+					}
 				return {
 					"mode": "scoped_empty",
 					"lines": [],
-					"fallback_lines": all_payload,
+					"fallback_lines": fallback,
 					"message": _("No spareparts are linked to this Job Card's service line on the Repair Order."),
 				}
-			return {"mode": "scoped", "lines": scoped_payload, "fallback_lines": [], "message": None}
+			lines = _merge_payloads_with_unlinked_jc_rows(scoped_payload, self)
+			if not lines:
+				return {
+					"mode": "none",
+					"lines": [],
+					"fallback_lines": [],
+					"message": already_msg if _item_codes_already_requested(self) else _(
+						"No sparepart lines on this Repair Order."
+					),
+				}
+			return {"mode": "scoped", "lines": lines, "fallback_lines": [], "message": None}
 
+		lines = _merge_payloads_with_unlinked_jc_rows(all_payload, self)
+		if not lines:
+			return {
+				"mode": "none",
+				"lines": [],
+				"fallback_lines": [],
+				"message": already_msg if _item_codes_already_requested(self) else _(
+					"No sparepart lines on this Repair Order."
+				),
+			}
 		return {
 			"mode": "picker",
-			"lines": all_payload,
+			"lines": lines,
 			"fallback_lines": [],
 			"message": None,
 		}
@@ -252,6 +279,8 @@ class JobCard(Document):
 
 		``charge_row_names``: optional list of ``Repair Order Charges`` row names (Spareparts) to include.
 		When omitted, spareparts are scoped to :py:attr:`service_charge_row` when set, otherwise all RO spareparts.
+		Skips items whose Job Card spareparts_requests rows are already linked to a Material Request,
+		unless an unlinked spareparts_requests row still exists for that item.
 		"""
 		if not self.name:
 			frappe.throw(_("Please save the Job Card first"))
@@ -259,16 +288,49 @@ class JobCard(Document):
 			frappe.throw(_("Repair Order is required to create a Material Request"))
 
 		ro = frappe.get_doc("Repair Order", self.repair_order)
-		spareparts = resolve_sparepart_charge_rows(ro, self.service_charge_row, charge_row_names)
+		ro_names, _jc_row_names = _split_charge_row_names(charge_row_names)
 
-		if not spareparts:
-			frappe.throw(_("Add sparepart lines in the Repair Order Charges table first, or link parts to this service line."))
+		if charge_row_names is not None and charge_row_names != "":
+			if ro_names:
+				spareparts = resolve_sparepart_charge_rows(ro, self.service_charge_row, ro_names)
+			else:
+				spareparts = []
+		else:
+			spareparts = resolve_sparepart_charge_rows(ro, self.service_charge_row, None)
+
+		had_ro_spareparts = bool(spareparts)
+		spareparts = _filter_spareparts_not_yet_requested(spareparts, self)
+		covered = {
+			getattr(row, "item", None)
+			for row in spareparts
+			if getattr(row, "item", None)
+		}
+		extra = _mr_items_from_unlinked_jc_rows(self, covered)
+		items = list(spareparts) + extra
+
+		if not items:
+			if had_ro_spareparts or _item_codes_already_requested(self):
+				frappe.throw(
+					_(
+						"Material Request already created for the spareparts on this Job Card. "
+						"Add a spareparts row without a Material Request to create another."
+					)
+				)
+			frappe.throw(
+				_("Add sparepart lines in the Repair Order Charges table first, or link parts to this service line.")
+			)
 
 		material_request = _create_material_request_from_repair_order(
 			repair_order=self.repair_order,
 			job_card=self.name,
-			items=spareparts,
+			items=items,
 		)
+		item_codes = {
+			getattr(row, "item", None)
+			for row in items
+			if getattr(row, "item", None)
+		}
+		_link_material_request_to_spareparts_rows(self.name, material_request.name, item_codes)
 		frappe.msgprint(_("Material Request {0} created for issue.").format(
 			frappe.bold(material_request.name)
 		))
@@ -411,6 +473,131 @@ def _material_request_line_payloads(ro, rows):
 	return payloads
 
 
+JC_SPAREPARTS_CHARGE_PREFIX = "jc:"
+
+
+def _item_codes_already_requested(job_card_doc):
+	"""Item codes whose spareparts_requests rows are all already linked to a Material Request.
+
+	An item remains creatable when at least one spareparts_requests row for it has an empty
+	material_request (e.g. a newly added row).
+	"""
+	linked = set()
+	unlinked = set()
+	for row in getattr(job_card_doc, "spareparts_requests", None) or []:
+		item_code = getattr(row, "item_code", None)
+		if not item_code:
+			continue
+		if getattr(row, "material_request", None):
+			linked.add(item_code)
+		else:
+			unlinked.add(item_code)
+	return linked - unlinked
+
+
+def _unlinked_spareparts_request_rows(job_card_doc):
+	"""Return spareparts_requests rows with empty material_request."""
+	rows = []
+	for row in getattr(job_card_doc, "spareparts_requests", None) or []:
+		if getattr(row, "item_code", None) and not getattr(row, "material_request", None):
+			rows.append(row)
+	return rows
+
+
+def _filter_spareparts_not_yet_requested(spareparts, job_card_doc):
+	"""Drop RO charge rows whose item is fully linked on Job Card spareparts_requests."""
+	already = _item_codes_already_requested(job_card_doc)
+	if not already:
+		return list(spareparts or [])
+	return [
+		row
+		for row in (spareparts or [])
+		if getattr(row, "item", None) and getattr(row, "item", None) not in already
+	]
+
+
+def _filter_material_request_payloads(payloads, job_card_doc):
+	"""Drop candidate payloads for items already fully linked to a Material Request."""
+	already = _item_codes_already_requested(job_card_doc)
+	if not already:
+		return list(payloads or [])
+	return [
+		p for p in (payloads or [])
+		if p.get("item_code") and p.get("item_code") not in already
+	]
+
+
+def _jc_spareparts_payload(row):
+	"""Synthetic candidate line for an unlinked Job Card spareparts_requests row."""
+	return {
+		"name": f"{JC_SPAREPARTS_CHARGE_PREFIX}{row.name}",
+		"item_code": row.item_code,
+		"item_name": getattr(row, "item_name", None) or "",
+		"qty": flt(getattr(row, "qty", None)),
+		"service_row": "",
+		"warehouse": "",
+	}
+
+
+def _merge_payloads_with_unlinked_jc_rows(payloads, job_card_doc):
+	"""Append synthetic lines for unlinked JC rows whose item is not already in payloads."""
+	payloads = list(payloads or [])
+	covered = {p.get("item_code") for p in payloads if p.get("item_code")}
+	for row in _unlinked_spareparts_request_rows(job_card_doc):
+		if row.item_code in covered:
+			continue
+		if not getattr(row, "name", None):
+			continue
+		payloads.append(_jc_spareparts_payload(row))
+		covered.add(row.item_code)
+	return payloads
+
+
+def _split_charge_row_names(charge_row_names):
+	"""Split charge_row_names into RO charge names and JC spareparts child row names."""
+	if charge_row_names is None or charge_row_names == "":
+		return None, None
+	if isinstance(charge_row_names, str):
+		charge_row_names = frappe.parse_json(charge_row_names)
+	if not isinstance(charge_row_names, (list, tuple)):
+		frappe.throw(_("charge_row_names must be a list of Repair Order charge row names."))
+	ro_names = []
+	jc_names = []
+	for name in charge_row_names:
+		if name is None or name == "":
+			continue
+		name = str(name)
+		if name.startswith(JC_SPAREPARTS_CHARGE_PREFIX):
+			jc_names.append(name[len(JC_SPAREPARTS_CHARGE_PREFIX):])
+		else:
+			ro_names.append(name)
+	return ro_names, jc_names
+
+
+def _mr_items_from_unlinked_jc_rows(job_card_doc, covered_item_codes=None, only_row_names=None):
+	"""Build MR line objects from unlinked spareparts_requests rows not already covered."""
+	covered_item_codes = set(covered_item_codes or [])
+	only_row_names = set(only_row_names) if only_row_names is not None else None
+	items = []
+	for row in _unlinked_spareparts_request_rows(job_card_doc):
+		if only_row_names is not None and getattr(row, "name", None) not in only_row_names:
+			continue
+		if row.item_code in covered_item_codes:
+			continue
+		items.append(
+			frappe._dict(
+				{
+					"item": row.item_code,
+					"qty": flt(getattr(row, "qty", None)) or 1,
+					"uom": getattr(row, "uom", None),
+					"warehouse": None,
+				}
+			)
+		)
+		covered_item_codes.add(row.item_code)
+	return items
+
+
 def _norm_skill(value: str | None) -> str:
 	return (value or "").strip().lower()
 
@@ -528,6 +715,23 @@ def rank_technicians_for_job_card(jc_doc, required_skill_names: list[str]):
 
 	ranked.sort(key=lambda r: (-r["score"], r["employee_name"], r["employee"]))
 	return ranked
+
+
+def _link_material_request_to_spareparts_rows(job_card_name, material_request_name, item_codes):
+	"""Set material_request on Job Card spareparts_requests rows matching item_codes (when empty)."""
+	if not job_card_name or not material_request_name or not item_codes:
+		return
+	item_codes = set(item_codes)
+	job_doc = frappe.get_doc("Job Card", job_card_name)
+	if not getattr(job_doc, "spareparts_requests", None):
+		return
+	updated = False
+	for row in job_doc.spareparts_requests:
+		if row.item_code in item_codes and not row.material_request:
+			row.material_request = material_request_name
+			updated = True
+	if updated:
+		job_doc.save(ignore_permissions=True)
 
 
 def _create_material_request_from_repair_order(repair_order, job_card, items):

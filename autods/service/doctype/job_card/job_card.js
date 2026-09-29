@@ -33,7 +33,9 @@ function open_job_card_material_request_dialog(frm) {
 					freeze_message: __('Creating Material Request...'),
 					callback: function(cr) {
 						if (cr.message && cr.message.name) {
-							frappe.set_route('Form', 'Material Request', cr.message.name);
+							frm.reload_doc().then(function() {
+								frappe.set_route('Form', 'Material Request', cr.message.name);
+							});
 						}
 					}
 				});

@@ -2,6 +2,12 @@
 	"python.defaultInterpreterPath": "${workspaceFolder}/../env/bin/python",
 	"python.analysis.extraPaths": [
 		"${workspaceFolder}/../frappe",
-		"${workspaceFolder}/../erpnext"
+		"${workspaceFolder}/../erpnext",
+		"${workspaceFolder}/../autods_ai"
+	],
+	"cursorpyright.analysis.extraPaths": [
+		"${workspaceFolder}/../frappe",
+		"${workspaceFolder}/../erpnext",
+		"${workspaceFolder}/../autods_ai"
 	]
 }

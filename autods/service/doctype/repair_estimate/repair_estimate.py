@@ -6,7 +6,11 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import cint, flt, getdate, today
 
-from autods.service.charge_service_row import service_row_index
+from autods.service.charge_service_row import (
+	persist_charge_service_links,
+	resolve_charge_parent_service_links,
+	validate_charge_service_links,
+)
 from autods.service.service_appointment_utils import get_expected_completion_datetime
 
 
@@ -46,27 +50,11 @@ class RepairEstimate(Document):
 	def _charge_rows(self):
 		return list(self.charges or [])
 
-	def _service_line_count(self):
-		return len([r for r in self._charge_rows() if (r.service_item_type or "").strip() == "Service"])
-
 	def validate_charges(self):
-		n_svc = self._service_line_count()
-		for row in self._charge_rows():
-			t = (row.service_item_type or "").strip()
-			if t == "Service":
-				row.service_row = ""
-				continue
-			if t in ("Spareparts", "Overhead"):
-				sr = (row.service_row or "").strip()
-				if not sr:
-					frappe.throw(_("Service is required for Spareparts and Overhead lines."))
-				i = service_row_index(sr)
-				if i is None:
-					frappe.throw(_("Service must start with a number between 1 and {0}.").format(max(n_svc, 1)))
-				if n_svc < 1:
-					frappe.throw(_("Add at least one Service line before Spareparts or Overhead."))
-				if i < 1 or i > n_svc:
-					frappe.throw(_("Service must be between 1 and {0} (Service lines in this document).").format(n_svc))
+		validate_charge_service_links(self)
+
+	def after_insert(self):
+		persist_charge_service_links(self, "Repair Estimate Charges")
 
 	def calculate_child_table_amounts(self):
 		"""Calculate amounts for all child table rows"""
@@ -264,6 +252,10 @@ class RepairEstimate(Document):
 		if has_warranty and not self.warranty:
 			frappe.throw(_("Warranty is required when any line has Bill To = Warranty."))
 
+	def before_submit(self):
+		if not self._charge_rows():
+			frappe.throw(_("Add at least one charge line before submitting the Repair Estimate."))
+
 	def on_submit(self):
 		"""Set status to Submitted when estimate is submitted for approval"""
 		if self.status == "Draft":
@@ -272,7 +264,7 @@ class RepairEstimate(Document):
 
 	@frappe.whitelist()
 	def fetch_template_items(self, service_template=None):
-		"""Fetch charges and service inspections from Service Template."""
+		"""Fetch charges and service inspections from Service Template (Actions → Load Service Template)."""
 		from autods.service.template_charges import apply_template_terms, charge_row_from_template
 
 		if not service_template:
@@ -289,6 +281,8 @@ class RepairEstimate(Document):
 				if getattr(row, "item_tax_template", None):
 					charge_row["item_tax_template"] = row.item_tax_template
 				self.append("charges", charge_row)
+
+			resolve_charge_parent_service_links(self)
 
 			if template.service_inspections:
 				for template_inspection in template.service_inspections:
@@ -445,6 +439,9 @@ class RepairEstimate(Document):
 				"item_name": getattr(row, "item_name", None),
 				"description": getattr(row, "description", None),
 				"service_row": getattr(row, "service_row", None) if t in ("Spareparts", "Overhead") else None,
+				# Do not copy estimate parent_service_charge — RO child names differ;
+				# validate on insert rebinds from service_row ordinal.
+				"parent_service_charge": None,
 				"standard_hours": getattr(row, "standard_hours", None) if t == "Service" else None,
 				"qty": getattr(row, "qty", None) if t in ("Service", "Spareparts", "Overhead") else None,
 				"uom": getattr(row, "uom", None) if t in ("Service", "Spareparts", "Overhead") else None,

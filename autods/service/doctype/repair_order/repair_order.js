@@ -1,17 +1,28 @@
 // Copyright (c) 2025, Agilasoft Technologies Inc. and contributors
 // For license information, please see license.txt
 
-/** Item link search: Service Job items, Spareparts by vehicle model, else Service Type match (Frappe 16). */
+/** Item link search: Service Job items, Spareparts by vehicle specs, else Service Type match (Frappe 16). */
+function autods_spareparts_vehicle_filters(doc) {
+	return {
+		vehicle_unit: doc.vehicle_unit,
+		vehicle_make: doc.vehicle_make,
+		vehicle_model: doc.vehicle_model,
+		vehicle_variant: doc.vehicle_variant,
+		vehicle_year_model: doc.vehicle_year_model,
+		vehicle_transmission_type: doc.vehicle_transmission_type,
+	};
+}
+
 function autods_charges_item_query(doc, row) {
 	var t = (row && row.service_item_type || '').trim();
 	if (t === 'Spareparts') {
-		if (!doc.vehicle_model) {
+		if (!doc.vehicle_unit && !doc.vehicle_model) {
 			frappe.msgprint(__('Set a Vehicle Unit with a model before selecting spare parts.'));
 			return { filters: { name: ['in', []] } };
 		}
 		return {
 			query: 'autods.service.queries.spareparts_item_link_query',
-			filters: { vehicle_model: doc.vehicle_model },
+			filters: autods_spareparts_vehicle_filters(doc),
 		};
 	}
 	if (t === 'Service') {
@@ -105,6 +116,178 @@ function autods_clear_charge_item_row(row) {
 	row.amount = 0;
 	row.standard_hours = 0;
 	row.qty = 0;
+	row.service_row = '';
+	row.parent_service_charge = '';
+}
+
+function autods_refresh_charge_row_amount(frm, cdt, cdn) {
+	var grid = frm.fields_dict.charges && frm.fields_dict.charges.grid;
+	if (grid) {
+		var grid_row = grid.get_row(cdn);
+		if (grid_row && grid_row.refresh_field) {
+			grid_row.refresh_field('amount');
+			return;
+		}
+	}
+	frm.refresh_field('charges');
+}
+
+/** Editable charge fields locked when a non-Cancelled Job Card covers the row. */
+var AUTODS_JOB_CARD_LOCKED_CHARGE_FIELDS = [
+	'service_item_type',
+	'item',
+	'description',
+	'service_row',
+	'standard_hours',
+	'qty',
+	'uom',
+	'rate',
+	'bill_type',
+	'bill_to',
+	'item_type',
+	'warehouse',
+	'color_code',
+	'paint_type',
+];
+
+function autods_get_locked_charges_map(frm) {
+	return (frm && frm._autods_locked_charges) || {};
+}
+
+function autods_is_charge_row_locked(frm, row) {
+	if (!row || !row.name) {
+		return false;
+	}
+	return !!autods_get_locked_charges_map(frm)[row.name];
+}
+
+function autods_is_service_charge_locked(frm, service_charge_row_name) {
+	var name = (service_charge_row_name || '').trim();
+	if (!name) {
+		return false;
+	}
+	return !!autods_get_locked_charges_map(frm)[name];
+}
+
+function autods_set_charge_field_control_locked(fld, is_locked) {
+	if (!fld) {
+		return;
+	}
+	if (fld.df) {
+		fld.df.read_only = is_locked ? 1 : 0;
+	}
+	if (fld.$input && fld.$input.length) {
+		fld.$input.prop('disabled', !!is_locked);
+		if (is_locked && fld.$input.blur) {
+			fld.$input.blur();
+		}
+	}
+	if (fld.$input_wrapper && fld.$input_wrapper.length) {
+		fld.$input_wrapper.toggleClass('read-only', !!is_locked);
+	}
+}
+
+function autods_apply_locked_charge_row_editability(frm) {
+	var grid = frm.fields_dict.charges && frm.fields_dict.charges.grid;
+	if (!grid || !grid.grid_rows) {
+		return;
+	}
+	var locked = autods_get_locked_charges_map(frm);
+	grid.grid_rows.forEach(function(gr) {
+		if (!gr || !gr.doc || !gr.doc.name) {
+			return;
+		}
+		var is_locked = !!locked[gr.doc.name];
+		AUTODS_JOB_CARD_LOCKED_CHARGE_FIELDS.forEach(function(fieldname) {
+			if (gr.toggle_editable) {
+				gr.toggle_editable(fieldname, !is_locked);
+			}
+			/* Keep Select/DOM controls non-interactive after option rebuilds. */
+			if (gr.on_grid_fields_dict && gr.on_grid_fields_dict[fieldname]) {
+				autods_set_charge_field_control_locked(gr.on_grid_fields_dict[fieldname], is_locked);
+			}
+			if (gr.grid_form && gr.grid_form.fields_dict && gr.grid_form.fields_dict[fieldname]) {
+				autods_set_charge_field_control_locked(gr.grid_form.fields_dict[fieldname], is_locked);
+			}
+		});
+		if (gr.wrapper && gr.wrapper.length) {
+			gr.wrapper.find('.grid-delete-row').toggle(!is_locked);
+		}
+	});
+}
+
+function autods_snapshot_locked_charge_rows(frm) {
+	var locked = autods_get_locked_charges_map(frm);
+	var snapshots = {};
+	(frm.doc.charges || []).forEach(function(row) {
+		if (!row || !row.name || !locked[row.name]) {
+			return;
+		}
+		var snap = {};
+		AUTODS_JOB_CARD_LOCKED_CHARGE_FIELDS.forEach(function(fieldname) {
+			snap[fieldname] = row[fieldname];
+		});
+		snap.parent_service_charge = row.parent_service_charge;
+		snapshots[row.name] = snap;
+	});
+	frm._autods_locked_charge_snapshots = snapshots;
+}
+
+function autods_load_locked_charge_rows(frm) {
+	if (!frm || frm.is_new() || !frm.doc.name) {
+		frm._autods_locked_charges = {};
+		frm._autods_locked_charge_snapshots = {};
+		autods_apply_locked_charge_row_editability(frm);
+		return;
+	}
+	frappe.call({
+		method: 'autods.service.doctype.repair_order.repair_order.get_locked_charge_rows',
+		args: { repair_order: frm.doc.name },
+		callback: function(r) {
+			frm._autods_locked_charges = r.message || {};
+			autods_snapshot_locked_charge_rows(frm);
+			/* Refresh Service Select options first, then re-apply locks so read-only sticks. */
+			if (
+				window.autods &&
+				autods.charges_overview &&
+				autods.charges_overview.update_service_row_select_options
+			) {
+				autods.charges_overview.update_service_row_select_options(frm);
+			}
+			autods_apply_locked_charge_row_editability(frm);
+		},
+	});
+}
+
+function autods_guard_locked_charge_edit(frm, cdt, cdn, fieldname) {
+	var row = locals[cdt] && locals[cdt][cdn];
+	if (!autods_is_charge_row_locked(frm, row)) {
+		return false;
+	}
+	var jc = autods_get_locked_charges_map(frm)[row.name];
+	var snap = (frm._autods_locked_charge_snapshots || {})[row.name];
+	if (fieldname && snap && Object.prototype.hasOwnProperty.call(snap, fieldname)) {
+		var prev = snap[fieldname];
+		if (row[fieldname] !== prev) {
+			/* Assign directly to avoid re-entering this handler via set_value. */
+			row[fieldname] = prev == null ? '' : prev;
+			var grid = frm.fields_dict.charges && frm.fields_dict.charges.grid;
+			var grid_row = grid && grid.get_row(cdn);
+			if (grid_row && grid_row.refresh_field) {
+				grid_row.refresh_field(fieldname);
+			} else {
+				frm.refresh_field('charges');
+			}
+		}
+	}
+	frappe.msgprint({
+		title: __('Charges Locked'),
+		indicator: 'orange',
+		message: __('This charge line is locked by Job Card {0}. Cancel the Job Card to edit it.', [
+			frappe.bold(jc),
+		]),
+	});
+	return true;
 }
 
 function autods_set_repair_type_query(frm) {
@@ -189,6 +372,7 @@ frappe.ui.form.on('Repair Order', {
 				return autods_charges_item_query(doc, locals[cdt][cdn]);
 			});
 		}
+		autods_load_locked_charge_rows(frm);
 		if (!frm.is_new()) {
 			frm.set_query('quality_inspection', 'quality_inspections', function(doc, cdt, cdn) {
 				var row = locals[cdt][cdn];
@@ -252,32 +436,134 @@ frappe.ui.form.on('Repair Order', {
 
 frappe.ui.form.on('Repair Order Charges', {
 	charges_add: function() {},
+	form_render: function(frm, cdt, cdn) {
+		autods_apply_locked_charge_row_editability(frm);
+	},
+	charges_remove: function(frm, cdt, cdn) {
+		var row = locals[cdt] && locals[cdt][cdn];
+		if (!autods_is_charge_row_locked(frm, row)) {
+			return;
+		}
+		var jc = autods_get_locked_charges_map(frm)[row.name];
+		frappe.throw(
+			__('Cannot remove charge line locked by Job Card {0}.', [frappe.bold(jc)])
+		);
+	},
 	service_item_type: function(frm, cdt, cdn) {
+		if (autods_guard_locked_charge_edit(frm, cdt, cdn, 'service_item_type')) {
+			return;
+		}
 		var row = locals[cdt][cdn];
 		autods_clear_charge_item_row(row);
-		frm.refresh_field('charges');
+		frappe.after_ajax(function() {
+			frm.refresh_field('charges');
+		});
+	},
+	item: function(frm, cdt, cdn) {
+		if (autods_guard_locked_charge_edit(frm, cdt, cdn, 'item')) {
+			return;
+		}
+	},
+	description: function(frm, cdt, cdn) {
+		autods_guard_locked_charge_edit(frm, cdt, cdn, 'description');
+	},
+	service_row: function(frm, cdt, cdn) {
+		autods_guard_locked_charge_edit(frm, cdt, cdn, 'service_row');
 	},
 	standard_hours: function(frm, cdt, cdn) {
 		/* Standard Hours is labor/planning only; does not affect Amount (Qty x Rate). */
+		autods_guard_locked_charge_edit(frm, cdt, cdn, 'standard_hours');
+	},
+	uom: function(frm, cdt, cdn) {
+		autods_guard_locked_charge_edit(frm, cdt, cdn, 'uom');
+	},
+	rate: function(frm, cdt, cdn) {
+		if (autods_guard_locked_charge_edit(frm, cdt, cdn, 'rate')) {
+			return;
+		}
+		var row = locals[cdt][cdn];
+		var t = (row.service_item_type || '').trim();
+		if (t === 'Service' || t === 'Spareparts' || t === 'Overhead') {
+			row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+		}
+		autods_refresh_charge_row_amount(frm, cdt, cdn);
+	},
+	qty: function(frm, cdt, cdn) {
+		if (autods_guard_locked_charge_edit(frm, cdt, cdn, 'qty')) {
+			return;
+		}
+		var row = locals[cdt][cdn];
+		var t = (row.service_item_type || '').trim();
+		if (t === 'Service' || t === 'Spareparts' || t === 'Overhead') {
+			row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+			autods_refresh_charge_row_amount(frm, cdt, cdn);
+		}
+	},
+	bill_type: function(frm, cdt, cdn) {
+		if (autods_guard_locked_charge_edit(frm, cdt, cdn, 'bill_type')) {
+			return;
+		}
+		frm.dirty();
+	},
+	bill_to: function(frm, cdt, cdn) {
+		autods_guard_locked_charge_edit(frm, cdt, cdn, 'bill_to');
+	},
+	item_type: function(frm, cdt, cdn) {
+		autods_guard_locked_charge_edit(frm, cdt, cdn, 'item_type');
+	},
+	warehouse: function(frm, cdt, cdn) {
+		autods_guard_locked_charge_edit(frm, cdt, cdn, 'warehouse');
+	},
+	color_code: function(frm, cdt, cdn) {
+		autods_guard_locked_charge_edit(frm, cdt, cdn, 'color_code');
+	},
+	paint_type: function(frm, cdt, cdn) {
+		autods_guard_locked_charge_edit(frm, cdt, cdn, 'paint_type');
+	},
+});
+
+function autods_default_billing_item_type(cdt, cdn) {
+	var row = locals[cdt][cdn];
+	if (!row || !row.item) {
+		frappe.model.set_value(cdt, cdn, 'item_type', '');
+		return;
+	}
+	frappe.db.get_value('Item', row.item, 'custom_service_item_type', function(r) {
+		if (locals[cdt] && locals[cdt][cdn] && locals[cdt][cdn].item === row.item) {
+			frappe.model.set_value(cdt, cdn, 'item_type', (r && r.custom_service_item_type) || '');
+		}
+	});
+}
+
+frappe.ui.form.on('RO Customer Bill', {
+	item: function(frm, cdt, cdn) {
+		autods_default_billing_item_type(cdt, cdn);
 	},
 	rate: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
-		var t = (row.service_item_type || '').trim();
-		if (t === 'Service' || t === 'Spareparts' || t === 'Overhead') {
-			row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
-		}
-		frm.refresh_field('charges');
+		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+		frm.refresh_field('table_wlxj');
 	},
 	qty: function(frm, cdt, cdn) {
 		var row = locals[cdt][cdn];
-		var t = (row.service_item_type || '').trim();
-		if (t === 'Service' || t === 'Spareparts' || t === 'Overhead') {
-			row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
-			frm.refresh_field('charges');
-		}
+		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+		frm.refresh_field('table_wlxj');
 	},
-	bill_type: function(frm) {
-		frm.dirty();
+});
+
+frappe.ui.form.on('RO Insurance Bill', {
+	item: function(frm, cdt, cdn) {
+		autods_default_billing_item_type(cdt, cdn);
+	},
+	rate: function(frm, cdt, cdn) {
+		var row = locals[cdt][cdn];
+		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+		frm.refresh_field('insurance_bills');
+	},
+	qty: function(frm, cdt, cdn) {
+		var row = locals[cdt][cdn];
+		row.amount = (parseFloat(row.qty) || 0) * (parseFloat(row.rate) || 0);
+		frm.refresh_field('insurance_bills');
 	},
 });
 
@@ -518,17 +804,19 @@ function fetch_template_items_ro(frm, template_name) {
 		},
 		callback: function(r) {
 			if (r.message && r.message.doc) {
-				if (r.message.doc.charges && r.message.doc.charges.length > 0) {
-					frm.clear_table('charges');
-					r.message.doc.charges.forEach(function(item) {
-						var row = frm.add_child('charges');
-						Object.keys(item).forEach(function(key) {
-							if (key !== 'name' && key !== 'idx') {
-								row[key] = item[key];
-							}
-						});
+				frm._autods_bulk_loading_charges = true;
+				// Always replace charges from template response (aligned with Repair Estimate).
+				frm.clear_table('charges');
+				(r.message.doc.charges || []).forEach(function(item) {
+					var row = frm.add_child('charges');
+					Object.keys(item).forEach(function(key) {
+						// Skip server temp child names and resolved parents — remap from
+						// client row names + service_row after add_child.
+						if (key !== 'name' && key !== 'idx' && key !== 'parent_service_charge') {
+							row[key] = item[key];
+						}
 					});
-				}
+				});
 				if (r.message.doc.quality_inspections && r.message.doc.quality_inspections.length > 0) {
 					var existing_names = (frm.doc.quality_inspections || []).map(function(qi) { return qi.inspection_name; });
 					r.message.doc.quality_inspections.forEach(function(item) {
@@ -544,6 +832,11 @@ function fetch_template_items_ro(frm, template_name) {
 				}
 				frm.refresh_field('charges');
 				frm.refresh_field('quality_inspections');
+				if (autods.charges_overview && autods.charges_overview.update_service_row_select_options) {
+					autods.charges_overview.update_service_row_select_options(frm);
+					autods.charges_overview.schedule_render(frm);
+				}
+				frm._autods_bulk_loading_charges = false;
 				if (r.message.doc.service_template) {
 					frm.set_value('service_template', r.message.doc.service_template);
 				}
@@ -562,7 +855,7 @@ function fetch_template_items_ro(frm, template_name) {
 					var counts = [];
 					if (r.message.service_items_count) counts.push(__('{0} service items', [r.message.service_items_count]));
 					if (r.message.spareparts_count) counts.push(__('{0} spareparts', [r.message.spareparts_count]));
-					if (r.message.sundry_items_count) counts.push(__('{0} overhead lines', [r.message.sundry_items_count]));
+					if (r.message.sundry_items_count) counts.push(__('{0} sundry items', [r.message.sundry_items_count]));
 					if (r.message.service_inspections_count) counts.push(__('{0} service inspections', [r.message.service_inspections_count]));
 					message += ': ' + counts.join(', ');
 				}

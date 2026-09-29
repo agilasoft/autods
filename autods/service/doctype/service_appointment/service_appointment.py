@@ -43,7 +43,12 @@ class ServiceAppointment(Document):
 
 	@frappe.whitelist()
 	def create_repair_estimate(self):
-		"""Create Repair Estimate from this appointment. Allowed when submitted and status is Confirmed/In Progress."""
+		"""Create Repair Estimate from this appointment (header fields only).
+
+		Allowed when submitted and status is Confirmed/In Progress.
+		Does not load a Service Template or populate charges — leave charges empty
+		for Actions → Load Service Template or manual entry on the estimate.
+		"""
 		if self.docstatus != 1:
 			frappe.throw(_("Submit this Service Appointment before creating a Repair Estimate"))
 		allowed_statuses = ("Confirmed", "In Progress")
@@ -69,6 +74,7 @@ class ServiceAppointment(Document):
 		estimate.estimate_date = today()
 		estimate.status = "Draft"
 		estimate.expected_completion_date = get_expected_completion_datetime(self)
+		# Header only — do not fetch_template_items / append charges on convert
 		estimate.flags.ignore_mandatory = True
 		estimate.insert()
 
@@ -78,7 +84,12 @@ class ServiceAppointment(Document):
 
 	@frappe.whitelist()
 	def create_repair_order(self):
-		"""Create Repair Order from this appointment. If repair_estimate exists and is Approved, create from estimate; else create blank RO from appointment header."""
+		"""Create Repair Order from this appointment.
+
+		If an Approved Repair Estimate exists, create RO from that estimate (charges
+		carry over from the estimate). Otherwise create a blank RO from appointment
+		header only — do not load a Service Template or populate charges.
+		"""
 		if self.docstatus != 1:
 			frappe.throw(_("Submit this Service Appointment before creating a Repair Order"))
 		allowed_statuses = ("Confirmed", "In Progress")
@@ -103,7 +114,7 @@ class ServiceAppointment(Document):
 				return ro_name
 
 		ro = frappe.new_doc("Repair Order")
-		ro.repair_date = today()
+		ro.repair_date = self.appointment_date
 		ro.customer = self.customer
 		ro.vehicle_unit = self.vehicle_unit
 		ro.service_advisor = self.service_advisor
@@ -114,6 +125,7 @@ class ServiceAppointment(Document):
 		if frappe.db.has_column("Repair Order", "service_appointment"):
 			ro.service_appointment = self.name
 		ro.expected_completion_date = get_expected_completion_datetime(self)
+		# Header only — do not fetch_template_items / append charges on convert
 		ro.insert()
 		ro_name = ro.name
 

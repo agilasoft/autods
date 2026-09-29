@@ -61,6 +61,7 @@ venv = "env"
 extraPaths = [
     "../frappe",
     "../erpnext",
+    "../autods_ai",
 ]
 pythonVersion = "3.10"
 typeCheckingMode = "off"

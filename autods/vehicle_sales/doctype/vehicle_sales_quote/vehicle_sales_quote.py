@@ -17,9 +17,17 @@ class VehicleSalesQuote(Document):
 
 	def on_submit(self):
 		self.db_set("status", "Open")
+		self._update_opportunity_status("Quotation")
 
 	def on_cancel(self):
 		self.db_set("status", "Cancelled")
+		self._update_opportunity_status("Open")
+
+	def _update_opportunity_status(self, status):
+		if not self.opportunity or not frappe.db.exists("Opportunity", self.opportunity):
+			return
+		opp = frappe.get_doc("Opportunity", self.opportunity)
+		opp.set_status(status=status, update=True)
 
 	def _set_currency_defaults(self):
 		if not self.currency and self.company:
@@ -82,6 +90,150 @@ class VehicleSalesQuote(Document):
 			self.status = "Draft"
 		if self.valid_till and getdate(self.valid_till) < getdate() and self.status not in ("Ordered", "Cancelled", "Lost"):
 			self.status = "Expired"
+
+
+@frappe.whitelist()
+def make_from_opportunity(source_name, target_doc=None):
+	"""Map an Opportunity to a Vehicle Sales Quote.
+
+	Customer (`party_name`) is copied only when Opportunity From is Customer.
+	Lead / Prospect party names are never written into the Customer Link field.
+	"""
+
+	def postprocess(source, target):
+		target.naming_series = target.naming_series or "VSQ-.YYYY.-"
+		target.transaction_date = target.transaction_date or frappe.utils.getdate()
+		target.status = target.status or "Draft"
+		target.order_type = target.order_type or "Sales"
+		target.opportunity = source.name
+
+		if source.opportunity_from != "Customer":
+			target.party_name = None
+			target.customer_name = None
+
+	doc = get_mapped_doc(
+		"Opportunity",
+		source_name,
+		{
+			"Opportunity": {
+				"doctype": "Vehicle Sales Quote",
+				"field_map": {
+					"name": "opportunity",
+					"company": "company",
+					"currency": "currency",
+					"conversion_rate": "conversion_rate",
+					"contact_person": "contact_person",
+					"customer_address": "customer_address",
+					"contact_email": "contact_email",
+					"contact_mobile": "contact_mobile",
+				},
+				"field_no_map": ["party_name", "customer_name"],
+			},
+		},
+		target_doc,
+		postprocess,
+	)
+
+	# Map Customer only when Opportunity From is Customer (after field_no_map).
+	source = frappe.get_doc("Opportunity", source_name)
+	if source.opportunity_from == "Customer" and source.party_name:
+		doc.party_name = source.party_name
+		doc.customer_name = source.customer_name
+
+	return doc
+
+
+@frappe.whitelist()
+def make_from_lead(source_name, target_doc=None):
+	"""Map a Lead to a Vehicle Sales Quote.
+
+	Customer (`party_name`) is left empty — Lead is not a Customer.
+	Contact email / mobile are copied when present.
+	"""
+
+	def postprocess(source, target):
+		target.naming_series = target.naming_series or "VSQ-.YYYY.-"
+		target.transaction_date = target.transaction_date or frappe.utils.getdate()
+		target.status = target.status or "Draft"
+		target.order_type = target.order_type or "Sales"
+		target.company = target.company or frappe.defaults.get_user_default("Company")
+		target.party_name = None
+		target.customer_name = None
+		target.contact_email = source.email_id or target.contact_email
+		target.contact_mobile = source.mobile_no or target.contact_mobile
+
+	return get_mapped_doc(
+		"Lead",
+		source_name,
+		{
+			"Lead": {
+				"doctype": "Vehicle Sales Quote",
+				"field_no_map": ["party_name", "customer_name", "opportunity"],
+			},
+		},
+		target_doc,
+		postprocess,
+	)
+
+
+@frappe.whitelist()
+def make_from_prospect(source_name, target_doc=None):
+	"""Map a Prospect to a Vehicle Sales Quote.
+
+	Customer (`party_name`) is left empty — Prospect is not a Customer.
+	"""
+
+	def postprocess(source, target):
+		target.naming_series = target.naming_series or "VSQ-.YYYY.-"
+		target.transaction_date = target.transaction_date or frappe.utils.getdate()
+		target.status = target.status or "Draft"
+		target.order_type = target.order_type or "Sales"
+		target.company = source.company or target.company or frappe.defaults.get_user_default("Company")
+		target.party_name = None
+		target.customer_name = None
+
+	return get_mapped_doc(
+		"Prospect",
+		source_name,
+		{
+			"Prospect": {
+				"doctype": "Vehicle Sales Quote",
+				"field_no_map": ["party_name", "customer_name", "opportunity"],
+			},
+		},
+		target_doc,
+		postprocess,
+	)
+
+
+@frappe.whitelist()
+def make_from_customer(source_name, target_doc=None):
+	"""Map a Customer to a Vehicle Sales Quote with party_name prefilled."""
+
+	def postprocess(source, target):
+		target.naming_series = target.naming_series or "VSQ-.YYYY.-"
+		target.transaction_date = target.transaction_date or frappe.utils.getdate()
+		target.status = target.status or "Draft"
+		target.order_type = target.order_type or "Sales"
+		target.company = target.company or frappe.defaults.get_user_default("Company")
+		target.party_name = source.name
+		target.customer_name = source.customer_name
+		if source.default_currency:
+			target.currency = source.default_currency
+
+	return get_mapped_doc(
+		"Customer",
+		source_name,
+		{
+			"Customer": {
+				"doctype": "Vehicle Sales Quote",
+				"field_map": {"name": "party_name"},
+				"field_no_map": ["opportunity"],
+			},
+		},
+		target_doc,
+		postprocess,
+	)
 
 
 @frappe.whitelist()

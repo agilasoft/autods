@@ -2,14 +2,48 @@
 # For license information, please see license.txt
 
 import frappe
+from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt
 
 
 class VehicleUnit(Document):
 	def validate(self):
+		self._strip_identifiers()
+		self._validate_unique_identifiers()
 		self.update_current_cost()
 		self.update_cost_summary()
+
+	def _strip_identifiers(self):
+		for fieldname in ("plate_no", "engine_number", "chassis_number"):
+			value = self.get(fieldname)
+			if value is not None:
+				self.set(fieldname, value.strip())
+
+	def _validate_unique_identifiers(self):
+		for fieldname, label in (
+			("plate_no", _("Plate No")),
+			("engine_number", _("Engine Number")),
+			("chassis_number", _("Chassis Number")),
+		):
+			value = (self.get(fieldname) or "").strip()
+			if not value:
+				continue
+			existing = frappe.db.sql(
+				f"""
+				SELECT name FROM `tabVehicle Unit`
+				WHERE LOWER({fieldname}) = LOWER(%s) AND name != %s
+				LIMIT 1
+				""",
+				(value, self.name or ""),
+			)
+			if existing:
+				frappe.throw(
+					_("{0} {1} already exists on Vehicle Unit {2}").format(
+						label, frappe.bold(value), frappe.bold(existing[0][0])
+					),
+					title=_("Duplicate {0}").format(label),
+				)
 
 	def update_current_cost(self):
 		"""

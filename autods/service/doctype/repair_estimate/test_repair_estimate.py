@@ -1,14 +1,30 @@
 # Copyright (c) 2026, Agilasoft Technologies Inc. and Contributors
 # See license.txt
 
+import unittest
 from datetime import datetime
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import frappe
 from frappe.tests import UnitTestCase
-from frappe.utils import add_days, getdate, today
+from frappe.utils import add_days, flt, getdate, today
 
+from autods.service.doctype.repair_estimate.repair_estimate import RepairEstimate
 from autods.service.service_appointment_utils import get_expected_completion_datetime
+
+
+class TestRepairEstimateChargesOnSubmit(unittest.TestCase):
+	def test_before_submit_rejects_empty_charges(self):
+		doc = MagicMock()
+		doc._charge_rows = lambda: []
+		with self.assertRaises(frappe.ValidationError) as ctx:
+			RepairEstimate.before_submit(doc)
+		self.assertIn("charge line", str(ctx.exception).lower())
+
+	def test_before_submit_allows_when_charges_present(self):
+		doc = MagicMock()
+		doc._charge_rows = lambda: [object()]
+		RepairEstimate.before_submit(doc)
 
 
 class TestRepairEstimate(UnitTestCase):
@@ -32,26 +48,38 @@ class TestRepairEstimate(UnitTestCase):
 		name = frappe.db.get_value("Vehicle Unit", {"customer": customer}, "name")
 		if name:
 			return name
+		code = f"RE-TEST-{frappe.generate_hash(length=8)}"
+		if frappe.db.exists("Vehicle Unit", code):
+			return code
 		doc = frappe.get_doc(
 			{
 				"doctype": "Vehicle Unit",
 				"customer": customer,
-				"code": "RE-TEST-001",
+				"code": code,
 			}
 		)
 		doc.insert(ignore_permissions=True)
 		return doc.name
 
 	def _make_service_appointment(self, customer, vehicle_unit):
+		token = frappe.generate_hash(length=8)
+		day_offset = 90 + (int(token[:4], 16) % 400)
+		hour = 8 + (int(token[4:6], 16) % 8)
+		minute = int(token[6:8], 16) % 50
+		start = f"{hour:02d}:{minute:02d}:00"
+		end_minute = minute + 30
+		end_hour = hour if end_minute < 60 else hour + 1
+		end_minute = end_minute if end_minute < 60 else end_minute - 60
+		end = f"{end_hour:02d}:{end_minute:02d}:00"
 		sa = frappe.get_doc(
 			{
 				"doctype": "Service Appointment",
 				"customer": customer,
 				"vehicle_unit": vehicle_unit,
-				"appointment_date": today(),
-				"appointment_start_time": "09:00:00",
-				"appointment_end_time": "11:00:00",
-				"expected_completion_date": add_days(today(), 2),
+				"appointment_date": add_days(today(), day_offset),
+				"appointment_start_time": start,
+				"appointment_end_time": end,
+				"expected_completion_date": add_days(today(), day_offset + 2),
 				"status": "Scheduled",
 			}
 		)
@@ -72,6 +100,39 @@ class TestRepairEstimate(UnitTestCase):
 		estimate.insert(ignore_permissions=True)
 		return estimate
 
+	def _make_service_item(self):
+		item_code = "RE-TEST-SERVICE-ITEM"
+		if frappe.db.exists("Item", item_code):
+			return item_code
+		item_group = frappe.db.get_value("Item Group", {"is_group": 0}, "name") or "All Item Groups"
+		doc = frappe.get_doc(
+			{
+				"doctype": "Item",
+				"item_code": item_code,
+				"item_name": item_code,
+				"item_group": item_group,
+				"stock_uom": "Nos",
+				"is_stock_item": 0,
+				"custom_service_item_type": "Service",
+			}
+		)
+		doc.insert(ignore_permissions=True)
+		return doc.name
+
+	def _add_charge_line(self, estimate):
+		estimate.append(
+			"charges",
+			{
+				"service_item_type": "Service",
+				"item": self._make_service_item(),
+				"qty": 1,
+				"rate": 100,
+				"bill_type": "Customer",
+			},
+		)
+		estimate.save(ignore_permissions=True)
+		return estimate
+
 	def test_expected_completion_synced_from_service_appointment(self):
 		customer = self._make_customer()
 		vehicle_unit = self._make_vehicle_unit(customer)
@@ -90,6 +151,7 @@ class TestRepairEstimate(UnitTestCase):
 		estimate = self._make_repair_estimate(customer, vehicle_unit, sa.name)
 		estimate.expected_completion_date = manual_dt
 		estimate.save(ignore_permissions=True)
+		self._add_charge_line(estimate)
 		estimate.submit()
 
 		stored = frappe.db.get_value("Repair Estimate", estimate.name, "expected_completion_date")
@@ -114,3 +176,45 @@ class TestRepairEstimate(UnitTestCase):
 		estimate.set_expected_completion_from_appointment()
 
 		self.assertEqual(frappe.utils.get_datetime(estimate.expected_completion_date), manual_dt)
+
+	def _make_service_template(self, item_code, suffix="RE"):
+		template_name = f"TEST-TPL-{suffix}-{frappe.generate_hash(length=8)}"
+		tpl = frappe.get_doc(
+			{
+				"doctype": "Service Template",
+				"template_name": template_name,
+				"is_active": 1,
+				"charges": [
+					{
+						"service_item_type": "Service",
+						"item": item_code,
+						"qty": 1,
+						"rate": 1500,
+						"amount": 1500,
+						"bill_type": "Customer",
+					}
+				],
+			}
+		)
+		tpl.insert(ignore_permissions=True)
+		return tpl
+
+	def test_fetch_template_items_populates_charges(self):
+		"""Actions → Load Service Template must fill Repair Estimate charges."""
+		customer = self._make_customer()
+		vehicle_unit = self._make_vehicle_unit(customer)
+		estimate_name = self._make_repair_estimate(customer, vehicle_unit).name
+
+		item_code = self._make_service_item()
+		tpl = self._make_service_template(item_code, suffix="RE")
+
+		estimate = frappe.get_doc("Repair Estimate", estimate_name)
+		with patch("autods.service.doctype.repair_estimate.repair_estimate.frappe.msgprint"):
+			result = estimate.fetch_template_items(service_template=tpl.name)
+
+		estimate.reload()
+		self.assertEqual(len(estimate.charges), 1)
+		self.assertEqual(estimate.charges[0].item, item_code)
+		self.assertEqual(flt(estimate.charges[0].qty), 1)
+		self.assertEqual(flt(estimate.charges[0].rate), 1500)
+		self.assertEqual(result["service_items_count"], 1)

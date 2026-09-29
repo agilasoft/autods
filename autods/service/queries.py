@@ -206,7 +206,13 @@ def charges_item_link_query(doctype, txt, searchfield, start, page_len, filters,
 @frappe.whitelist()
 @validate_and_sanitize_search_inputs
 def spareparts_item_link_query(doctype, txt, searchfield, start, page_len, filters, as_dict=False):
-	"""Item link search for spareparts charge lines: only Parts Compatibility parts for vehicle_model."""
+	"""Item link search for spareparts charge lines: Parts Compatibility rules for vehicle specs."""
+	from autods.spareparts.compatibility import (
+		get_compatibility_match_condition,
+		get_compatibility_bind_values,
+		resolve_specs_for_link_query,
+	)
+
 	doctype = "Item"
 	conditions = []
 
@@ -214,13 +220,23 @@ def spareparts_item_link_query(doctype, txt, searchfield, start, page_len, filte
 		filters = json.loads(filters) if filters else {}
 	filters = dict(filters or {})
 
-	vehicle_model = filters.pop("vehicle_model", None)
-	if vehicle_model:
-		parts_cond = """and tabItem.name IN (
+	specs = resolve_specs_for_link_query(filters)
+	for key in (
+		"vehicle_unit",
+		"vehicle_make",
+		"vehicle_model",
+		"vehicle_variant",
+		"vehicle_year_model",
+		"vehicle_transmission_type",
+	):
+		filters.pop(key, None)
+
+	if specs:
+		match_condition = get_compatibility_match_condition("pc")
+		parts_cond = f"""and tabItem.name IN (
 				SELECT DISTINCT pc.part
 				FROM `tabParts Compatibility` pc
-				WHERE pc.vehicle_model = %(vehicle_model)s
-					AND pc.part IS NOT NULL AND pc.part != ''
+				WHERE {match_condition}
 			)"""
 	else:
 		parts_cond = "and 1=0"
@@ -265,8 +281,8 @@ def spareparts_item_link_query(doctype, txt, searchfield, start, page_len, filte
 		"start": start,
 		"page_len": page_len,
 	}
-	if vehicle_model:
-		bind["vehicle_model"] = vehicle_model
+	if specs:
+		bind.update(get_compatibility_bind_values(specs))
 
 	return frappe.db.sql(
 		"""select

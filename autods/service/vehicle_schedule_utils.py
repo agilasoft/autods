@@ -1,7 +1,7 @@
 # Copyright (c) 2026, Agilasoft Technologies Inc. and contributors
 # For license information, please see license.txt
 
-"""Shared vehicle schedule conflict checks for Service Appointment, Repair Order, and Job Card."""
+"""Shared vehicle schedule conflict checks for Service Appointment and Job Card."""
 
 from __future__ import annotations
 
@@ -26,7 +26,6 @@ except ImportError:  # pragma: no cover - unit tests without ERPNext
 DEFAULT_SLOT_HOURS = 1
 JOB_CARD_INACTIVE_STATUSES = ("Completed", "Cancelled")
 SERVICE_APPOINTMENT_INACTIVE_STATUSES = ("Completed", "Cancelled", "No-show")
-REPAIR_ORDER_INACTIVE_STATUSES = ("Completed", "Cancelled")
 
 
 def intervals_overlap(a0, a1, b0, b1) -> bool:
@@ -73,18 +72,29 @@ def schedule_date_for_doc(repair_date=None, start_time=None):
 	return None
 
 
+def _row_value(row, key):
+	if isinstance(row, dict):
+		return row.get(key)
+	return getattr(row, key, None)
+
+
 def job_card_schedule_window(doc):
-	if doc.start_time and doc.end_time:
-		return get_datetime(doc.start_time), get_datetime(doc.end_time)
-	if doc.start_time and doc.expected_completion_date:
-		return get_datetime(doc.start_time), get_datetime(doc.expected_completion_date)
-	if doc.start_time:
-		start = get_datetime(doc.start_time)
+	start_time = _row_value(doc, "start_time")
+	end_time = _row_value(doc, "end_time")
+	expected_completion_date = _row_value(doc, "expected_completion_date")
+	repair_date = _row_value(doc, "repair_date")
+
+	if start_time and end_time:
+		return get_datetime(start_time), get_datetime(end_time)
+	if start_time and expected_completion_date:
+		return get_datetime(start_time), get_datetime(expected_completion_date)
+	if start_time:
+		start = get_datetime(start_time)
 		return start, add_to_date(start, hours=DEFAULT_SLOT_HOURS)
-	if doc.repair_date and doc.expected_completion_date:
-		return get_datetime(f"{getdate(doc.repair_date)} 00:00:00"), get_datetime(doc.expected_completion_date)
-	if doc.repair_date:
-		start = get_datetime(f"{getdate(doc.repair_date)} 09:00:00")
+	if repair_date and expected_completion_date:
+		return get_datetime(f"{getdate(repair_date)} 00:00:00"), get_datetime(expected_completion_date)
+	if repair_date:
+		start = get_datetime(f"{getdate(repair_date)} 09:00:00")
 		return start, add_to_date(start, hours=DEFAULT_SLOT_HOURS)
 	return None, None
 
@@ -99,19 +109,6 @@ def service_appointment_schedule_window(doc):
 		return start, end
 	if doc.appointment_start_time:
 		start = get_combine_datetime(doc.appointment_date, doc.appointment_start_time)
-		return start, add_to_date(start, hours=DEFAULT_SLOT_HOURS)
-	return None, None
-
-
-def repair_order_schedule_window(doc):
-	if doc.repair_date and doc.expected_completion_date:
-		start = get_datetime(f"{getdate(doc.repair_date)} 09:00:00")
-		end = get_datetime(doc.expected_completion_date)
-		if end <= start:
-			end = add_to_date(start, hours=DEFAULT_SLOT_HOURS)
-		return start, end
-	if doc.repair_date:
-		start = get_datetime(f"{getdate(doc.repair_date)} 09:00:00")
 		return start, add_to_date(start, hours=DEFAULT_SLOT_HOURS)
 	return None, None
 
@@ -142,7 +139,7 @@ def fetch_rows_for_vehicle(
 	conditions = [match_sql, "status not in %s"]
 	params = list(match_params) + [tuple(inactive_statuses or ("",))]
 	if schedule_date:
-		date_field = "repair_date" if doctype in ("Job Card", "Repair Order") else "appointment_date"
+		date_field = "repair_date" if doctype == "Job Card" else "appointment_date"
 		conditions.append(f"{date_field} = %s")
 		params.append(getdate(schedule_date))
 	if exclude_name:
@@ -158,6 +155,13 @@ def fetch_rows_for_vehicle(
 		where {" and ".join(conditions)}
 	"""
 	return frappe.db.sql(query, tuple(params), as_dict=True)
+
+
+def _same_repair_order_sibling(doc, row) -> bool:
+	"""True when both Job Cards belong to the same non-empty Repair Order."""
+	doc_ro = (getattr(doc, "repair_order", None) or "").strip()
+	row_ro = (_row_value(row, "repair_order") or "").strip()
+	return bool(doc_ro and row_ro and doc_ro == row_ro)
 
 
 def validate_vehicle_job_card_conflict(doc):
@@ -179,8 +183,17 @@ def validate_vehicle_job_card_conflict(doc):
 		on_date,
 		exclude_name=doc.name,
 		inactive_statuses=JOB_CARD_INACTIVE_STATUSES,
-		fields=["name", "repair_date", "start_time", "end_time", "expected_completion_date"],
+		fields=[
+			"name",
+			"repair_order",
+			"repair_date",
+			"start_time",
+			"end_time",
+			"expected_completion_date",
+		],
 	)
+	# Multiple Job Cards on the same Repair Order (one per Service line) may share a window.
+	existing = [row for row in existing if not _same_repair_order_sibling(doc, row)]
 	if not existing:
 		return
 
@@ -243,49 +256,6 @@ def validate_vehicle_service_appointment_conflict(doc):
 		if schedules_conflict(start_dt, end_dt, row_start, row_end):
 			frappe.throw(
 				_("Service Appointment {0} already covers this vehicle in the selected time slot.").format(
-					frappe.bold(row.name),
-				),
-			)
-
-
-def validate_vehicle_repair_order_conflict(doc):
-	if doc.status in REPAIR_ORDER_INACTIVE_STATUSES:
-		return
-	if doc.docstatus == 2:
-		return
-	units, plates = vehicle_identifiers(doc.vehicle_unit, doc.plate_no)
-	if not units and not plates:
-		return
-	if not doc.repair_date:
-		return
-
-	start_dt, end_dt = repair_order_schedule_window(doc)
-	existing = fetch_rows_for_vehicle(
-		"Repair Order",
-		doc.vehicle_unit,
-		doc.plate_no,
-		doc.repair_date,
-		exclude_name=doc.name,
-		inactive_statuses=REPAIR_ORDER_INACTIVE_STATUSES,
-		fields=["name", "repair_date", "expected_completion_date"],
-		extra_conditions=["docstatus < 2"],
-	)
-	if not existing:
-		return
-
-	if not start_dt or not end_dt:
-		frappe.throw(
-			_("An active Repair Order already exists for this vehicle on {0}: {1}").format(
-				getdate(doc.repair_date),
-				frappe.bold(existing[0].name),
-			),
-		)
-
-	for row in existing:
-		row_start, row_end = repair_order_schedule_window(row)
-		if schedules_conflict(start_dt, end_dt, row_start, row_end):
-			frappe.throw(
-				_("Repair Order {0} already covers this vehicle on the selected repair date.").format(
 					frappe.bold(row.name),
 				),
 			)
