@@ -39,6 +39,63 @@ function autods_charges_item_query(doc, row) {
 	};
 }
 
+function autods_open_repair_order_sales_invoice(frm) {
+	frappe.call({
+		method: 'autods.service.doctype.repair_order.repair_order.get_sales_invoice_payers',
+		args: { repair_order: frm.doc.name },
+		freeze: true,
+		callback: function(r) {
+			var payers = r.message || [];
+			if (!payers.length) {
+				frappe.msgprint(__('This Repair Order has no billable charges.'));
+				return;
+			}
+			function open_payer(payer) {
+				if (!payer.bill_to) {
+					frappe.msgprint(__('Set the {0} customer before creating the Sales Invoice.', [payer.bill_type]));
+					return;
+				}
+				if (payer.sales_invoice) {
+					frappe.set_route('Form', 'Sales Invoice', payer.sales_invoice);
+					return;
+				}
+				frappe.model.open_mapped_doc({
+					method: 'autods.service.doctype.repair_order.repair_order.make_sales_invoice',
+					frm: frm,
+					args: {
+						bill_type: payer.bill_type,
+						bill_to: payer.bill_to,
+					},
+				});
+			}
+			if (payers.length === 1) {
+				open_payer(payers[0]);
+				return;
+			}
+			var options = payers.map(function(payer, idx) {
+				var who = payer.customer_name || payer.bill_to || __('Missing customer');
+				var action = payer.sales_invoice ? __('Open') : __('Create');
+				return idx + ': ' + action + ' ' + payer.bill_type + ' — ' + who;
+			});
+			frappe.prompt([
+				{
+					fieldname: 'payer',
+					fieldtype: 'Select',
+					label: __('Bill To'),
+					options: options.join('\n'),
+					reqd: 1,
+				},
+			], function(values) {
+				var idx = parseInt((values.payer || '').split(':')[0], 10);
+				if (!payers[idx]) {
+					return;
+				}
+				open_payer(payers[idx]);
+			}, __('Sales Invoice'), __('Continue'));
+		},
+	});
+}
+
 function autods_clear_charge_item_row(row) {
 	row.item = '';
 	row.item_name = '';
@@ -176,6 +233,11 @@ frappe.ui.form.on('Repair Order', {
 					}
 				});
 			}, __('Create'));
+			if (frm.doc.docstatus === 1) {
+				frm.add_custom_button(__('Sales Invoice'), function() {
+					autods_open_repair_order_sales_invoice(frm);
+				}, __('Create'));
+			}
 		}
 		frm.add_custom_button(__('Load Service Template'), function() {
 			load_service_template(frm);

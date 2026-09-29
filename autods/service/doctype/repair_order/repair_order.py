@@ -399,6 +399,27 @@ class RepairOrder(Document):
 		return {"doctype": gate_pass.doctype, "name": gate_pass.name}
 
 
+def get_dashboard_data(data=None):
+	"""Show Sales Invoices linked by the Repair Order accounting dimension."""
+	data = data or {}
+	try:
+		has_link = frappe.get_meta("Sales Invoice").has_field("repair_order")
+	except Exception:
+		has_link = False
+	if not has_link:
+		return data
+	data.setdefault("non_standard_fieldnames", {})["Sales Invoice"] = "repair_order"
+	transactions = data.setdefault("transactions", [])
+	already = any(
+		"Sales Invoice" in (group.get("items") or [])
+		for group in transactions
+		if isinstance(group, dict)
+	)
+	if not already:
+		transactions.append({"label": _("Billing"), "items": ["Sales Invoice"]})
+	return data
+
+
 @frappe.whitelist()
 def get_service_inspection_by_name(repair_order, inspection_name):
 	"""Return Service Inspection linked to a Repair Order row by inspection_name."""
@@ -560,3 +581,170 @@ def fetch_template_items(doctype=None, name=None, service_template=None, doc=Non
 	result = doc_obj.fetch_template_items(service_template=service_template)
 	result["doc"] = doc_obj.as_dict()
 	return result
+
+
+@frappe.whitelist()
+def get_sales_invoice_payers(repair_order):
+	"""Payers that have an amount on this Repair Order, and any open Sales Invoice for each."""
+	if not repair_order:
+		return []
+	doc = frappe.get_doc("Repair Order", repair_order)
+	doc.check_permission("read")
+	from autods.service.repair_order_invoice import (
+		RepairInvoiceError,
+		build_invoice_groups,
+		collectible_items_from_settings,
+		find_open_sales_invoice,
+	)
+
+	try:
+		groups = build_invoice_groups(
+			doc,
+			doc.charges,
+			doc.sales_taxes_and_charges,
+			collectible_items_from_settings(),
+		)
+	except RepairInvoiceError as exc:
+		frappe.throw(str(exc))
+
+	payers = []
+	for group in groups:
+		if not group.get("net"):
+			continue
+		customer_name = group.get("bill_to")
+		if group.get("bill_to") and frappe.db.exists("Customer", group["bill_to"]):
+			customer_name = frappe.db.get_value("Customer", group["bill_to"], "customer_name") or customer_name
+		payers.append(
+			{
+				"bill_type": group["bill_type"],
+				"bill_to": group["bill_to"],
+				"customer_name": customer_name,
+				"net": group["net"],
+				"sales_invoice": find_open_sales_invoice(doc.name, group["bill_type"], group["bill_to"]),
+			}
+		)
+	return payers
+
+
+@frappe.whitelist()
+def make_sales_invoice(source_name, target_doc=None, args=None):
+	"""Map a submitted Repair Order to a draft Sales Invoice for one payer.
+
+	Called by ``frappe.model.open_mapped_doc``. ``args`` carries ``bill_type`` and ``bill_to``.
+	"""
+	from frappe.model.mapper import get_mapped_doc
+
+	from autods.service.repair_order_invoice import (
+		RepairInvoiceError,
+		build_invoice_groups,
+		collectible_items_from_settings,
+		invoice_lines,
+		select_invoice_group,
+	)
+
+	if isinstance(args, str):
+		args = frappe.parse_json(args)
+	args = args or {}
+	bill_type = args.get("bill_type")
+	bill_to = args.get("bill_to")
+	# open_mapped_doc passes selected child rows in this argument, not a target doc.
+	if isinstance(target_doc, (str, list, tuple)):
+		target_doc = None
+
+	source = frappe.get_doc("Repair Order", source_name)
+	source.check_permission("read")
+	frappe.has_permission("Sales Invoice", "create", throw=True)
+	if source.docstatus != 1:
+		frappe.throw(_("Submit the Repair Order before creating a Sales Invoice."))
+	if not source.company:
+		frappe.throw(_("Company is required on the Repair Order."))
+
+	try:
+		groups = build_invoice_groups(
+			source,
+			source.charges,
+			source.sales_taxes_and_charges,
+			collectible_items_from_settings(),
+		)
+		group = select_invoice_group(groups, bill_type, bill_to)
+	except RepairInvoiceError as exc:
+		frappe.throw(str(exc))
+
+	if not group.get("bill_to"):
+		frappe.throw(_("Bill To is required for the {0} invoice.").format(group["bill_type"]))
+
+	def postprocess(src, target):
+		target.customer = group["bill_to"]
+		target.company = src.company
+		target.currency = src.currency
+		target.conversion_rate = src.conversion_rate or 1
+		target.update_stock = 0
+		target.ignore_pricing_rule = 1
+		target.tax_category = src.tax_category
+		target.taxes_and_charges = src.taxes_and_charges
+		if target.meta.has_field("custom_repair_bill_type"):
+			target.custom_repair_bill_type = group["bill_type"]
+		if target.meta.has_field("repair_order"):
+			target.repair_order = src.name
+		if src.vehicle_unit and target.meta.has_field("vehicle_unit"):
+			target.vehicle_unit = src.vehicle_unit
+		target.remarks = _("From Repair Order {0} ({1})").format(src.name, group["bill_type"])
+
+		applied = []
+		for line in invoice_lines(group["lines"]):
+			row = target.append("items", line)
+			applied.append((row, row.rate))
+			if src.vehicle_unit and row.meta.has_field("vehicle_unit"):
+				row.vehicle_unit = src.vehicle_unit
+			if row.meta.has_field("repair_order"):
+				row.repair_order = src.name
+		if hasattr(target, "set_missing_values"):
+			target.set_missing_values()
+		for row, rate in applied:
+			row.rate = rate
+			row.amount = flt(rate) * flt(row.qty)
+		target.update_stock = 0
+		target.taxes = []
+		for tax in group["taxes"]:
+			target.append("taxes", tax)
+		if hasattr(target, "calculate_taxes_and_totals"):
+			target.calculate_taxes_and_totals()
+		target.update_stock = 0
+
+	return get_mapped_doc(
+		"Repair Order",
+		source_name,
+		{
+			"Repair Order": {
+				"doctype": "Sales Invoice",
+				"field_map": {
+					"company": "company",
+					"currency": "currency",
+					"conversion_rate": "conversion_rate",
+				},
+				"field_no_map": [
+					"customer",
+					"status",
+					"naming_series",
+					"amended_from",
+					"net_total",
+					"grand_total",
+					"total_taxes_and_charges",
+					"charges",
+					"sales_taxes_and_charges",
+				],
+				"validation": {"docstatus": ["=", 1]},
+			},
+			# Lines and taxes are built per payer in postprocess.
+			"Repair Order Charges": {
+				"doctype": "Sales Invoice Item",
+				"condition": lambda row: False,
+			},
+			"Sales Taxes and Charges": {
+				"doctype": "Sales Taxes and Charges",
+				"condition": lambda row: False,
+			},
+		},
+		target_doc,
+		postprocess,
+	)

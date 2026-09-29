@@ -131,6 +131,13 @@ def before_insert(doc, event=None):
 		doc.repair_order = mr.repair_order
 
 
+def validate(doc, event=None):
+	"""Copy Vehicle Unit from the linked Repair Order onto the Stock Entry and its rows."""
+	from autods.service.repair_order_invoice import apply_repair_order_dimensions
+
+	apply_repair_order_dimensions(doc)
+
+
 def on_submit(doc, event=None):
 	"""When Stock Entry (Material Issue) is submitted with job_card, mark Job Card spareparts as Issued and link this Stock Entry."""
 	if not doc.job_card or doc.purpose != "Material Issue":

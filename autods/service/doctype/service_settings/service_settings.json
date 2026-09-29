@@ -29,7 +29,11 @@
   "column_break_planning_2",
   "planning_shop_opens",
   "planning_shop_closes",
-  "planning_slot_hours"
+  "planning_slot_hours",
+  "section_repair_invoicing",
+  "insurance_participation_item",
+  "insurance_depreciation_item",
+  "insurance_other_fee_item"
  ],
  "fields": [
   {
@@ -185,6 +189,32 @@
    "fieldname": "planning_slot_hours",
    "fieldtype": "Float",
    "label": "Planning slot hours"
+  },
+  {
+   "fieldname": "section_repair_invoicing",
+   "fieldtype": "Section Break",
+   "label": "Repair invoicing"
+  },
+  {
+   "description": "Item used on the customer Sales Invoice for the participation fee.",
+   "fieldname": "insurance_participation_item",
+   "fieldtype": "Link",
+   "label": "Insurance Participation Item",
+   "options": "Item"
+  },
+  {
+   "description": "Item used on the customer Sales Invoice for the depreciation fee.",
+   "fieldname": "insurance_depreciation_item",
+   "fieldtype": "Link",
+   "label": "Insurance Depreciation Item",
+   "options": "Item"
+  },
+  {
+   "description": "Item used on the customer Sales Invoice for other insurance fees charged to the customer.",
+   "fieldname": "insurance_other_fee_item",
+   "fieldtype": "Link",
+   "label": "Insurance Other Fee Item",
+   "options": "Item"
   }
  ],
  "grid_page_length": 50,
