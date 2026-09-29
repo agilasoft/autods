@@ -69,6 +69,9 @@ doctype_js = {
 		"public/js/job_card_plan_from_repair_order.js",
 		"public/js/repair_service_dashboard.js",
 	],
+	"Opportunity": "public/js/opportunity.js",
+	"Customer": "public/js/customer.js",
+	"Prospect": "public/js/prospect.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -159,9 +162,9 @@ after_migrate = "autods.vehicle_sales.setup.after_migrate"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-# 	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	"Stock Entry": "autods.overrides.stock_entry.StockEntryOverride",
+}
 
 # Document Events
 # ---------------
@@ -191,15 +194,23 @@ doc_events = {
 		"on_submit": "autods.vehicle_sales.si_integration.on_si_submit",
 		"on_cancel": "autods.vehicle_sales.si_integration.on_si_cancel",
 	},
+	"CRM Lead": {
+		"before_save": "autods.crm.lead_image.clear_gravatar_image",
+	},
+	"Lead": {
+		"before_save": "autods.crm.lead_image.clear_gravatar_image",
+	},
 	"Stock Entry": {
 		"before_insert": "autods.overrides.stock_entry.before_insert",
 		"validate": "autods.overrides.stock_entry.validate",
 		"on_submit": "autods.overrides.stock_entry.on_submit",
+		"on_cancel": "autods.overrides.stock_entry.on_cancel",
 	},
 }
 
 override_doctype_dashboards = {
 	"Repair Order": "autods.service.doctype.repair_order.repair_order.get_dashboard_data",
+	"Opportunity": "autods.vehicle_sales.opportunity_dashboard.get_data",
 }
 
 # Scheduled Tasks
@@ -231,16 +242,16 @@ override_doctype_dashboards = {
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "autods.event.get_events"
-# }
+override_whitelisted_methods = {
+	"erpnext.crm.doctype.lead.lead.make_opportunity": "autods.crm.lead.make_opportunity",
+	"erpnext.stock.doctype.material_request.material_request.make_stock_entry": (
+		"autods.overrides.material_request.make_stock_entry"
+	),
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
 # along with any modifications made in other Frappe apps
-# override_doctype_dashboards = {
-# 	"Task": "autods.task.get_dashboard_data"
-# }
 
 # exempt linked doctypes from being automatically cancelled
 #
