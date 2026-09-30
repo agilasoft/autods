@@ -13,6 +13,7 @@
   "effective_date",
   "end_date",
   "is_two_way",
+  "approved",
   "status",
   "supersession_reason",
   "compatibility_notes"
@@ -60,6 +61,12 @@
    "fieldname": "is_two_way",
    "fieldtype": "Check",
    "label": "Is Two-Way"
+  },
+  {
+   "default": "0",
+   "fieldname": "approved",
+   "fieldtype": "Check",
+   "label": "Approved"
   },
   {
    "default": "Active",

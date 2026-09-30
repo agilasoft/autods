@@ -68,7 +68,7 @@ class TestRepairOrder(UnitTestCase):
 				"customer": customer,
 				"vehicle_unit": vehicle_unit,
 				"repair_date": today(),
-				"status": "Draft",
+				"status": "Open",
 			}
 		)
 		ro.flags.ignore_mandatory = True

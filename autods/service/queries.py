@@ -16,9 +16,7 @@ def _repair_type_flag_for_service_type(service_type):
 	if not service_type:
 		return None
 
-	order_type_category = frappe.db.get_value(
-		"Service Type", service_type, "order_type_category", cache=True
-	)
+	order_type_category = frappe.db.get_value("Service Type", service_type, "order_type_category", cache=True)
 	if order_type_category in ("Body", "Paint"):
 		return "is_body_repair"
 	if order_type_category in ("General", "Special", "Other"):
@@ -56,7 +54,7 @@ def repair_type_link_query(doctype, txt, searchfield, start, page_len, filters, 
 	searchfields = " or ".join([f"`tabRepair Type`.`{field}` like %(txt)s" for field in searchfields])
 
 	bind = {
-		"txt": "%%%s%%" % txt,
+		"txt": f"%{txt}%",
 		"_txt": txt.replace("%", ""),
 		"start": start,
 		"page_len": page_len,
@@ -167,7 +165,7 @@ def charges_item_link_query(doctype, txt, searchfield, start, page_len, filters,
 
 	bind = {
 		"today": nowdate(),
-		"txt": "%%%s%%" % txt,
+		"txt": f"%{txt}%",
 		"_txt": txt.replace("%", ""),
 		"start": start,
 		"page_len": page_len,
@@ -208,10 +206,11 @@ def charges_item_link_query(doctype, txt, searchfield, start, page_len, filters,
 def spareparts_item_link_query(doctype, txt, searchfield, start, page_len, filters, as_dict=False):
 	"""Item link search for spareparts charge lines: Parts Compatibility rules for vehicle specs."""
 	from autods.spareparts.compatibility import (
-		get_compatibility_match_condition,
 		get_compatibility_bind_values,
+		get_compatibility_match_condition,
 		resolve_specs_for_link_query,
 	)
+	from autods.spareparts.supersession import replacement_sql_for_parts
 
 	doctype = "Item"
 	conditions = []
@@ -233,11 +232,13 @@ def spareparts_item_link_query(doctype, txt, searchfield, start, page_len, filte
 
 	if specs:
 		match_condition = get_compatibility_match_condition("pc")
-		parts_cond = f"""and tabItem.name IN (
+		part_subquery = f"""
 				SELECT DISTINCT pc.part
 				FROM `tabParts Compatibility` pc
 				WHERE {match_condition}
-			)"""
+		"""
+		replacements = replacement_sql_for_parts(part_subquery)
+		parts_cond = f"and tabItem.name IN ({part_subquery} {replacements})"
 	else:
 		parts_cond = "and 1=0"
 
@@ -276,7 +277,7 @@ def spareparts_item_link_query(doctype, txt, searchfield, start, page_len, filte
 
 	bind = {
 		"today": nowdate(),
-		"txt": "%%%s%%" % txt,
+		"txt": f"%{txt}%",
 		"_txt": txt.replace("%", ""),
 		"start": start,
 		"page_len": page_len,

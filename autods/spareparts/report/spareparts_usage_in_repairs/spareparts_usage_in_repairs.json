@@ -18,9 +18,14 @@
  "report_name": "Spareparts Usage in Repairs",
  "report_type": "Script Report",
  "roles": [
-  {"role": "All"},
-  {"role": "System Manager"},
-  {"role": "Stock Manager"},
-  {"role": "Service Manager"}
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Stock Manager"
+  },
+  {
+   "role": "Service Manager"
+  }
  ]
 }

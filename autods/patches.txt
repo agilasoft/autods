@@ -25,3 +25,4 @@ autods.patches.add_repair_order_accounting_dimension
 autods.patches.post_model_sync.migrate_service_template_charges
 autods.patches.post_model_sync.migrate_service_charge_qty_from_hours
 autods.patches.post_model_sync.remove_item_applicable_all_vehicle_units
+autods.patches.post_model_sync.migrate_repair_order_shop_status

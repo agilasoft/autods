@@ -11,17 +11,19 @@ from autods.service.charge_service_row import (
 	resolve_charge_parent_service_links,
 	validate_charge_service_links,
 )
-from autods.service.job_card_planning import get_locked_charge_row_names
 from autods.service.gate_pass_utils import has_entry_gate_pass, require_entry_gate_pass
+from autods.service.job_card_planning import get_locked_charge_row_names
 from autods.service.service_appointment_utils import get_expected_completion_datetime
 from autods.service.service_inspection_sync import (
 	find_service_inspection,
 	sync_repair_order_inspection_links,
 )
+from autods.service.shop_status import normalize_shop_status
 
 
 class RepairOrder(Document):
 	def validate(self):
+		self.status = normalize_shop_status(self.status)
 		self.set_expected_completion_from_appointment()
 		self.set_financial_defaults()
 		self.sync_service_inspection_links()
@@ -33,7 +35,11 @@ class RepairOrder(Document):
 		self.calculate_bill_to_summaries()
 		self.validate_insurance_lines()
 		self.validate_charges()
-		if self.validity_date and self.estimate_date and getdate(self.validity_date) < getdate(self.estimate_date):
+		if (
+			self.validity_date
+			and self.estimate_date
+			and getdate(self.validity_date) < getdate(self.estimate_date)
+		):
 			frappe.throw(_("Validity Date cannot be before Estimate Date"))
 
 	def before_submit(self):
@@ -98,7 +104,9 @@ class RepairOrder(Document):
 		self.total_service_items_amount = sum(
 			flt(r.amount) for r in ch if (r.service_item_type or "").strip() == "Service"
 		)
-		self.total_parts_amount = sum(flt(r.amount) for r in ch if (r.service_item_type or "").strip() == "Spareparts")
+		self.total_parts_amount = sum(
+			flt(r.amount) for r in ch if (r.service_item_type or "").strip() == "Spareparts"
+		)
 		self.total_sundry_items_amount = sum(
 			flt(r.amount) for r in ch if (r.service_item_type or "").strip() == "Overhead"
 		)
@@ -142,12 +150,14 @@ class RepairOrder(Document):
 		self.insurance_billed_parts_total = sum(
 			flt(r.amount)
 			for r in ch
-			if (r.service_item_type or "").strip() == "Spareparts" and (r.bill_type or "").strip() == "Insurance"
+			if (r.service_item_type or "").strip() == "Spareparts"
+			and (r.bill_type or "").strip() == "Insurance"
 		)
 		self.insurance_billed_overhead_total = sum(
 			flt(r.amount)
 			for r in ch
-			if (r.service_item_type or "").strip() == "Overhead" and (r.bill_type or "").strip() == "Insurance"
+			if (r.service_item_type or "").strip() == "Overhead"
+			and (r.bill_type or "").strip() == "Insurance"
 		)
 		self.insurance_billed_subtotal = (
 			flt(self.insurance_billed_services_total)
@@ -241,7 +251,7 @@ class RepairOrder(Document):
 		if net_doc > 0 and tax_doc:
 			allocated = []
 			remaining = tax_doc
-			for i, n in enumerate(nets[:-1]):
+			for _i, n in enumerate(nets[:-1]):
 				part = flt(tax_doc * n / net_doc)
 				allocated.append(part)
 				remaining -= part
@@ -322,9 +332,15 @@ class RepairOrder(Document):
 			if self.name:
 				self.save(ignore_permissions=True)
 			return {
-				"service_items_count": len([r for r in ch if (r.service_item_type or "").strip() == "Service"]),
-				"spareparts_count": len([r for r in ch if (r.service_item_type or "").strip() == "Spareparts"]),
-				"sundry_items_count": len([r for r in ch if (r.service_item_type or "").strip() == "Overhead"]),
+				"service_items_count": len(
+					[r for r in ch if (r.service_item_type or "").strip() == "Service"]
+				),
+				"spareparts_count": len(
+					[r for r in ch if (r.service_item_type or "").strip() == "Spareparts"]
+				),
+				"sundry_items_count": len(
+					[r for r in ch if (r.service_item_type or "").strip() == "Overhead"]
+				),
 				"service_inspections_count": len(
 					[qi for qi in (self.quality_inspections or []) if qi.inspection_name]
 				),
@@ -333,7 +349,7 @@ class RepairOrder(Document):
 		except frappe.DoesNotExistError:
 			frappe.throw(_("Service Template {0} not found").format(frappe.bold(template_name)))
 		except Exception as e:
-			frappe.log_error(f"Error fetching template items: {str(e)}", "Repair Order - Fetch Template")
+			frappe.log_error(f"Error fetching template items: {e}", "Repair Order - Fetch Template")
 			frappe.throw(_("Error fetching items from template: {0}").format(str(e)))
 
 	@frappe.whitelist()
@@ -372,7 +388,9 @@ class RepairOrder(Document):
 			)
 			if existing:
 				return {"doctype": "Gate Pass", "name": existing[0], "existing": True}
-		elif not has_entry_gate_pass(vehicle_unit=self.vehicle_unit, repair_order=self.name, customer=self.customer):
+		elif not has_entry_gate_pass(
+			vehicle_unit=self.vehicle_unit, repair_order=self.name, customer=self.customer
+		):
 			frappe.throw(_("Create a Gate Pass Entry before creating an exit pass."))
 
 		gate_pass = frappe.new_doc("Gate Pass")
@@ -412,9 +430,7 @@ def get_dashboard_data(data=None):
 	data.setdefault("non_standard_fieldnames", {})["Sales Invoice"] = "repair_order"
 	transactions = data.setdefault("transactions", [])
 	already = any(
-		"Sales Invoice" in (group.get("items") or [])
-		for group in transactions
-		if isinstance(group, dict)
+		"Sales Invoice" in (group.get("items") or []) for group in transactions if isinstance(group, dict)
 	)
 	if not already:
 		transactions.append({"label": _("Billing"), "items": ["Sales Invoice"]})
@@ -471,7 +487,7 @@ def _parse_selected_charge_rows(selected_charge_rows):
 		return None
 	if isinstance(selected_charge_rows, str):
 		selected_charge_rows = frappe.parse_json(selected_charge_rows)
-	if not isinstance(selected_charge_rows, (list, tuple)):
+	if not isinstance(selected_charge_rows, list | tuple):
 		frappe.throw(_("selected_charge_rows must be a list"))
 	return list(selected_charge_rows)
 
@@ -541,7 +557,7 @@ def get_service_templates_filtered(
 				[
 					"template_name",
 					"like",
-					"%{0}%".format(frappe.db.escape(template_name, percent=False)),
+					f"%{frappe.db.escape(template_name, percent=False)}%",
 				]
 			)
 		else:
@@ -646,7 +662,9 @@ def get_sales_invoice_payers(repair_order):
 			continue
 		customer_name = group.get("bill_to")
 		if group.get("bill_to") and frappe.db.exists("Customer", group["bill_to"]):
-			customer_name = frappe.db.get_value("Customer", group["bill_to"], "customer_name") or customer_name
+			customer_name = (
+				frappe.db.get_value("Customer", group["bill_to"], "customer_name") or customer_name
+			)
 		payers.append(
 			{
 				"bill_type": group["bill_type"],
@@ -681,7 +699,7 @@ def make_sales_invoice(source_name, target_doc=None, args=None):
 	bill_type = args.get("bill_type")
 	bill_to = args.get("bill_to")
 	# open_mapped_doc passes selected child rows in this argument, not a target doc.
-	if isinstance(target_doc, (str, list, tuple)):
+	if isinstance(target_doc, str | list | tuple):
 		target_doc = None
 
 	source = frappe.get_doc("Repair Order", source_name)

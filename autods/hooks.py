@@ -25,7 +25,7 @@ app_license = "mit"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/autods/css/autods.css"
+app_include_css = "/assets/autods/css/repair_service_dashboard.css"
 # app_include_js = "/assets/autods/js/autods.js"
 
 # include js, css files in header of web template
@@ -58,6 +58,7 @@ doctype_js = {
 		"public/js/service_datetime.js",
 		"public/js/job_card_plan_from_repair_order.js",
 		"public/js/charges_overview.js",
+		"public/js/spareparts_supersession.js",
 		"public/js/repair_service_dashboard.js",
 	],
 	"Service Template": [
@@ -144,7 +145,7 @@ after_migrate = "autods.vehicle_sales.setup.after_migrate"
 # ------------------
 # See frappe.core.notifications.get_notification_config
 
-# notification_config = "autods.notifications.get_notification_config"
+notification_config = "autods.notifications.get_notification_config"
 
 # Permissions
 # -----------
@@ -206,6 +207,10 @@ doc_events = {
 		"on_submit": "autods.overrides.stock_entry.on_submit",
 		"on_cancel": "autods.overrides.stock_entry.on_cancel",
 	},
+	"Payment Entry": {
+		"on_submit": "autods.vehicle_sales.advance.on_payment_entry_update",
+		"on_cancel": "autods.vehicle_sales.advance.on_payment_entry_update",
+	},
 }
 
 override_doctype_dashboards = {
@@ -216,23 +221,11 @@ override_doctype_dashboards = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"autods.tasks.all"
-# 	],
-# 	"daily": [
-# 		"autods.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"autods.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"autods.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"autods.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": [
+		"autods.tasks.daily",
+	],
+}
 
 # Testing
 # -------
@@ -309,4 +302,3 @@ override_whitelisted_methods = {
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-

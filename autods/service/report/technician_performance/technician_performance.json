@@ -18,8 +18,11 @@
  "report_name": "Technician Performance",
  "report_type": "Script Report",
  "roles": [
-  {"role": "All"},
-  {"role": "System Manager"},
-  {"role": "Service Manager"}
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Service Manager"
+  }
  ]
 }

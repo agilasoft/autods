@@ -1,0 +1,19 @@
+{
+ "creation": "2026-09-30 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "filters_json": "{}",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "label": "Waiting on Parts",
+ "method": "autods.service.kpis.waiting_on_parts_count",
+ "modified": "2026-09-30 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Service",
+ "name": "Waiting on Parts",
+ "owner": "Administrator",
+ "show_full_number": 0,
+ "type": "Custom"
+}

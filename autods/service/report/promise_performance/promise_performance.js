@@ -1,0 +1,31 @@
+// Copyright (c) 2026, Agilasoft Technologies Inc. and contributors
+// For license information, please see license.txt
+
+frappe.query_reports["Promise Performance"] = {
+	filters: [
+		{
+			fieldname: "from_date",
+			label: __("From Date"),
+			fieldtype: "Date",
+			default: frappe.datetime.month_start(),
+		},
+		{
+			fieldname: "to_date",
+			label: __("To Date"),
+			fieldtype: "Date",
+			default: frappe.datetime.month_end(),
+		},
+		{
+			fieldname: "service_advisor",
+			label: __("Service Advisor"),
+			fieldtype: "Link",
+			options: "Employee",
+		},
+		{
+			fieldname: "service_type",
+			label: __("Service Type"),
+			fieldtype: "Link",
+			options: "Service Type",
+		},
+	],
+};

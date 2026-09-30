@@ -6,7 +6,6 @@
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
-
 CUSTOM_FIELDS = {
 	"Item": [
 		{
@@ -61,6 +60,16 @@ CUSTOM_FIELDS = {
 			"fieldtype": "Link",
 			"options": "Vehicle Delivery Note",
 			"insert_after": "vehicle_sales_order",
+		},
+	],
+	"Payment Entry": [
+		{
+			"fieldname": "vehicle_sales_order",
+			"label": "Vehicle Sales Order",
+			"fieldtype": "Link",
+			"options": "Vehicle Sales Order",
+			"insert_after": "party_name",
+			"description": "Deposit against a vehicle sales order. Advance Paid on the order includes this payment.",
 		},
 	],
 	"Purchase Order": [

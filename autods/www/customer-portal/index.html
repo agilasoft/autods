@@ -1,0 +1,113 @@
+{% extends "templates/web.html" %}
+
+{% block title %}{{ _("Service portal") }}{% endblock %}
+
+{% block page_content %}
+<div class="customer-portal">
+	<h1>{{ _("Service portal") }}</h1>
+	{% if guest %}
+	<p>{{ _("Tell the workshop what the vehicle needs. A service advisor will confirm the appointment.") }}</p>
+	<form id="portal-request">
+		<div class="form-group">
+			<label>{{ _("Your name") }}</label>
+			<input class="form-control" name="customer_name" required>
+		</div>
+		<div class="form-group">
+			<label>{{ _("Mobile") }}</label>
+			<input class="form-control" name="mobile">
+		</div>
+		<div class="form-group">
+			<label>{{ _("Vehicle") }}</label>
+			<input class="form-control" name="vehicle" placeholder="{{ _('Plate or model') }}">
+		</div>
+		<div class="form-group">
+			<label>{{ _("What needs attention") }}</label>
+			<textarea class="form-control" name="concern" required></textarea>
+		</div>
+		<button class="btn btn-primary" type="submit">{{ _("Request appointment") }}</button>
+		<p id="portal-request-result"></p>
+	</form>
+	<p><a href="/login?redirect-to=/customer-portal">{{ _("Already a customer? Sign in") }}</a></p>
+	{% else %}
+	<h2>{{ _("Estimates") }}</h2>
+	<table class="table table-bordered">
+		<thead><tr><th>{{ _("Estimate") }}</th><th>{{ _("Status") }}</th><th>{{ _("Total") }}</th><th></th></tr></thead>
+		<tbody>
+		{% for row in estimates %}
+		<tr>
+			<td>{{ row.name }}</td>
+			<td>{{ row.status }}</td>
+			<td>{{ row.grand_total }}</td>
+			<td>
+				{% if row.status == "Submitted" %}
+				<button class="btn btn-sm btn-primary portal-approve" data-name="{{ row.name }}">{{ _("Approve") }}</button>
+				{% endif %}
+			</td>
+		</tr>
+		{% else %}
+		<tr><td colspan="4">{{ _("No estimates yet.") }}</td></tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	<h2>{{ _("Repair orders") }}</h2>
+	<table class="table table-bordered">
+		<thead><tr><th>{{ _("Order") }}</th><th>{{ _("Status") }}</th><th>{{ _("Promise") }}</th></tr></thead>
+		<tbody>
+		{% for row in repair_orders %}
+		<tr><td>{{ row.name }}</td><td>{{ row.status }}</td><td>{{ row.expected_completion_date or "" }}</td></tr>
+		{% else %}
+		<tr><td colspan="3">{{ _("No repair orders yet.") }}</td></tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	<h2>{{ _("Invoices") }}</h2>
+	<table class="table table-bordered">
+		<thead><tr><th>{{ _("Invoice") }}</th><th>{{ _("Status") }}</th><th>{{ _("Outstanding") }}</th></tr></thead>
+		<tbody>
+		{% for row in invoices %}
+		<tr><td>{{ row.name }}</td><td>{{ row.status }}</td><td>{{ row.outstanding_amount }}</td></tr>
+		{% else %}
+		<tr><td colspan="3">{{ _("No invoices yet.") }}</td></tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	<h2>{{ _("Gate passes") }}</h2>
+	<ul>
+		{% for row in gate_passes %}
+		<li>{{ row.name }} — {{ row.gate_pass_type }} — {{ row.status }}</li>
+		{% else %}
+		<li>{{ _("No gate passes yet.") }}</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+</div>
+<script>
+(function () {
+	const form = document.getElementById("portal-request");
+	if (form) {
+		form.addEventListener("submit", function (event) {
+			event.preventDefault();
+			const data = Object.fromEntries(new FormData(form).entries());
+			frappe.call({
+				method: "autods.portal.request_service_appointment",
+				args: data,
+				callback: function (r) {
+					document.getElementById("portal-request-result").textContent =
+						"Request " + (r.message && r.message.lead ? r.message.lead : "") + " received.";
+					form.reset();
+				},
+			});
+		});
+	}
+	document.querySelectorAll(".portal-approve").forEach(function (button) {
+		button.addEventListener("click", function () {
+			frappe.call({
+				method: "autods.portal.approve_estimate",
+				args: { estimate: button.dataset.name },
+				callback: function () { window.location.reload(); },
+			});
+		});
+	});
+})();
+</script>
+{% endblock %}

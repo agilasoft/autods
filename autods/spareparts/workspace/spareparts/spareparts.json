@@ -1,7 +1,16 @@
 {
  "app": "autods",
- "charts": [],
- "content": "[{\"id\":\"sp_nc1\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Parts Compatibility\",\"col\":4}},{\"id\":\"sp_nc2\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Parts Supersessions\",\"col\":4}},{\"id\":\"sp_nc3\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Active Supersessions\",\"col\":4}},{\"id\":\"sp_nc4\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Two-Way Supersessions\",\"col\":4}},{\"id\":\"sp_nc5\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Direct Replacement Supersessions\",\"col\":4}},{\"id\":\"sp_sp1\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"sp_h_qa\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Quick Access</b></span>\",\"col\":12}},{\"id\":\"sp_sc1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Parts Compatibility\",\"col\":3}},{\"id\":\"sp_sc2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Parts Supersession\",\"col\":3}},{\"id\":\"sp_sc3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Material Request\",\"col\":3}},{\"id\":\"sp_sc4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"sp_sp2\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"sp_h_ms\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters and Setup</b></span>\",\"col\":12}},{\"id\":\"sp_c1\",\"type\":\"card\",\"data\":{\"card_name\":\"Parts & Compatibility\",\"col\":4}},{\"id\":\"sp_c2\",\"type\":\"card\",\"data\":{\"card_name\":\"Inventory & Stock\",\"col\":4}},{\"id\":\"sp_c3\",\"type\":\"card\",\"data\":{\"card_name\":\"Sales\",\"col\":4}},{\"id\":\"sp_sp3\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"sp_h_rp\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports & Analytics</b></span>\",\"col\":12}},{\"id\":\"sp_c4\",\"type\":\"card\",\"data\":{\"card_name\":\"Operational Reports\",\"col\":4}},{\"id\":\"sp_c5\",\"type\":\"card\",\"data\":{\"card_name\":\"Cost Analysis Reports\",\"col\":4}},{\"id\":\"sp_c6\",\"type\":\"card\",\"data\":{\"card_name\":\"Analytics & Insights\",\"col\":4}}]",
+ "charts": [
+  {
+   "chart_name": "Fill Rate Chart",
+   "label": "Fill Rate"
+  },
+  {
+   "chart_name": "Parts Margin by Item Type Chart",
+   "label": "Parts Margin"
+  }
+ ],
+ "content": "[{\"id\": \"nc_open_demand_lines\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Open Demand Lines\", \"col\": 4}}, {\"id\": \"nc_short_part_lines\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Short Part Lines\", \"col\": 4}}, {\"id\": \"nc_spareparts_stock_value\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Spareparts Stock Value\", \"col\": 4}}, {\"id\": \"p1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"nc_parts_consumption_this_m\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Parts Consumption This Month\", \"col\": 4}}, {\"id\": \"nc_supersession_opportuniti\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Supersession Opportunities Waiting\", \"col\": 4}}, {\"id\": \"nc_parts_fill_rate\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Parts Fill Rate\", \"col\": 4}}, {\"id\": \"p_cat\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Catalog health</b></span>\", \"col\": 12}}, {\"id\": \"nc_total_parts_compatibilit\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Total Parts Compatibility\", \"col\": 4}}, {\"id\": \"nc_total_parts_supersession\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Total Parts Supersessions\", \"col\": 4}}, {\"id\": \"nc_active_supersessions\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Active Supersessions\", \"col\": 4}}, {\"id\": \"nc_two-way_supersessions\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Two-Way Supersessions\", \"col\": 4}}, {\"id\": \"nc_direct_replacement_super\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Direct Replacement Supersessions\", \"col\": 4}}, {\"id\": \"p_ch\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Charts</b></span>\", \"col\": 12}}, {\"id\": \"ch_fill_rate_chart\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Fill Rate Chart\", \"col\": 6}}, {\"id\": \"ch_parts_margin_by_item_typ\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Parts Margin by Item Type Chart\", \"col\": 6}}, {\"id\": \"sp_h_qa\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Quick Access</b></span>\", \"col\": 12}}, {\"id\": \"sp_sc1\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Parts Compatibility\", \"col\": 3}}, {\"id\": \"sp_sc2\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Parts Supersession\", \"col\": 3}}, {\"id\": \"sp_sc3\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Material Request\", \"col\": 3}}, {\"id\": \"sp_sc4\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Sales Invoice\", \"col\": 3}}, {\"id\": \"sp_h_ms\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Masters and Setup</b></span>\", \"col\": 12}}, {\"id\": \"sp_c1\", \"type\": \"card\", \"data\": {\"card_name\": \"Parts & Compatibility\", \"col\": 4}}, {\"id\": \"sp_c2\", \"type\": \"card\", \"data\": {\"card_name\": \"Inventory & Stock\", \"col\": 4}}, {\"id\": \"sp_c3\", \"type\": \"card\", \"data\": {\"card_name\": \"Sales\", \"col\": 4}}, {\"id\": \"sp_h_rp\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Reports & Analytics</b></span>\", \"col\": 12}}, {\"id\": \"sp_c4\", \"type\": \"card\", \"data\": {\"card_name\": \"Operational Reports\", \"col\": 4}}, {\"id\": \"sp_c5\", \"type\": \"card\", \"data\": {\"card_name\": \"Cost Analysis Reports\", \"col\": 4}}, {\"id\": \"sp_c6\", \"type\": \"card\", \"data\": {\"card_name\": \"Analytics & Insights\", \"col\": 4}}]",
  "creation": "2026-02-06 00:00:00.000000",
  "custom_blocks": [],
  "docstatus": 0,
@@ -166,7 +175,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Operational Reports",
-   "link_count": 4,
+   "link_count": 6,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -181,6 +190,81 @@
    "link_type": "Report",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Short Parts",
+   "link_count": 0,
+   "link_to": "Short Parts",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Item"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Fill Rate",
+   "link_count": 0,
+   "link_to": "Fill Rate",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Spareparts Request"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Slow Movers",
+   "link_count": 0,
+   "link_to": "Slow Movers",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Parts Compatibility"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Supersession Opportunities",
+   "link_count": 0,
+   "link_to": "Supersession Opportunities",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Parts Supersession"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Parts Margin by Item Type",
+   "link_count": 0,
+   "link_to": "Parts Margin by Item Type",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Repair Order Charges"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Catalog",
+   "link_count": 4,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Compatible Parts by Vehicle Unit",
+   "link_count": 0,
+   "link_to": "Compatible Parts by Vehicle Unit",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Vehicle Unit"
   },
   {
    "dependencies": "",
@@ -347,6 +431,30 @@
  "module": "Spareparts",
  "name": "Spareparts",
  "number_cards": [
+  {
+   "label": "Open Demand Lines",
+   "number_card_name": "Open Demand Lines"
+  },
+  {
+   "label": "Short Part Lines",
+   "number_card_name": "Short Part Lines"
+  },
+  {
+   "label": "Spareparts Stock Value",
+   "number_card_name": "Spareparts Stock Value"
+  },
+  {
+   "label": "Parts Consumption This Month",
+   "number_card_name": "Parts Consumption This Month"
+  },
+  {
+   "label": "Supersession Opportunities Waiting",
+   "number_card_name": "Supersession Opportunities Waiting"
+  },
+  {
+   "label": "Parts Fill Rate",
+   "number_card_name": "Parts Fill Rate"
+  },
   {
    "label": "Total Parts Compatibility",
    "number_card_name": "Total Parts Compatibility"

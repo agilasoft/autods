@@ -30,6 +30,7 @@
   "planning_shop_opens",
   "planning_shop_closes",
   "planning_slot_hours",
+  "comeback_window_days",
   "section_repair_invoicing",
   "insurance_participation_item",
   "insurance_depreciation_item",
@@ -189,6 +190,13 @@
    "fieldname": "planning_slot_hours",
    "fieldtype": "Float",
    "label": "Planning slot hours"
+  },
+  {
+   "default": "30",
+   "description": "A later repair order for the same vehicle and concern inside this many days is a comeback.",
+   "fieldname": "comeback_window_days",
+   "fieldtype": "Int",
+   "label": "Comeback Window (Days)"
   },
   {
    "fieldname": "section_repair_invoicing",
