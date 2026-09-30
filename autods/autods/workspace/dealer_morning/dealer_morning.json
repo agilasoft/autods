@@ -1,0 +1,196 @@
+{
+ "app": "autods",
+ "charts": [
+  {
+   "chart_name": "Stock Aging Chart",
+   "label": "Aging Inventory"
+  },
+  {
+   "chart_name": "Deal Gross Chart",
+   "label": "Sales Gross"
+  },
+  {
+   "chart_name": "Service Intake vs Completions Chart",
+   "label": "Service Intake vs Completions"
+  },
+  {
+   "chart_name": "WIP Aging Chart",
+   "label": "WIP Aging"
+  }
+ ],
+ "content": "[{\"id\": \"nc_available_vehicle_units\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Available Vehicle Units\", \"col\": 3}}, {\"id\": \"nc_delivered_this_month\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Delivered This Month\", \"col\": 3}}, {\"id\": \"nc_gross_this_month\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Gross This Month\", \"col\": 3}}, {\"id\": \"nc_open_repair_orders\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Open Repair Orders\", \"col\": 3}}, {\"id\": \"g1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"nc_overdue_promises\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Overdue Promises\", \"col\": 3}}, {\"id\": \"nc_total_revenue\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Total Revenue\", \"col\": 3}}, {\"id\": \"nc_parts_fill_rate\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Parts Fill Rate\", \"col\": 3}}, {\"id\": \"nc_waiting_on_parts\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Waiting on Parts\", \"col\": 3}}, {\"id\": \"gch\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Charts</b></span>\", \"col\": 12}}, {\"id\": \"ch_stock_aging_chart\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Stock Aging Chart\", \"col\": 6}}, {\"id\": \"ch_deal_gross_chart\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Deal Gross Chart\", \"col\": 6}}, {\"id\": \"ch_service_intake_vs_comple\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Service Intake vs Completions Chart\", \"col\": 6}}, {\"id\": \"ch_wip_aging_chart\", \"type\": \"chart\", \"data\": {\"chart_name\": \"WIP Aging Chart\", \"col\": 6}}, {\"id\": \"gex\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Exceptions</b></span>\", \"col\": 12}}, {\"id\": \"gexc\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Dealer Exceptions\", \"col\": 3}}]",
+ "creation": "2026-09-30 00:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "chart",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Dealer Morning",
+ "link_type": "DocType",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Exceptions",
+   "link_count": 1,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Dealer Exceptions",
+   "link_count": 0,
+   "link_to": "Dealer Exceptions",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Repair Order"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Stock Aging",
+   "link_count": 0,
+   "link_to": "Stock Aging",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Vehicle Unit"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Deal Gross",
+   "link_count": 0,
+   "link_to": "Deal Gross",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Vehicle Delivery Note"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Vehicle Sales Pipeline",
+   "link_count": 0,
+   "link_to": "Vehicle Sales Pipeline",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Vehicle Sales Order"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Service",
+   "link_count": 3,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Service Intake vs Completions",
+   "link_count": 0,
+   "link_to": "Service Intake vs Completions",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Repair Order"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "WIP Aging",
+   "link_count": 0,
+   "link_to": "WIP Aging",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Repair Order"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Parts Hold",
+   "link_count": 0,
+   "link_to": "Parts Hold",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Repair Order"
+  }
+ ],
+ "modified": "2026-09-30 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "AutoDS",
+ "name": "Dealer Morning",
+ "number_cards": [
+  {
+   "label": "Available Vehicle Units",
+   "number_card_name": "Available Vehicle Units"
+  },
+  {
+   "label": "Delivered This Month",
+   "number_card_name": "Delivered This Month"
+  },
+  {
+   "label": "Gross This Month",
+   "number_card_name": "Gross This Month"
+  },
+  {
+   "label": "Open Repair Orders",
+   "number_card_name": "Open Repair Orders"
+  },
+  {
+   "label": "Overdue Promises",
+   "number_card_name": "Overdue Promises"
+  },
+  {
+   "label": "Total Revenue",
+   "number_card_name": "Total Revenue"
+  },
+  {
+   "label": "Parts Fill Rate",
+   "number_card_name": "Parts Fill Rate"
+  },
+  {
+   "label": "Waiting on Parts",
+   "number_card_name": "Waiting on Parts"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 1.0,
+ "shortcuts": [
+  {
+   "color": "Red",
+   "doc_view": "",
+   "label": "Dealer Exceptions",
+   "link_to": "Dealer Exceptions",
+   "type": "Report",
+   "stats_filter": "[]"
+  }
+ ],
+ "title": "Dealer Morning",
+ "type": "Workspace"
+}

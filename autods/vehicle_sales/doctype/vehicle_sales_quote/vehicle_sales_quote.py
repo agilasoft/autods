@@ -7,6 +7,8 @@ from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import flt, getdate
 
+from autods.vehicle_sales.quote_status import validate_lost_reason
+
 
 class VehicleSalesQuote(Document):
 	def validate(self):
@@ -33,9 +35,9 @@ class VehicleSalesQuote(Document):
 		if not self.currency and self.company:
 			self.currency = frappe.db.get_value("Company", self.company, "default_currency")
 		if not self.price_list_currency and self.selling_price_list:
-			self.price_list_currency = frappe.db.get_value(
-				"Price List", self.selling_price_list, "currency"
-			) or self.currency
+			self.price_list_currency = (
+				frappe.db.get_value("Price List", self.selling_price_list, "currency") or self.currency
+			)
 		if not self.conversion_rate:
 			self.conversion_rate = 1
 		if not self.plc_conversion_rate:
@@ -85,10 +87,31 @@ class VehicleSalesQuote(Document):
 			row.base_total = flt(row.total * flt(self.conversion_rate or 1), 2)
 		return flt(total, 2)
 
+	@frappe.whitelist()
+	def declare_lost(self, lost_reason, competitor=None):
+		"""Mark a submitted quote Lost. Ordered quotes stay Ordered."""
+		if self.docstatus != 1:
+			frappe.throw(_("Submit the quote before marking it Lost."))
+		if self.status == "Ordered":
+			frappe.throw(_("Quote {0} is already ordered.").format(self.name))
+		if self.status in ("Cancelled", "Lost"):
+			frappe.throw(_("Quote {0} is already {1}.").format(self.name, self.status))
+		reason = validate_lost_reason(lost_reason)
+		if not reason:
+			frappe.throw(_("A lost reason is required."))
+		self.db_set("lost_reason", reason)
+		self.db_set("competitor", (competitor or "").strip() or None)
+		self.db_set("status", "Lost")
+		return self.status
+
 	def _set_status_on_validate(self):
 		if self.docstatus == 0 and not self.status:
 			self.status = "Draft"
-		if self.valid_till and getdate(self.valid_till) < getdate() and self.status not in ("Ordered", "Cancelled", "Lost"):
+		if (
+			self.valid_till
+			and getdate(self.valid_till) < getdate()
+			and self.status not in ("Ordered", "Cancelled", "Lost")
+		):
 			self.status = "Expired"
 
 

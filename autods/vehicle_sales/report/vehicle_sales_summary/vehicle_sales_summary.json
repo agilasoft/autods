@@ -18,8 +18,11 @@
  "report_name": "Vehicle Sales Summary",
  "report_type": "Script Report",
  "roles": [
-  {"role": "All"},
-  {"role": "System Manager"},
-  {"role": "Sales Manager"}
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Sales Manager"
+  }
  ]
 }

@@ -7,6 +7,11 @@ from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import flt, getdate
 
+from autods.vehicle_sales.quote_status import (
+	quote_status_after_order_cancel,
+	quote_status_after_order_submit,
+)
+
 
 class VehicleSalesOrder(Document):
 	def validate(self):
@@ -18,18 +23,20 @@ class VehicleSalesOrder(Document):
 	def on_submit(self):
 		self.db_set("status", self._compute_overall_status())
 		self._reserve_vehicle_unit()
+		self._sync_quote_status(ordered=True)
 
 	def on_cancel(self):
 		self.db_set("status", "Cancelled")
 		self._release_vehicle_unit()
+		self._sync_quote_status(ordered=False)
 
 	def _set_currency_defaults(self):
 		if not self.currency and self.company:
 			self.currency = frappe.db.get_value("Company", self.company, "default_currency")
 		if not self.price_list_currency and self.selling_price_list:
-			self.price_list_currency = frappe.db.get_value(
-				"Price List", self.selling_price_list, "currency"
-			) or self.currency
+			self.price_list_currency = (
+				frappe.db.get_value("Price List", self.selling_price_list, "currency") or self.currency
+			)
 		if not self.conversion_rate:
 			self.conversion_rate = 1
 		if not self.plc_conversion_rate:
@@ -90,14 +97,37 @@ class VehicleSalesOrder(Document):
 			return
 		current = frappe.db.get_value("Vehicle Unit", self.vehicle_unit, "status")
 		if current in (None, "Available"):
-			frappe.db.set_value("Vehicle Unit", self.vehicle_unit, {"status": "Reserved", "customer": self.customer})
+			values = {"status": "Reserved", "customer": self.customer}
+			if frappe.db.has_column("Vehicle Unit", "reserved_on"):
+				values["reserved_on"] = frappe.utils.now_datetime()
+			frappe.db.set_value("Vehicle Unit", self.vehicle_unit, values)
 
 	def _release_vehicle_unit(self):
 		if not self.vehicle_unit:
 			return
 		current = frappe.db.get_value("Vehicle Unit", self.vehicle_unit, "status")
 		if current == "Reserved":
-			frappe.db.set_value("Vehicle Unit", self.vehicle_unit, {"status": "Available"})
+			values = {"status": "Available"}
+			if frappe.db.has_column("Vehicle Unit", "reserved_on"):
+				values["reserved_on"] = None
+			frappe.db.set_value("Vehicle Unit", self.vehicle_unit, values)
+
+	def _sync_quote_status(self, ordered):
+		if not self.vehicle_sales_quote:
+			return
+		if not frappe.db.exists("Vehicle Sales Quote", self.vehicle_sales_quote):
+			return
+		current = frappe.db.get_value("Vehicle Sales Quote", self.vehicle_sales_quote, "status")
+		if ordered:
+			new_status = quote_status_after_order_submit(current)
+		else:
+			others = frappe.db.count(
+				"Vehicle Sales Order",
+				{"vehicle_sales_quote": self.vehicle_sales_quote, "docstatus": 1, "name": ["!=", self.name]},
+			)
+			new_status = quote_status_after_order_cancel(current, others)
+		if new_status != current:
+			frappe.db.set_value("Vehicle Sales Quote", self.vehicle_sales_quote, "status", new_status)
 
 	def _compute_overall_status(self):
 		"""Compute overall status from delivery_status + billing_status."""
@@ -182,8 +212,6 @@ def make_sales_invoice(source_name, target_doc=None):
 	"""Map a Vehicle Sales Order to a standard Sales Invoice (one item line: vehicle item)."""
 	from frappe.model.mapper import get_mapped_doc
 
-	source = frappe.get_doc("Vehicle Sales Order", source_name)
-
 	def postprocess(src, target):
 		target.vehicle_unit = src.vehicle_unit
 		target.vehicle_sales_order = src.name
@@ -197,7 +225,7 @@ def make_sales_invoice(source_name, target_doc=None):
 			{
 				"item_code": src.item,
 				"item_name": src.item_name,
-				"description": "{0} - VIN {1}".format(src.item_name or src.item, src.chassis_number or src.vehicle_unit),
+				"description": f"{src.item_name or src.item} - VIN {src.chassis_number or src.vehicle_unit}",
 				"qty": 1,
 				"uom": frappe.db.get_value("Item", src.item, "stock_uom") if src.item else "Nos",
 				"rate": taxable,

@@ -23,6 +23,7 @@
   "chassis_number",
   "column_break_2",
   "status",
+  "reserved_on",
   "transmission_type",
   "drive_type",
   "fuel_type",
@@ -247,6 +248,12 @@
    "in_list_view": 1,
    "label": "Status",
    "options": "Available\nReserved\nSold\nIn Service"
+  },
+  {
+   "fieldname": "reserved_on",
+   "fieldtype": "Datetime",
+   "label": "Reserved On",
+   "read_only": 1
   },
   {
    "fieldname": "specifications",

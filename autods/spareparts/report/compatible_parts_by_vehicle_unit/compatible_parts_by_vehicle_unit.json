@@ -19,9 +19,6 @@
  "report_type": "Script Report",
  "roles": [
   {
-   "role": "All"
-  },
-  {
    "role": "System Manager"
   },
   {

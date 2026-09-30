@@ -1,8 +1,8 @@
 # Copyright (c) 2025, Agilasoft Technologies Inc. and contributors
 # For license information, please see license.txt
 
-import json
 import datetime
+import json
 
 import frappe
 from frappe import _
@@ -121,7 +121,7 @@ class ServiceAppointment(Document):
 		if ro.meta.get_field("service_type"):
 			ro.service_type = self.service_type
 		ro.repair_type = self.repair_type
-		ro.status = "Draft"
+		ro.status = "Open"
 		if frappe.db.has_column("Repair Order", "service_appointment"):
 			ro.service_appointment = self.name
 		ro.expected_completion_date = get_expected_completion_datetime(self)
@@ -150,7 +150,7 @@ def get_events(start, end, filters=None):
 	end_date = getdate(end)
 
 	appointments = frappe.db.sql(
-		"""
+		f"""
 		SELECT name, appointment_date, appointment_start_time, appointment_end_time,
 			customer, plate_no, vehicle_unit, status, service_advisor, subject
 		FROM `tabService Appointment`
@@ -158,7 +158,7 @@ def get_events(start, end, filters=None):
 		AND docstatus < 2
 		{conditions}
 		ORDER BY appointment_date, appointment_start_time
-		""".format(conditions=conditions),
+		""",
 		{"start_date": start_date, "end_date": end_date},
 		as_dict=1,
 	)
@@ -175,14 +175,16 @@ def get_events(start, end, filters=None):
 		if d.plate_no:
 			title += f" - {d.plate_no}"
 		if d.subject:
-			title += f" ({d.subject[:30]}{'...' if len((d.subject or '')) > 30 else ''})"
-		events.append({
-			"id": d.name,
-			"name": d.name,
-			"start": start_dt.isoformat() if hasattr(start_dt, "isoformat") else str(start_dt),
-			"end": end_dt.isoformat() if hasattr(end_dt, "isoformat") else str(end_dt),
-			"title": title.strip(),
-			"status": d.status or "Scheduled",
-			"allDay": 0,
-		})
+			title += f" ({d.subject[:30]}{'...' if len(d.subject or '') > 30 else ''})"
+		events.append(
+			{
+				"id": d.name,
+				"name": d.name,
+				"start": start_dt.isoformat() if hasattr(start_dt, "isoformat") else str(start_dt),
+				"end": end_dt.isoformat() if hasattr(end_dt, "isoformat") else str(end_dt),
+				"title": title.strip(),
+				"status": d.status or "Scheduled",
+				"allDay": 0,
+			}
+		)
 	return events

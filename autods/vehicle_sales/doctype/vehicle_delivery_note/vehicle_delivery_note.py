@@ -24,6 +24,7 @@ class VehicleDeliveryNote(Document):
 		self._validate_vehicle_unit()
 
 	def before_submit(self):
+		self._require_delivery_checklist()
 		self.status = "Delivered"
 		if not self.released_on:
 			self.released_on = now_datetime()
@@ -48,6 +49,20 @@ class VehicleDeliveryNote(Document):
 		self._cancel_cost_ledger()
 		self._unlink_from_vehicle_unit()
 		self._update_sales_order_status()
+
+	def _require_delivery_checklist(self):
+		rows = self.get("delivery_checklist") or []
+		if not rows:
+			frappe.throw(_("Add the delivery checklist and complete every line before delivering."))
+		open_rows = []
+		for row in rows:
+			if row.checked:
+				continue
+			open_rows.append(row.checklist_item or row.description or _("checklist line"))
+		if open_rows:
+			frappe.throw(
+				_("Complete the delivery checklist before delivering: {0}").format(", ".join(open_rows))
+			)
 
 	def _set_currency_defaults(self):
 		if not self.currency and self.company:
@@ -112,7 +127,9 @@ class VehicleDeliveryNote(Document):
 		cost = self._get_vehicle_cost()
 		if cost <= 0:
 			frappe.msgprint(
-				_("Vehicle Unit {0} has zero cost recorded; skipping COGS posting.").format(self.vehicle_unit),
+				_("Vehicle Unit {0} has zero cost recorded; skipping COGS posting.").format(
+					self.vehicle_unit
+				),
 				alert=True,
 				indicator="orange",
 			)
@@ -149,7 +166,9 @@ class VehicleDeliveryNote(Document):
 		je.voucher_type = "Journal Entry"
 		je.posting_date = self.posting_date
 		je.company = self.company
-		je.user_remark = _("Vehicle Delivery {0} - VIN {1}").format(self.name, self.chassis_number or self.vehicle_unit)
+		je.user_remark = _("Vehicle Delivery {0} - VIN {1}").format(
+			self.name, self.chassis_number or self.vehicle_unit
+		)
 		je.append(
 			"accounts",
 			{

@@ -26,7 +26,11 @@ class RepairEstimate(Document):
 		self.calculate_bill_to_summaries()
 		self.validate_insurance_lines()
 		self.validate_charges()
-		if self.validity_date and self.estimate_date and getdate(self.validity_date) < getdate(self.estimate_date):
+		if (
+			self.validity_date
+			and self.estimate_date
+			and getdate(self.validity_date) < getdate(self.estimate_date)
+		):
 			frappe.throw(_("Validity Date cannot be before Estimate Date"))
 
 	def set_expected_completion_from_appointment(self):
@@ -71,7 +75,9 @@ class RepairEstimate(Document):
 		self.total_service_items_amount = sum(
 			flt(r.amount) for r in ch if (r.service_item_type or "").strip() == "Service"
 		)
-		self.total_parts_amount = sum(flt(r.amount) for r in ch if (r.service_item_type or "").strip() == "Spareparts")
+		self.total_parts_amount = sum(
+			flt(r.amount) for r in ch if (r.service_item_type or "").strip() == "Spareparts"
+		)
 		self.total_sundry_items_amount = sum(
 			flt(r.amount) for r in ch if (r.service_item_type or "").strip() == "Overhead"
 		)
@@ -117,12 +123,14 @@ class RepairEstimate(Document):
 		self.insurance_billed_parts_total = sum(
 			flt(r.amount)
 			for r in ch
-			if (r.service_item_type or "").strip() == "Spareparts" and (r.bill_type or "").strip() == "Insurance"
+			if (r.service_item_type or "").strip() == "Spareparts"
+			and (r.bill_type or "").strip() == "Insurance"
 		)
 		self.insurance_billed_overhead_total = sum(
 			flt(r.amount)
 			for r in ch
-			if (r.service_item_type or "").strip() == "Overhead" and (r.bill_type or "").strip() == "Insurance"
+			if (r.service_item_type or "").strip() == "Overhead"
+			and (r.bill_type or "").strip() == "Insurance"
 		)
 		self.insurance_billed_subtotal = (
 			flt(self.insurance_billed_services_total)
@@ -220,7 +228,7 @@ class RepairEstimate(Document):
 		if net_doc > 0 and tax_doc:
 			allocated = []
 			remaining = tax_doc
-			for i, n in enumerate(nets[:-1]):
+			for _i, n in enumerate(nets[:-1]):
 				part = flt(tax_doc * n / net_doc)
 				allocated.append(part)
 				remaining -= part
@@ -311,9 +319,15 @@ class RepairEstimate(Document):
 			if self.name:
 				self.save(ignore_permissions=True)
 			return {
-				"service_items_count": len([r for r in ch if (r.service_item_type or "").strip() == "Service"]),
-				"spareparts_count": len([r for r in ch if (r.service_item_type or "").strip() == "Spareparts"]),
-				"sundry_items_count": len([r for r in ch if (r.service_item_type or "").strip() == "Overhead"]),
+				"service_items_count": len(
+					[r for r in ch if (r.service_item_type or "").strip() == "Service"]
+				),
+				"spareparts_count": len(
+					[r for r in ch if (r.service_item_type or "").strip() == "Spareparts"]
+				),
+				"sundry_items_count": len(
+					[r for r in ch if (r.service_item_type or "").strip() == "Overhead"]
+				),
 				"service_inspections_count": len(
 					[qi for qi in (self.quality_inspections or []) if qi.inspection_name]
 				),
@@ -322,7 +336,7 @@ class RepairEstimate(Document):
 		except frappe.DoesNotExistError:
 			frappe.throw(_("Service Template {0} not found").format(frappe.bold(template_name)))
 		except Exception as e:
-			frappe.log_error(f"Error fetching template items: {str(e)}", "Repair Estimate - Fetch Template")
+			frappe.log_error(f"Error fetching template items: {e}", "Repair Estimate - Fetch Template")
 			frappe.throw(_("Error fetching items from template: {0}").format(str(e)))
 
 	@frappe.whitelist()
@@ -333,7 +347,9 @@ class RepairEstimate(Document):
 		if self.status not in ("Submitted", "Approved"):
 			frappe.throw(_("Only a Submitted or Approved estimate can be converted to a Repair Order"))
 		if self.repair_order:
-			frappe.throw(_("This estimate is already converted to Repair Order {0}").format(self.repair_order))
+			frappe.throw(
+				_("This estimate is already converted to Repair Order {0}").format(self.repair_order)
+			)
 
 		ch = self.charges or []
 		if not ch:
@@ -350,7 +366,7 @@ class RepairEstimate(Document):
 		if ro.meta.get_field("validity_date"):
 			ro.validity_date = self.validity_date
 		if ro.meta.get_field("status"):
-			ro.status = "Draft"
+			ro.status = "Open"
 		ro.customer = self.customer
 		ro.vehicle_unit = self.vehicle_unit
 		ro.repair_type = self.repair_type

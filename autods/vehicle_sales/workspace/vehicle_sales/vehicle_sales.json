@@ -1,7 +1,32 @@
 {
  "app": "autods",
- "charts": [],
- "content": "[{\"id\":\"Uv659-fRw3\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Total Vehicle Units\",\"col\":4}},{\"id\":\"ZoaHi4tqVj\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Available Vehicle Units\",\"col\":4}},{\"id\":\"UDboMyiLqZ\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Reserved Vehicle Units\",\"col\":4}},{\"id\":\"rFkLIe_53p\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Sold Vehicle Units\",\"col\":4}},{\"id\":\"LIlRSzWdbc\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Vehicle Units In Service\",\"col\":4}},{\"id\":\"mLMLEW92v9\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"tLYsC37xpm\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Quick Access</b></span>\",\"col\":12}},{\"id\":\"ExhVJhloLg\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Quotation\",\"col\":3}},{\"id\":\"spZIKU23UP\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Order\",\"col\":3}},{\"id\":\"WaAICu4M4J\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note\",\"col\":3}},{\"id\":\"MH2vMMm8RE\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"M8XjzlM6KB\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"h1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters and Setup</b></span>\",\"col\":12}},{\"id\":\"c1\",\"type\":\"card\",\"data\":{\"card_name\":\"Vehicle Units\",\"col\":4}},{\"id\":\"38iQ6Vqfnr\",\"type\":\"card\",\"data\":{\"card_name\":\"Selling\",\"col\":4}},{\"id\":\"DHXvRPEZ-U\",\"type\":\"card\",\"data\":{\"card_name\":\"Stocks\",\"col\":4}},{\"id\":\"cCWw46u3ak\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"h3\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Reports</b></span>\",\"col\":12}},{\"id\":\"c3\",\"type\":\"card\",\"data\":{\"card_name\":\"Operational\",\"col\":4}},{\"id\":\"gZWo5Ygvzj\",\"type\":\"card\",\"data\":{\"card_name\":\"Cost Analysis\",\"col\":4}},{\"id\":\"h5x_BkoJEa\",\"type\":\"card\",\"data\":{\"card_name\":\"Analytics & Insights\",\"col\":4}}]",
+ "charts": [
+  {
+   "chart_name": "Stock Aging Chart",
+   "label": "Stock Aging"
+  },
+  {
+   "chart_name": "Deal Gross Chart",
+   "label": "Deal Gross"
+  },
+  {
+   "chart_name": "Vehicle Sales Pipeline Chart",
+   "label": "Pipeline"
+  },
+  {
+   "chart_name": "Sales Conversion Chart",
+   "label": "Sales Conversion"
+  },
+  {
+   "chart_name": "Lost Deals Chart",
+   "label": "Lost Deals"
+  },
+  {
+   "chart_name": "Accessories Attach Chart",
+   "label": "Accessories Attach"
+  }
+ ],
+ "content": "[{\"id\": \"nc_available_vehicle_units\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Available Vehicle Units\", \"col\": 3}}, {\"id\": \"nc_reserved_over_14_days\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Reserved Over 14 Days\", \"col\": 3}}, {\"id\": \"nc_delivered_this_month\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Delivered This Month\", \"col\": 3}}, {\"id\": \"nc_average_days_to_sell\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Average Days to Sell\", \"col\": 3}}, {\"id\": \"vs1\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"nc_gross_margin_percent\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Gross Margin Percent\", \"col\": 3}}, {\"id\": \"nc_gross_this_month\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Gross This Month\", \"col\": 3}}, {\"id\": \"nc_quotes_expiring_this_wee\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Quotes Expiring This Week\", \"col\": 3}}, {\"id\": \"nc_vehicle_units_in_service\", \"type\": \"number_card\", \"data\": {\"number_card_name\": \"Vehicle Units In Service\", \"col\": 3}}, {\"id\": \"vs_qa\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Quick Access</b></span>\", \"col\": 12}}, {\"id\": \"sc_vehicle_sales_quote\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Vehicle Sales Quote\", \"col\": 3}}, {\"id\": \"sc_vehicle_sales_order\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Vehicle Sales Order\", \"col\": 3}}, {\"id\": \"sc_vehicle_delivery_not\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Vehicle Delivery Note\", \"col\": 3}}, {\"id\": \"sc_vehicle_receiving\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Vehicle Receiving\", \"col\": 3}}, {\"id\": \"sc_vehicle_cost_ledger\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Vehicle Cost Ledger\", \"col\": 3}}, {\"id\": \"sc_sales_invoice\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Sales Invoice\", \"col\": 3}}, {\"id\": \"vs_ch\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>Charts</b></span>\", \"col\": 12}}, {\"id\": \"ch_stock_aging_chart\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Stock Aging Chart\", \"col\": 6}}, {\"id\": \"ch_deal_gross_chart\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Deal Gross Chart\", \"col\": 6}}, {\"id\": \"ch_vehicle_sales_pipeline_c\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Vehicle Sales Pipeline Chart\", \"col\": 6}}, {\"id\": \"ch_sales_conversion_chart\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Sales Conversion Chart\", \"col\": 6}}, {\"id\": \"ch_lost_deals_chart\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Lost Deals Chart\", \"col\": 6}}, {\"id\": \"ch_accessories_attach_chart\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Accessories Attach Chart\", \"col\": 6}}]",
  "creation": "2026-02-06 15:48:19.757224",
  "custom_blocks": [],
  "docstatus": 0,
@@ -95,39 +120,6 @@
    "dependencies": "",
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Quotation",
-   "link_count": 0,
-   "link_to": "Quotation",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "dependencies": "",
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Sales Order",
-   "link_count": 0,
-   "link_to": "Sales Order",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "dependencies": "",
-   "hidden": 0,
-   "is_query_report": 0,
-   "label": "Delivery Note",
-   "link_count": 0,
-   "link_to": "Delivery Note",
-   "link_type": "DocType",
-   "onboard": 1,
-   "type": "Link"
-  },
-  {
-   "dependencies": "",
-   "hidden": 0,
-   "is_query_report": 0,
    "label": "Sales Invoice",
    "link_count": 0,
    "link_to": "Sales Invoice",
@@ -138,22 +130,61 @@
   {
    "dependencies": "",
    "hidden": 0,
-   "is_query_report": 0,
-   "label": "Purchase Receipt",
-   "link_count": 0,
-   "link_to": "Purchase Receipt",
-   "link_type": "DocType",
-   "onboard": 0,
-   "type": "Link"
-  },
-  {
-   "dependencies": "",
-   "hidden": 0,
    "is_query_report": 1,
    "label": "Vehicle Inventory Cost",
    "link_count": 0,
    "link_to": "Vehicle Inventory Cost",
    "link_type": "Report",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Sales Quote",
+   "link_count": 0,
+   "link_to": "Vehicle Sales Quote",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Sales Order",
+   "link_count": 0,
+   "link_to": "Vehicle Sales Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Delivery Note",
+   "link_count": 0,
+   "link_to": "Vehicle Delivery Note",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Receiving",
+   "link_count": 0,
+   "link_to": "Vehicle Receiving",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Vehicle Cost Ledger",
+   "link_count": 0,
+   "link_to": "Vehicle Cost Ledger",
+   "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   },
@@ -334,7 +365,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Operational",
-   "link_count": 4,
+   "link_count": 10,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -382,6 +413,72 @@
    "onboard": 0,
    "report_ref_doctype": "Vehicle Unit",
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Deal Gross",
+   "link_count": 0,
+   "link_to": "Deal Gross",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Vehicle Delivery Note"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Stock Aging",
+   "link_count": 0,
+   "link_to": "Stock Aging",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Vehicle Unit"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Vehicle Sales Pipeline",
+   "link_count": 0,
+   "link_to": "Vehicle Sales Pipeline",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Vehicle Sales Order"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Lost Deals",
+   "link_count": 0,
+   "link_to": "Lost Deals",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Vehicle Sales Quote"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Accessories Attach",
+   "link_count": 0,
+   "link_to": "Accessories Attach",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Vehicle Delivery Note"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "Sales Conversion",
+   "link_count": 0,
+   "link_to": "Sales Conversion",
+   "link_type": "Report",
+   "onboard": 0,
+   "type": "Link",
+   "report_ref_doctype": "Vehicle Sales Quote"
   },
   {
    "hidden": 0,
@@ -494,12 +591,32 @@
  "name": "Vehicle Sales",
  "number_cards": [
   {
-   "label": "Total Vehicle Units",
-   "number_card_name": "Total Vehicle Units"
-  },
-  {
    "label": "Available Vehicle Units",
    "number_card_name": "Available Vehicle Units"
+  },
+  {
+   "label": "Reserved Over 14 Days",
+   "number_card_name": "Reserved Over 14 Days"
+  },
+  {
+   "label": "Delivered This Month",
+   "number_card_name": "Delivered This Month"
+  },
+  {
+   "label": "Average Days to Sell",
+   "number_card_name": "Average Days to Sell"
+  },
+  {
+   "label": "Gross Margin Percent",
+   "number_card_name": "Gross Margin Percent"
+  },
+  {
+   "label": "Quotes Expiring This Week",
+   "number_card_name": "Quotes Expiring This Week"
+  },
+  {
+   "label": "Total Vehicle Units",
+   "number_card_name": "Total Vehicle Units"
   },
   {
    "label": "Reserved Vehicle Units",
@@ -512,6 +629,10 @@
   {
    "label": "Vehicle Units In Service",
    "number_card_name": "Vehicle Units In Service"
+  },
+  {
+   "label": "Gross This Month",
+   "number_card_name": "Gross This Month"
   }
  ],
  "owner": "Administrator",
@@ -524,7 +645,7 @@
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Quotation",
+   "label": "Vehicle Sales Quote",
    "link_to": "Vehicle Sales Quote",
    "stats_filter": "[]",
    "type": "DocType"
@@ -532,7 +653,7 @@
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Sales Order",
+   "label": "Vehicle Sales Order",
    "link_to": "Vehicle Sales Order",
    "stats_filter": "[]",
    "type": "DocType"
@@ -540,8 +661,24 @@
   {
    "color": "Grey",
    "doc_view": "List",
-   "label": "Delivery Note",
+   "label": "Vehicle Delivery Note",
    "link_to": "Vehicle Delivery Note",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Vehicle Receiving",
+   "link_to": "Vehicle Receiving",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Vehicle Cost Ledger",
+   "link_to": "Vehicle Cost Ledger",
    "stats_filter": "[]",
    "type": "DocType"
   },

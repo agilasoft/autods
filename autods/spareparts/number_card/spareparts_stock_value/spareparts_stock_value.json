@@ -1,0 +1,19 @@
+{
+ "creation": "2026-09-30 00:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "filters_json": "{}",
+ "function": "Count",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "label": "Spareparts Stock Value",
+ "method": "autods.spareparts.kpis.spareparts_stock_value",
+ "modified": "2026-09-30 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Spareparts",
+ "name": "Spareparts Stock Value",
+ "owner": "Administrator",
+ "show_full_number": 0,
+ "type": "Custom"
+}
